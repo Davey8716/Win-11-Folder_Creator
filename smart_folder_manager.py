@@ -1,0 +1,199 @@
+
+
+from __future__ import annotations
+
+from PySide6.QtCore import Qt
+
+from PySide6.QtCore import QDir
+
+from PySide6.QtWidgets import QTreeWidgetItem
+
+
+import re
+from typing import List, Dict, Any, Tuple
+
+Node = Dict[str, Any]  # {"name": str, "children": list[Node]}
+
+class SmartFolderManager:
+    def __init__(self, tree_widget):
+        self.tree = tree_widget
+
+    def serialize_tree(self):
+        data = []
+        for i in range(self.tree.topLevelItemCount()):
+            data.append(self._serialize_item(self.tree.topLevelItem(i)))
+        return data
+
+    def _serialize_item(self, item):
+        return {
+            "name": item.text(0),
+            "children": [
+                self._serialize_item(item.child(i))
+                for i in range(item.childCount())
+            ]
+        }
+
+    def deserialize_tree(self, data):
+        self.tree.clear()
+        if isinstance(data, dict):
+            self._deserialize_item(data, None)
+        else:
+            for item in data:
+                self._deserialize_item(item, None)
+
+    def _deserialize_item(self, data, parent):
+        item = QTreeWidgetItem([data.get("name", "Unnamed")])
+        item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+
+        if parent:
+            parent.addChild(item)
+        else:
+            self.tree.addTopLevelItem(item)
+
+        for child in data.get("children", []):
+            self._deserialize_item(child, item)
+
+    def build_structure(self, base_path):
+        base_dir = QDir(base_path)
+
+        if self.tree.topLevelItemCount() == 0:
+            return "empty"
+
+        for i in range(self.tree.topLevelItemCount()):
+            self._mk_dirs(base_dir, self.tree.topLevelItem(i))
+
+        return "success"
+
+    def _mk_dirs(self, parent_dir, item):
+        name = item.text(0).strip()
+        if not name:
+            return
+
+        parent_dir.mkpath(name)
+        child_dir = QDir(parent_dir.filePath(name))
+
+        for i in range(item.childCount()):
+            self._mk_dirs(child_dir, item.child(i))
+            
+    def add_root_folder(self):
+        item = QTreeWidgetItem(["New Folder"])
+        item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+        self.tree.addTopLevelItem(item)
+        self.tree.editItem(item, 0)
+
+
+    def add_subfolder(self):
+        selected = self.tree.currentItem()
+        if not selected:
+            return
+
+        child = QTreeWidgetItem(["New Subfolder"])
+        child.setFlags(child.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+        selected.addChild(child)
+        selected.setExpanded(True)
+        self.tree.editItem(child, 0)
+
+    def remove_all_folders(self):
+        self.tree.clear()
+
+    def remove_selected_folders(self):
+        selected = self.tree.currentItem()
+        if not selected:
+            return
+
+        parent = selected.parent()
+        if parent:
+            parent.removeChild(selected)
+        else:
+            index = self.tree.indexOfTopLevelItem(selected)
+            self.tree.takeTopLevelItem(index)
+
+
+    def _count_leading_ws(self,line: str) -> Tuple[int, str]:
+        """
+        Returns (indent_count, stripped_line) where indent_count is the number of
+        leading whitespace chars (tabs count as 1 here; we normalize later).
+        """
+        m = re.match(r"^([ \t]*)(.*)$", line)
+        ws = m.group(1)
+        text = m.group(2)
+        return len(ws), text
+
+
+    def parse_indented_text(self,text: str) -> List[Node]:
+        """
+        Parses an indented outline into a tree structure:
+        - Each non-empty line is a folder name.
+        - Indentation defines parent/child.
+        - Supports tabs or spaces (or even mixed, but prefer consistent).
+        Returns a list of root nodes (same format as your JSON templates).
+        """
+        # Preprocess lines: keep original indentation; drop empty/comment lines
+        raw_lines = []
+        for raw in text.splitlines():
+            if not raw.strip():
+                continue
+            # optional: allow comments
+            if raw.lstrip().startswith("#"):
+                continue
+            raw_lines.append(raw.rstrip("\n\r"))
+
+        if not raw_lines:
+            return []
+
+        # Determine indentation unit (best-effort):
+        # Find the smallest positive indent across lines (after normalization).
+        # We'll treat a tab as 4 spaces for indent-unit detection only.
+        indents = []
+        for line in raw_lines:
+            ws_len, stripped = self._count_leading_ws(line)
+            if not stripped.strip():
+                continue
+            # normalize tabs for indent detection
+            ws = line[:ws_len].replace("\t", " " * 4)
+            n = len(ws)
+            if n > 0:
+                indents.append(n)
+
+        indent_unit = min(indents) if indents else 4  # if everything is root-level
+
+        roots: List[Node] = []
+        stack: List[Tuple[int, Node]] = []  # (depth, node)
+
+        for line in raw_lines:
+            ws_len, name = self._count_leading_ws(line)
+            name = name.strip()
+
+            # normalize indent: tabs -> 4 spaces for depth computation
+            ws_norm = line[:ws_len].replace("\t", " " * 4)
+            indent_len = len(ws_norm)
+
+            # Depth as "indent steps"
+            depth = indent_len // indent_unit if indent_unit > 0 else 0
+
+            node: Node = {"name": name, "children": []}
+
+            if not stack:
+                roots.append(node)
+                stack.append((depth, node))
+                continue
+
+            # If depth is greater than last, it's a child of last
+            last_depth, last_node = stack[-1]
+            if depth > last_depth:
+                last_node["children"].append(node)
+                stack.append((depth, node))
+                continue
+
+            # Otherwise pop until we find parent depth < current depth
+            while stack and stack[-1][0] >= depth:
+                stack.pop()
+
+            if not stack:
+                roots.append(node)
+                stack.append((depth, node))
+            else:
+                stack[-1][1]["children"].append(node)
+                stack.append((depth, node))
+
+        return roots
