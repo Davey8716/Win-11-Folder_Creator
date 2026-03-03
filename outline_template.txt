@@ -1,0 +1,11 @@
+Project
+    Media
+        Video
+        Audio
+        Graphics
+        Stock
+    Project_Files
+    Exports
+        Review
+        Final
+    Archive
