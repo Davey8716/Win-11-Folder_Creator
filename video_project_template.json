@@ -1,0 +1,31 @@
+[
+    {
+        "name": "Project",
+        "children": [
+            {
+                "name": "Media",
+                "children": [
+                    { "name": "Video", "children": [] },
+                    { "name": "Audio", "children": [] },
+                    { "name": "Graphics", "children": [] },
+                    { "name": "Stock", "children": [] }
+                ]
+            },
+            {
+                "name": "Project_Files",
+                "children": []
+            },
+            {
+                "name": "Exports",
+                "children": [
+                    { "name": "Review", "children": [] },
+                    { "name": "Final", "children": [] }
+                ]
+            },
+            {
+                "name": "Archive",
+                "children": []
+            }
+        ]
+    }
+]
