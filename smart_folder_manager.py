@@ -1,13 +1,9 @@
 
 
 from __future__ import annotations
-
 from PySide6.QtCore import Qt
-
 from PySide6.QtCore import QDir
-
 from PySide6.QtWidgets import QTreeWidgetItem
-
 
 import re
 from typing import List, Dict, Any, Tuple
@@ -81,7 +77,6 @@ class SmartFolderManager:
         self.tree.addTopLevelItem(item)
         self.tree.editItem(item, 0)
 
-
     def add_subfolder(self):
         selected = self.tree.currentItem()
         if not selected:
@@ -108,7 +103,6 @@ class SmartFolderManager:
             index = self.tree.indexOfTopLevelItem(selected)
             self.tree.takeTopLevelItem(index)
 
-
     def _count_leading_ws(self,line: str) -> Tuple[int, str]:
         """
         Returns (indent_count, stripped_line) where indent_count is the number of
@@ -118,7 +112,6 @@ class SmartFolderManager:
         ws = m.group(1)
         text = m.group(2)
         return len(ws), text
-
 
     def parse_indented_text(self,text: str) -> List[Node]:
         """
