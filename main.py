@@ -168,6 +168,8 @@ class MainWindow(QMainWindow):
             "UK (DD-MM-YYYY)",
             "US (MM-DD-YYYY)"
         ])
+        
+        self.date_time_config.setEnabled(False)
 
         button_row = QHBoxLayout()
         button_row.setSpacing(63)
@@ -299,7 +301,7 @@ class MainWindow(QMainWindow):
             "UK (DD-MM-YYYY)",
             "US (MM-DD-YYYY)"
         ])
-        self.nested_date_config.setEnabled(True)
+        self.nested_date_config.setEnabled(False)
 
         for btn in [self.add_folder_btn, self.add_subfolder_btn]:
             btn.setMinimumWidth(150)
