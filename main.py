@@ -192,7 +192,7 @@ class MainWindow(QMainWindow):
         desktop_status_layout.setSpacing(8)
         self.desktop_status_frame.setLayout(desktop_status_layout)
 
-        self.desktop_status_icon = QLabel("•")
+        self.desktop_status_icon = QLabel(">")
         self.desktop_status_text = QLabel("")
         self.desktop_status_text.setWordWrap(True)
 
@@ -516,7 +516,7 @@ class MainWindow(QMainWindow):
             icon_label.setText("✕")
             bg = "rgba(231, 76, 60, 0.15)"
         else:
-            icon_label.setText("•")
+            icon_label.setText(">")
             bg = "rgba(52, 152, 219, 0.10)"
 
         frame.setStyleSheet(f"""
