@@ -408,6 +408,15 @@ class MainWindow(QMainWindow):
 
         self.tree.fileDropped.connect(self.load_template_from_path)
         
+        self.desktop_status_timer = QTimer(self)
+        self.desktop_status_timer.setSingleShot(True)
+
+        self.smart_status_timer = QTimer(self)
+        self.smart_status_timer.setSingleShot(True)
+
+        self.desktop_status_timer.timeout.connect(lambda: self.desktop_status_text.setText(""))
+        self.smart_status_timer.timeout.connect(lambda: self.smart_status_text.setText(""))
+                
         # Apply initial theme
         initial_accent = self.theme_controller.apply_theme(6)
         self.apply_accent_styles(initial_accent)
@@ -492,10 +501,12 @@ class MainWindow(QMainWindow):
             icon_label = self.smart_status_icon
             text_label = self.smart_status_text
             frame = self.smart_status_frame
+            self.smart_status_timer.start(10000)
         else:
             icon_label = self.desktop_status_icon     # FIX
             text_label = self.desktop_status_text     # FIX
             frame = self.desktop_status_frame
+            self.desktop_status_timer.start(10000)
 
         # Status styles
         if status_type == "success":
@@ -521,6 +532,7 @@ class MainWindow(QMainWindow):
         # Make the icon follow the dial accent color
         icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
         text_label.setText(message)
+        
         
     ####################### Desktop Folder Creator methods #################################
     
