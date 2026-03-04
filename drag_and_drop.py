@@ -19,7 +19,6 @@ class SmartTreeWidget(QTreeWidget):
         self.setAlternatingRowColors(True)
 
     def dragEnterEvent(self, event):
-        print("drag enter")
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
         else:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QDir
 from PySide6.QtWidgets import QTreeWidgetItem
-from desktop_folder_manager import DesktopFolderManager
+
 
 import re
 from typing import List, Dict, Any, Tuple
@@ -141,26 +141,37 @@ class NestedFolderManager:
         base_dir = QDir(base_path)
 
         if self.tree.topLevelItemCount() == 0:
-            return "empty"
+            return "empty", "Tree is empty."
 
-        for i in range(self.tree.topLevelItemCount()):
-            item = self.tree.topLevelItem(i)
+        try:
+            for i in range(self.tree.topLevelItemCount()):
+                item = self.tree.topLevelItem(i)
 
-            name = item.text(0).strip()
+                name = item.text(0).strip()
 
-            if timestamp_mode:
-                
-                stamp = DesktopFolderManager().build_timestamp(timestamp_mode)
-                name = f"{name}_{stamp}"
+                if timestamp_mode:
+                    from desktop_folder_manager import DesktopFolderManager
+                    stamp = DesktopFolderManager().build_timestamp(timestamp_mode)
+                    name = f"{name}_{stamp}"
 
-            base_dir.mkpath(name)
+                full_path = base_dir.filePath(name)
 
-            child_dir = QDir(base_dir.filePath(name))
+                if QDir(full_path).exists():
+                    return "exists", "Folder structure already exists."
 
-            for j in range(item.childCount()):
-                self._mk_dirs(child_dir, item.child(j))
+                base_dir.mkpath(name)
 
-        return "success"
+                child_dir = QDir(full_path)
+
+                for j in range(item.childCount()):
+                    self._mk_dirs(child_dir, item.child(j))
+
+            return "success", "Folder structure created successfully."
+
+        except Exception:
+            return "error", "Error creating folder structure."
+                        
+
         
     def _mk_dirs(self, parent_dir, item):
         name = item.text(0).strip()

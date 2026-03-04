@@ -344,8 +344,9 @@ class MainWindow(QMainWindow):
         template_row = QHBoxLayout()
         template_row.setSpacing(8)
 
-        self.load_template_btn = QPushButton("Load Template")
         self.create_template_btn = QPushButton("Create Template")
+        self.load_template_btn = QPushButton("Load Template")
+        
 
         for btn in [self.load_template_btn, self.create_template_btn]:
             btn.setMinimumWidth(150)
@@ -421,17 +422,13 @@ class MainWindow(QMainWindow):
         self.desktop_folder_service = DesktopFolderManager()
         self.template_service = TemplateService()
         
-    def default_to_desktop(self):
-        desktop_path = self.desktop_folder_service.desktop_path
-        self.base_path_line.setText(str(desktop_path))
 
-        self.set_status(
-            "Base directory set to Desktop.",
-            target="nested",
-            status_type="info"
-        )
-                
     def change_accent_theme(self, index: int):
+        accent = self.theme_controller.apply_theme(index)
+        self.apply_accent_styles(accent)
+        
+    def apply_selected_theme(self):
+        index = self.colour_accent_dial.value()
         accent = self.theme_controller.apply_theme(index)
         self.apply_accent_styles(accent)
         
@@ -476,116 +473,8 @@ class MainWindow(QMainWindow):
         """)
 
         self.current_accent_color = accent_color
-        
-    def apply_selected_theme(self):
-        index = self.colour_accent_dial.value()
-        accent = self.theme_controller.apply_theme(index)
-        self.apply_accent_styles(accent)
-            
-    def create_template(self):
-        status, message = self.template_service.save_from_tree(
-            self,                 # parent
-            self.nested_manager    # tree manager
-        )
-
-        if status == "success":
-            self.set_status(message, target="nested", status_type="success")
-        elif status == "empty":
-            self.set_status(message, target="nested", status_type="error")
-        elif status != "cancelled":
-            self.set_status(message, target="nested", status_type="error")
     
-    def load_template(self):
-        status, message = self.template_service.load_into_tree(
-            self,                 # parent
-            self.nested_manager    # tree manager
-        )
-
-        if status == "success":
-            self.set_status(message, target="nested", status_type="success")
-        elif status != "cancelled":
-            self.set_status(message, target="nested", status_type="error")
-                        
-    def load_template_from_path(self, file_path):
-        try:
-            data = self.template_service.load_template(
-                file_path,
-                self.nested_manager.parse_indented_text
-            )
-
-            self.nested_manager.deserialize_tree(data)
-            self.set_status("Template loaded via drag & drop", target="nested", status_type="success")
-
-        except Exception:
-            self.smart_status_text.setText("Error loading dropped file")
-
-    def create_desktop_folder(self):
-        mode = None
-
-        if self.date_time_toggle.isChecked():
-            text = self.date_time_config.currentText()
-
-            if "ISO" in text:
-                mode = "ISO"
-            elif "UK" in text:
-                mode = "UK"
-            elif "US" in text:
-                mode = "US"
-
-        status, message = self.desktop_folder_service.create_folder(
-            self.desktop_folder_line.text(),
-            mode
-        )
-
-        if status == "success":
-            stype = "success"
-        elif status == "exists":
-            stype = "info"
-        else:  # "invalid" or "error"
-            stype = "error"
-
-        self.set_status(message, target="desktop", status_type=stype)
-        
-    def build_folders_from_tree(self):
-        base_path = self.base_path_line.text().strip()
-
-        if not base_path:
-            self.set_status("No base directory selected.", target="nested", status_type="error")
-            return
-
-        mode = None
-        if self.nested_date_toggle.isChecked():
-            text = self.nested_date_config.currentText()
-            if "ISO" in text:
-                mode = "ISO"
-            elif "UK" in text:
-                mode = "UK"
-            elif "US" in text:
-                mode = "US"
-
-        result = self.nested_manager.build_folders(base_path, mode)
-        if result == "empty":
-            self.set_status("Tree is empty.", target="nested", status_type="error")
-        else:
-            self.set_status("Folder structure created successfully.", target="nested", status_type="success")
-            
-        
-    def select_base_directory(self):
-        directory = QFileDialog.getExistingDirectory(
-            self,
-            "Select Base Directory"
-        )
-
-        if directory:
-            self.base_path_line.setText(directory)
-        
-
-    def desktop_on_date_stamp_toggled(self, checked: bool):
-        self.date_time_config.setEnabled(checked)
-        
-    def nested_on_date_stamp_toggled(self, checked: bool):
-        self.nested_date_config.setEnabled(checked)
-        
+    # shared status out function hat Qline uses for both output lines
     def set_status(self, message: str, target: str = "desktop", status_type: str = "info"):
         """
         target: "desktop" or "nested"
@@ -628,8 +517,136 @@ class MainWindow(QMainWindow):
         icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
         text_label.setText(message)
         
+    ####################### Desktop Folder Creator methods #################################
+    
+    def desktop_on_date_stamp_toggled(self, checked: bool):
+        self.date_time_config.setEnabled(checked)
 
+    def create_desktop_folder(self):
+        mode = None
 
+        if self.date_time_toggle.isChecked():
+            text = self.date_time_config.currentText()
+
+            if "ISO" in text:
+                mode = "ISO"
+            elif "UK" in text:
+                mode = "UK"
+            elif "US" in text:
+                mode = "US"
+
+        status, message = self.desktop_folder_service.create_folder(
+            self.desktop_folder_line.text(),
+            mode
+        )
+
+        if status == "success":
+            stype = "success"
+        elif status == "exists":
+            stype = "info"
+        else:  # "invalid" or "error"
+            stype = "error"
+            
+        self.set_status(message, target="desktop", status_type=stype)
+        
+        
+
+    ###################### Nested Folder Creator methods #################################
+    
+    def nested_on_date_stamp_toggled(self, checked: bool):
+        self.nested_date_config.setEnabled(checked)
+
+    def default_to_desktop(self):
+        desktop_path = self.desktop_folder_service.desktop_path
+        self.base_path_line.setText(str(desktop_path))
+
+        self.set_status(
+            "Base directory set to Desktop.",
+            target="nested",
+            status_type="info"
+        )
+        
+    def select_base_directory(self):
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Select Base Directory"
+        )
+
+        if directory:
+            self.base_path_line.setText(directory)
+            self.set_status(f"Base directory set: {directory}", target="nested", status_type="info")
+
+        else:
+            self.base_path_line.clear()
+            self.set_status("No directory selected.", target="nested", status_type="error")
+
+    def create_template(self):
+        status, message = self.template_service.save_from_tree(
+            self,                 # parent
+            self.nested_manager    # tree manager
+        )
+
+        if status == "success":
+            self.set_status(message, target="nested", status_type="success")
+        elif status == "empty":
+            self.set_status(message, target="nested", status_type="error")
+        elif status != "cancelled":
+            self.set_status(message, target="nested", status_type="error")
+    
+    def load_template(self):
+        status, message = self.template_service.load_into_tree(
+            self,                 # parent
+            self.nested_manager    # tree manager
+        )
+
+        if status == "success":
+            self.set_status(message, target="nested", status_type="success")
+        elif status != "cancelled":
+            self.set_status(message, target="nested", status_type="error")
+    
+    # Drag and drop load
+    def load_template_from_path(self, file_path):
+        try:
+            data = self.template_service.load_template(
+                file_path,
+                self.nested_manager.parse_indented_text
+            )
+
+            self.nested_manager.deserialize_tree(data)
+            self.set_status("Template loaded via drag & drop", target="nested", status_type="success")
+
+        except Exception:
+            self.smart_status_text.setText("Error loading dropped file")
+
+    def build_folders_from_tree(self):
+        base_path = self.base_path_line.text().strip()
+
+        if not base_path:
+            self.set_status("No base directory selected.", target="nested", status_type="error")
+            return
+
+        mode = None
+        if self.nested_date_toggle.isChecked():
+            text = self.nested_date_config.currentText()
+            if "ISO" in text:
+                mode = "ISO"
+            elif "UK" in text:
+                mode = "UK"
+            elif "US" in text:
+                mode = "US"
+
+        status, message = self.nested_manager.build_folders(base_path, mode)
+
+        if status == "success":
+            stype = "success"
+        elif status == "exists":
+            stype = "info"
+        else:
+            stype = "error"
+
+        self.set_status(message, target="nested", status_type=stype)
+
+ 
 def main():
     app = QApplication(sys.argv)
 
