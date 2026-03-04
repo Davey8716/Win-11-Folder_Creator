@@ -13,6 +13,7 @@ Node = Dict[str, Any]  # {"name": str, "children": list[Node]}
 class NestedFolderManager:
     def __init__(self, tree_widget):
         self.tree = tree_widget
+        self.auto_number_enabled = False
 
     def serialize_tree(self):
         data = []
@@ -186,6 +187,15 @@ class NestedFolderManager:
             
     def add_root_folder(self):
         default_base = "New Folder"
+        
+         # ---- If auto numbering OFF → just create base name ----
+        if not self.auto_number_enabled:
+            item = QTreeWidgetItem([default_base])
+            item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+
+            self.tree.addTopLevelItem(item)
+            self.tree.editItem(item, 0)
+            return
 
         count = self.tree.topLevelItemCount()
 
@@ -219,6 +229,16 @@ class NestedFolderManager:
             return
 
         default_base = "New Subfolder"
+        
+        # ---- If auto numbering OFF ----
+        if not self.auto_number_enabled:
+            child = QTreeWidgetItem([default_base])
+            child.setFlags(child.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+
+            selected.addChild(child)
+            selected.setExpanded(True)
+            self.tree.editItem(child, 0)
+            return
 
         count = selected.childCount()
 

@@ -5,6 +5,7 @@ from desktop_folder_manager import DesktopFolderManager
 from theme_controller import ThemeController
 from template_IO_layer import TemplateService
 
+from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
 from nested_folder_manager import NestedFolderManager
@@ -301,9 +302,10 @@ class MainWindow(QMainWindow):
 
         self.create_template_btn = QPushButton("Create Template")
         self.load_template_btn = QPushButton("Load Template")
+    
 
         self.nested_date_toggle = QCheckBox("Add Date Stamp")
-        self.auto_enumerate_folders = QCheckBox("Auto Number Folders")
+        self.auto_enumerate_folders = QCheckBox("Auto Number + Name Folders/Sub Folders")
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -395,6 +397,7 @@ class MainWindow(QMainWindow):
 
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
+        self.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
         
         self.add_folder_btn.clicked.connect(self.nested_manager.add_root_folder)
         self.add_subfolder_btn.clicked.connect(self.nested_manager.add_subfolder)
@@ -555,6 +558,9 @@ class MainWindow(QMainWindow):
 
     ###################### Nested Folder Creator methods #################################
     
+    def toggle_auto_number_folders(self, checked: bool):
+        self.nested_manager.auto_number_enabled = checked
+    
     def nested_on_date_stamp_toggled(self, checked: bool):
         self.nested_date_config.setEnabled(checked)
 
@@ -609,6 +615,9 @@ class MainWindow(QMainWindow):
     # Drag and drop load
     def load_template_from_path(self, file_path):
         try:
+            # Disable auto naming/numbering for imported structures
+            if self.auto_enumerate_folders.isChecked():
+                self.auto_enumerate_folders.setChecked(False)
             data = self.template_service.load_template(
                 file_path,
                 self.nested_manager.parse_indented_text
