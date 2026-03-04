@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDial,
+    QGridLayout
 
 )
 
@@ -285,23 +286,25 @@ class MainWindow(QMainWindow):
         self.nested_manager = NestedFolderManager(self.tree)
 
         # ==========================================================
-        # Editing + Template + Build Controls
+        # Editing + Template + Build Controls  (GRID)
         # ==========================================================
 
-        controls_layout = QVBoxLayout()
-        controls_layout.setSpacing(12)
-
-        # ----------------------------------------------------------
-        # Row 1 — Add + Timestamp
-        # ----------------------------------------------------------
-
-        add_row = QHBoxLayout()
-        add_row.setSpacing(8)
+        controls_layout = QGridLayout()
+        controls_layout.setHorizontalSpacing(8)
+        controls_layout.setVerticalSpacing(8)
 
         self.add_folder_btn = QPushButton("Add Folder")
         self.add_subfolder_btn = QPushButton("Add Subfolder")
 
+        self.remove_btn = QPushButton("Remove Selected")
+        self.remove_all_btn = QPushButton("Remove All")
+
+        self.create_template_btn = QPushButton("Create Template")
+        self.load_template_btn = QPushButton("Load Template")
+
         self.nested_date_toggle = QCheckBox("Add Date Stamp")
+        self.auto_enumerate_folders = QCheckBox("Auto Number Folders")
+
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
             "ISO (YYYY-MM-DD)",
@@ -310,85 +313,46 @@ class MainWindow(QMainWindow):
         ])
         self.nested_date_config.setEnabled(False)
 
-        for btn in [self.add_folder_btn, self.add_subfolder_btn]:
-            btn.setMinimumWidth(150)
-            btn.setMinimumHeight(35)
-
-        self.nested_date_config.setMinimumWidth(170)
-        self.nested_date_config.setMinimumHeight(20)
-
-        add_row.addWidget(self.add_folder_btn)
-        add_row.addWidget(self.add_subfolder_btn)
-        add_row.addStretch()
-        add_row.addWidget(self.nested_date_toggle)
-        add_row.addWidget(self.nested_date_config)
-
-        controls_layout.addLayout(add_row)
-
-        # ----------------------------------------------------------
-        # Row 2 — Remove Controls
-        # ----------------------------------------------------------
-
-        remove_row = QHBoxLayout()
-        remove_row.setSpacing(8)
-
-        self.remove_btn = QPushButton("Remove Selected")
-        self.remove_all_btn = QPushButton("Remove All")
-
-        for btn in [self.remove_btn, self.remove_all_btn]:
-            btn.setMinimumWidth(150)
-            btn.setMinimumHeight(35)
-
-        remove_row.addWidget(self.remove_btn)
-        remove_row.addWidget(self.remove_all_btn)
-        remove_row.addStretch()
-
-        controls_layout.addLayout(remove_row)
-
-
-        # ----------------------------------------------------------
-        # Row 3 — Template Controls
-        # ----------------------------------------------------------
-
-        template_row = QHBoxLayout()
-        template_row.setSpacing(8)
-
-        self.create_template_btn = QPushButton("Create Template")
-        self.load_template_btn = QPushButton("Load Template")
-        
-
-        for btn in [self.load_template_btn, self.create_template_btn]:
-            btn.setMinimumWidth(150)
-            btn.setMinimumHeight(35)
-
-       
-        template_row.addWidget(self.create_template_btn)
-        template_row.addWidget(self.load_template_btn)
-
-        controls_layout.addLayout(template_row)
-
-
-        # ----------------------------------------------------------
-        # Row 4 — Build (Primary Action)
-        # ----------------------------------------------------------
-
         self.build_folders_btn = QPushButton("Build Folders")
+
+        for btn in [
+            self.add_folder_btn, self.add_subfolder_btn,
+            self.remove_btn, self.remove_all_btn,
+            self.create_template_btn, self.load_template_btn
+        ]:
+            btn.setMinimumWidth(150)
+            btn.setMinimumHeight(35)
+
         self.build_folders_btn.setMinimumHeight(40)
+        self.nested_date_config.setMinimumWidth(170)
+        self.nested_date_config.setMinimumHeight(35)
 
-        controls_layout.addWidget(self.build_folders_btn)
-        
+        controls_layout.addWidget(self.add_folder_btn,      0, 0)
+        controls_layout.addWidget(self.add_subfolder_btn,   0, 1)
+        controls_layout.addWidget(self.nested_date_toggle,  0, 2)
+        controls_layout.addWidget(self.nested_date_config,  0, 3)
 
-        # Add entire control section
+        controls_layout.addWidget(self.remove_btn,             1, 0)
+        controls_layout.addWidget(self.remove_all_btn,         1, 1)
+        controls_layout.addWidget(self.auto_enumerate_folders, 1, 2, 1, 2)
+
+        controls_layout.addWidget(self.create_template_btn, 2, 0)
+        controls_layout.addWidget(self.load_template_btn,   2, 1)
+
+        controls_layout.addWidget(self.build_folders_btn, 3, 0, 1, 4)
+
+        controls_layout.setColumnStretch(2, 1)
+        controls_layout.setColumnStretch(3, 1)
+
         self.smart_layout.addLayout(controls_layout)
-        
-        # ---- Nested Status Panel ----
+
+        # ---- Nested Status Panel (put back if you want it visible) ----
         self.smart_status_frame = QFrame()
         self.smart_status_frame.setObjectName("statusFrame")
 
-        smart_status_layout = QHBoxLayout()
+        smart_status_layout = QHBoxLayout(self.smart_status_frame)
         smart_status_layout.setContentsMargins(10, 6, 10, 6)
         smart_status_layout.setSpacing(8)
-        self.smart_status_frame.setLayout(smart_status_layout)
 
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
@@ -400,9 +364,28 @@ class MainWindow(QMainWindow):
 
         self.smart_layout.addWidget(self.smart_status_frame)
 
-
-        # Add entire Smart frame to main layout
+        # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # Signal Connections
         self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
@@ -423,12 +406,13 @@ class MainWindow(QMainWindow):
         self.tree.fileDropped.connect(self.load_template_from_path)
         
         # Apply initial theme
-        initial_accent = self.theme_controller.apply_theme(0)
+        initial_accent = self.theme_controller.apply_theme(6)
         self.apply_accent_styles(initial_accent)
 
         # React to dial changes
         self.colour_accent_dial.sliderReleased.connect(self.apply_selected_theme)
         
+        # Loading of object instances
         self.desktop_folder_service = DesktopFolderManager()
         self.template_service = TemplateService()
         
@@ -467,6 +451,14 @@ class MainWindow(QMainWindow):
         """)
         
         self.nested_date_toggle.setStyleSheet(f"""
+            QCheckBox {{                             
+                font-weight: 600;
+                color: {accent_color}
+            }}                            
+
+        """)
+        
+        self.auto_enumerate_folders.setStyleSheet(f"""
             QCheckBox {{                             
                 font-weight: 600;
                 color: {accent_color}
@@ -656,7 +648,7 @@ class MainWindow(QMainWindow):
 
         self.set_status(message, target="nested", status_type=stype)
 
- 
+
 def main():
     app = QApplication(sys.argv)
 
