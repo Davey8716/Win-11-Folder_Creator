@@ -272,7 +272,14 @@ class MainWindow(QMainWindow):
             QAbstractItemView.DoubleClicked |
             QAbstractItemView.EditKeyPressed
         )
-
+        
+        self.tree.setPlaceholderText(
+            "Files can either be drag drop loaded in here\n "
+            "(accepts json and txt files)\n"
+            "or created/loaded using the buttons below.",
+            bold = True
+        )
+        
         self.tree.setAlternatingRowColors(True)
         self.smart_layout.addWidget(self.tree)
         self.nested_manager = NestedFolderManager(self.tree)

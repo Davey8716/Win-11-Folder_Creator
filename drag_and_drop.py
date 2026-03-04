@@ -1,22 +1,45 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QTreeWidget
+from PySide6.QtGui import QPainter,QColor
 
 class SmartTreeWidget(QTreeWidget):
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._placeholder = ""
+        self._placeholder_bold = False
+        
     fileDropped = Signal(str)
 
-    def __init__(self):
-        super().__init__()
+    def setPlaceholderText(self, text: str, bold: bool = False):
+        self._placeholder = text
+        self._placeholder_bold = bold
+        self.viewport().update()
 
-        self.setColumnCount(1)
-        self.setHeaderHidden(True)
+    def paintEvent(self, event):
+        super().paintEvent(event)
 
-        self.setDragEnabled(True)
-        self.setAcceptDrops(True)
-        self.setDragDropMode(QTreeWidget.InternalMove)
-        self.setDefaultDropAction(Qt.MoveAction)
+        if self.topLevelItemCount() != 0:
+            return
 
-        self.setAlternatingRowColors(True)
+        if not self._placeholder:
+            return
+
+        painter = QPainter(self.viewport())
+
+        font = painter.font()
+        font.setBold(self._placeholder_bold)
+        painter.setFont(font)
+
+        painter.setPen(QColor(140, 140, 140))
+
+        painter.drawText(
+            self.viewport().rect(),
+            Qt.AlignCenter | Qt.TextWordWrap,
+            self._placeholder
+        )
+   
+
+   
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
