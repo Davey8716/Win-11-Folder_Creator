@@ -51,60 +51,60 @@ class MainWindow(QMainWindow):
 
         header_row = QHBoxLayout()
         header_row.setSpacing(15)
-        header_row.setContentsMargins(0, 0, 0, 0)
+        header_row.setContentsMargins(5,5,5,5)
 
         # ------------------------------
-        # Main Title Frame (LEFT)
+        # Main Title Frame (LEFT)  ✅ now tight
         # ------------------------------
-
         self.title_frame = QFrame()
         self.title_frame.setFrameShape(QFrame.StyledPanel)
-        self.title_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        
+
+        # Key: do NOT expand horizontally
+        self.title_frame.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
 
         title_layout = QVBoxLayout()
-        # title_layout.setContentsMargins(20, 20, 20, 20)
+        title_layout.setContentsMargins(14, 10, 14, 10)  # tweak as you like
+        title_layout.setSpacing(0)
         title_layout.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         self.title_frame.setLayout(title_layout)
 
         self.app_title = QLabel("Folder Generator")
-        self.app_title.setAlignment(Qt.AlignTop)
+        self.app_title.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        self.app_title.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
 
         title_layout.addWidget(self.app_title)
 
         # ------------------------------
         # Dial Frame (RIGHT)
         # ------------------------------
-
         self.dial_frame = QFrame()
         self.dial_frame.setFrameShape(QFrame.StyledPanel)
         self.dial_frame.setFixedWidth(120)
 
         dial_layout = QVBoxLayout()
-        dial_layout.setContentsMargins(12, 12, 12, 12)
+        dial_layout.setContentsMargins(14,10,14,10)
         dial_layout.setAlignment(Qt.AlignCenter)
         self.dial_frame.setLayout(dial_layout)
 
         self.theme_controller = ThemeController()
 
         self.colour_accent_dial = QDial()
-        self.colour_accent_dial.setFixedSize(80,80)
-
-        self.colour_accent_dial.setRange(
-            0,
-            self.theme_controller.theme_count() - 1
-        )
+        self.colour_accent_dial.setFixedSize(80, 80)
+        self.colour_accent_dial.setRange(0, self.theme_controller.theme_count() - 1)
 
         dial_layout.addWidget(self.colour_accent_dial)
 
         # ------------------------------
-        # Add Frames to Header Row
+        # Add to Header Row  ✅ keep wheel spacing, pin right
         # ------------------------------
-
-        header_row.addWidget(self.title_frame)
-        header_row.addWidget(self.dial_frame)
+        header_row.addWidget(self.title_frame, 0, Qt.AlignTop)
+        header_row.addWidget(self.title_frame, 0, Qt.AlignLeft)
+        header_row.addStretch(1)
+        header_row.addWidget(self.dial_frame, 0, Qt.AlignRight)
 
         main_layout.addLayout(header_row)
-        main_layout.addSpacing(15)   # tight title → frame
+        main_layout.addSpacing(15)
 
         # ==========================================================
         # Desktop Section Title Frame
@@ -146,7 +146,7 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.setMinimumHeight(35)
 
         input_row = QHBoxLayout()
-        input_row.setSpacing(6)
+        input_row.setSpacing(8)
         input_row.addWidget(self.desktop_folder_line)
         input_row.addStretch()
 
@@ -170,7 +170,7 @@ class MainWindow(QMainWindow):
         ])
 
         button_row = QHBoxLayout()
-        button_row.setSpacing(8)
+        button_row.setSpacing(63)
         button_row.addWidget(self.folder_to_desktop)
         button_row.addWidget(self.date_time_toggle)
         button_row.addWidget(self.date_time_config)
@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
 
         smart_title_layout = QVBoxLayout()
         smart_title_layout.setContentsMargins(8, 6, 8, 6)
-        smart_title_layout.setSpacing(3)
+        smart_title_layout.setSpacing(8)
         self.smart_title_frame.setLayout(smart_title_layout)
 
         self.smart_folder_creator = QLabel("Nested Folder Creator")
@@ -223,6 +223,7 @@ class MainWindow(QMainWindow):
         smart_title_layout.addWidget(self.smart_folder_creator)
 
         main_layout.addWidget(self.smart_title_frame)
+        main_layout.addSpacing(8)   # or whatever value you want
 
         # ---- Smart Frame ----
         self.smart_folder_creator_frame = QFrame()
@@ -300,7 +301,7 @@ class MainWindow(QMainWindow):
             "UK (DD-MM-YYYY)",
             "US (MM-DD-YYYY)"
         ])
-        self.nested_date_config.setEnabled(False)
+        self.nested_date_config.setEnabled(True)
 
         for btn in [self.add_folder_btn, self.add_subfolder_btn]:
             btn.setMinimumWidth(150)
@@ -378,7 +379,7 @@ class MainWindow(QMainWindow):
 
         smart_status_layout = QHBoxLayout()
         smart_status_layout.setContentsMargins(10, 6, 10, 6)
-        smart_status_layout.setSpacing(6)
+        smart_status_layout.setSpacing(8)
         self.smart_status_frame.setLayout(smart_status_layout)
 
         self.smart_status_icon = QLabel(">")
@@ -396,9 +397,11 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.smart_folder_creator_frame)
 
         # Signal Connections
-        self.date_time_toggle.toggled.connect(self.on_date_stamp_toggled)
+        self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
+        self.nested_date_toggle.toggled.connect(self.nested_on_date_stamp_toggled)
         self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
-        
+        self.build_structure_btn.clicked.connect(self.build_structure_from_tree)
+
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
         
@@ -408,13 +411,9 @@ class MainWindow(QMainWindow):
         self.remove_all_btn.clicked.connect(self.smart_manager.remove_all_folders)
         self.create_template_btn.clicked.connect(self.create_template)
         self.load_template_btn.clicked.connect(self.load_template)
-        self.build_structure_btn.clicked.connect(self.build_structure_from_tree)
+
         self.tree.fileDropped.connect(self.load_template_from_path)
         
-        self.nested_date_toggle.toggled.connect(
-            lambda checked: self.nested_date_config.setEnabled(checked)
-        )
-                
         # Apply initial theme
         initial_accent = self.theme_controller.apply_theme(0)
         self.apply_accent_styles(initial_accent)
@@ -422,11 +421,11 @@ class MainWindow(QMainWindow):
         # React to dial changes
         self.colour_accent_dial.sliderReleased.connect(self.apply_selected_theme)
         
-        self.desktop_service = DesktopFolderService()
+        self.desktop_folder_service = DesktopFolderService()
         self.template_service = TemplateService()
         
     def default_to_desktop(self):
-        desktop_path = self.desktop_service.desktop_path
+        desktop_path = self.desktop_folder_service.desktop_path
         self.base_path_line.setText(str(desktop_path))
 
         self.set_status(
@@ -463,6 +462,14 @@ class MainWindow(QMainWindow):
             }}
         """)
         
+        self.nested_date_toggle.setStyleSheet(f"""
+            QCheckBox {{                             
+                font-weight: 600;
+                color: {accent_color}
+            }}                            
+
+        """)
+        
         self.desktop_section_title.setStyleSheet(f"""
             QLabel {{
                 font-size: 22px;
@@ -470,8 +477,6 @@ class MainWindow(QMainWindow):
                 color: {accent_color};
             }}
         """)
-        
-        
 
         self.current_accent_color = accent_color
         
@@ -516,8 +521,7 @@ class MainWindow(QMainWindow):
 
         except Exception:
             self.smart_status_text.setText("Error loading dropped file")
-            
-                
+
     def create_desktop_folder(self):
         mode = None
 
@@ -531,7 +535,7 @@ class MainWindow(QMainWindow):
             elif "US" in text:
                 mode = "US"
 
-        status, message = self.desktop_service.create_folder(
+        status, message = self.desktop_folder_service.create_folder(
             self.desktop_folder_line.text(),
             mode
         )
@@ -545,8 +549,11 @@ class MainWindow(QMainWindow):
 
         self.set_status(message, target="desktop", status_type=stype)
 
-    def on_date_stamp_toggled(self, checked: bool):
+    def desktop_on_date_stamp_toggled(self, checked: bool):
         self.date_time_config.setEnabled(checked)
+        
+    def nested_on_date_stamp_toggled(self, checked: bool):
+        self.nested_date_config.setEnabled(checked)
         
     def set_status(self, message: str, target: str = "desktop", status_type: str = "info"):
         """
@@ -588,9 +595,8 @@ class MainWindow(QMainWindow):
 
         # Make the icon follow the dial accent color
         icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
-
         text_label.setText(message)
-            
+        
 
     def build_structure_from_tree(self):
         base_path = self.base_path_line.text().strip()
@@ -605,6 +611,8 @@ class MainWindow(QMainWindow):
             self.set_status("Tree is empty.", target="nested", status_type="error")
         else:
             self.set_status("Folder structure created successfully.", target="nested", status_type="success")
+            
+            self.desktop_folder_service.build_timestamp(base_path)
 
     def select_base_directory(self):
         directory = QFileDialog.getExistingDirectory(

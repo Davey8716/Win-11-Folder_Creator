@@ -46,7 +46,6 @@ class TemplateService:
     # Load
     # ---------------------------------------------------------
 
-
     def load_into_tree(self, parent, tree_manager):
         file_path, _ = QFileDialog.getOpenFileName(
             parent,
