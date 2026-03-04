@@ -1,13 +1,13 @@
 import sys
 
 from drag_and_drop import SmartTreeWidget
-from desktop_folder_service import DesktopFolderService
+from desktop_folder_manager import DesktopFolderManager
 from theme_controller import ThemeController
 from template_IO_layer import TemplateService
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
-from smart_folder_manager import SmartFolderManager
+from nested_folder_manager import NestedFolderManager
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QAbstractItemView
@@ -272,10 +272,8 @@ class MainWindow(QMainWindow):
         )
 
         self.tree.setAlternatingRowColors(True)
-
         self.smart_layout.addWidget(self.tree)
-
-        self.smart_manager = SmartFolderManager(self.tree)
+        self.nested_manager = NestedFolderManager(self.tree)
 
         # ==========================================================
         # Editing + Template + Build Controls
@@ -317,7 +315,6 @@ class MainWindow(QMainWindow):
         add_row.addWidget(self.nested_date_config)
 
         controls_layout.addLayout(add_row)
-
 
         # ----------------------------------------------------------
         # Row 2 — Remove Controls
@@ -364,10 +361,10 @@ class MainWindow(QMainWindow):
         # Row 4 — Build (Primary Action)
         # ----------------------------------------------------------
 
-        self.build_structure_btn = QPushButton("Build Structure")
-        self.build_structure_btn.setMinimumHeight(40)
+        self.build_folders_btn = QPushButton("Build Folders")
+        self.build_folders_btn.setMinimumHeight(40)
 
-        controls_layout.addWidget(self.build_structure_btn)
+        controls_layout.addWidget(self.build_folders_btn)
         
 
         # Add entire control section
@@ -400,15 +397,15 @@ class MainWindow(QMainWindow):
         self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
         self.nested_date_toggle.toggled.connect(self.nested_on_date_stamp_toggled)
         self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
-        self.build_structure_btn.clicked.connect(self.build_structure_from_tree)
+        self.build_folders_btn.clicked.connect(self.build_folders_from_tree)
 
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
         
-        self.add_folder_btn.clicked.connect(self.smart_manager.add_root_folder)
-        self.add_subfolder_btn.clicked.connect(self.smart_manager.add_subfolder)
-        self.remove_btn.clicked.connect(self.smart_manager.remove_selected_folders)
-        self.remove_all_btn.clicked.connect(self.smart_manager.remove_all_folders)
+        self.add_folder_btn.clicked.connect(self.nested_manager.add_root_folder)
+        self.add_subfolder_btn.clicked.connect(self.nested_manager.add_subfolder)
+        self.remove_btn.clicked.connect(self.nested_manager.remove_selected_folders)
+        self.remove_all_btn.clicked.connect(self.nested_manager.remove_all_folders)
         self.create_template_btn.clicked.connect(self.create_template)
         self.load_template_btn.clicked.connect(self.load_template)
 
@@ -421,7 +418,7 @@ class MainWindow(QMainWindow):
         # React to dial changes
         self.colour_accent_dial.sliderReleased.connect(self.apply_selected_theme)
         
-        self.desktop_folder_service = DesktopFolderService()
+        self.desktop_folder_service = DesktopFolderManager()
         self.template_service = TemplateService()
         
     def default_to_desktop(self):
@@ -488,7 +485,7 @@ class MainWindow(QMainWindow):
     def create_template(self):
         status, message = self.template_service.save_from_tree(
             self,                 # parent
-            self.smart_manager    # tree manager
+            self.nested_manager    # tree manager
         )
 
         if status == "success":
@@ -501,7 +498,7 @@ class MainWindow(QMainWindow):
     def load_template(self):
         status, message = self.template_service.load_into_tree(
             self,                 # parent
-            self.smart_manager    # tree manager
+            self.nested_manager    # tree manager
         )
 
         if status == "success":
@@ -513,10 +510,10 @@ class MainWindow(QMainWindow):
         try:
             data = self.template_service.load_template(
                 file_path,
-                self.smart_manager.parse_indented_text
+                self.nested_manager.parse_indented_text
             )
 
-            self.smart_manager.deserialize_tree(data)
+            self.nested_manager.deserialize_tree(data)
             self.set_status("Template loaded via drag & drop", target="nested", status_type="success")
 
         except Exception:
@@ -548,6 +545,40 @@ class MainWindow(QMainWindow):
             stype = "error"
 
         self.set_status(message, target="desktop", status_type=stype)
+        
+    def build_folders_from_tree(self):
+        base_path = self.base_path_line.text().strip()
+
+        if not base_path:
+            self.set_status("No base directory selected.", target="nested", status_type="error")
+            return
+
+        mode = None
+        if self.nested_date_toggle.isChecked():
+            text = self.nested_date_config.currentText()
+            if "ISO" in text:
+                mode = "ISO"
+            elif "UK" in text:
+                mode = "UK"
+            elif "US" in text:
+                mode = "US"
+
+        result = self.nested_manager.build_folders(base_path, mode)
+        if result == "empty":
+            self.set_status("Tree is empty.", target="nested", status_type="error")
+        else:
+            self.set_status("Folder structure created successfully.", target="nested", status_type="success")
+            
+        
+    def select_base_directory(self):
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Select Base Directory"
+        )
+
+        if directory:
+            self.base_path_line.setText(directory)
+        
 
     def desktop_on_date_stamp_toggled(self, checked: bool):
         self.date_time_config.setEnabled(checked)
@@ -598,30 +629,6 @@ class MainWindow(QMainWindow):
         text_label.setText(message)
         
 
-    def build_structure_from_tree(self):
-        base_path = self.base_path_line.text().strip()
-
-        if not base_path:
-            self.set_status("No base directory selected.", target="nested", status_type="error")
-            return
-
-        result = self.smart_manager.build_structure(base_path)
-
-        if result == "empty":
-            self.set_status("Tree is empty.", target="nested", status_type="error")
-        else:
-            self.set_status("Folder structure created successfully.", target="nested", status_type="success")
-            
-            self.desktop_folder_service.build_timestamp(base_path)
-
-    def select_base_directory(self):
-        directory = QFileDialog.getExistingDirectory(
-            self,
-            "Select Base Directory"
-        )
-
-        if directory:
-            self.base_path_line.setText(directory)
 
 def main():
     app = QApplication(sys.argv)
