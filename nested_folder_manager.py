@@ -185,18 +185,63 @@ class NestedFolderManager:
             self._mk_dirs(child_dir, item.child(i))
             
     def add_root_folder(self):
-        item = QTreeWidgetItem(["New Folder"])
+        default_base = "New Folder"
+
+        count = self.tree.topLevelItemCount()
+
+        if count == 0:
+            base_name = default_base
+        else:
+            first_name = self.tree.topLevelItem(0).text(0).strip()
+            base_name = first_name if first_name else default_base
+
+        existing_names = [
+            self.tree.topLevelItem(i).text(0)
+            for i in range(count)
+        ]
+
+        n = 0
+        name = base_name
+        while name in existing_names:
+            n += 1
+            name = f"{base_name} {n}"
+
+        item = QTreeWidgetItem([name])
         item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+
         self.tree.addTopLevelItem(item)
         self.tree.editItem(item, 0)
+
 
     def add_subfolder(self):
         selected = self.tree.currentItem()
         if not selected:
             return
 
-        child = QTreeWidgetItem(["New Subfolder"])
+        default_base = "New Subfolder"
+
+        count = selected.childCount()
+
+        if count == 0:
+            base_name = default_base
+        else:
+            first_name = selected.child(0).text(0).strip()
+            base_name = first_name if first_name else default_base
+
+        existing_names = [
+            selected.child(i).text(0)
+            for i in range(count)
+        ]
+
+        n = 0
+        name = base_name
+        while name in existing_names:
+            n += 1
+            name = f"{base_name} {n}"
+
+        child = QTreeWidgetItem([name])
         child.setFlags(child.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
+
         selected.addChild(child)
         selected.setExpanded(True)
         self.tree.editItem(child, 0)

@@ -352,8 +352,9 @@ class MainWindow(QMainWindow):
             btn.setMinimumWidth(150)
             btn.setMinimumHeight(35)
 
-        template_row.addWidget(self.load_template_btn)
+       
         template_row.addWidget(self.create_template_btn)
+        template_row.addWidget(self.load_template_btn)
 
         controls_layout.addLayout(template_row)
 
