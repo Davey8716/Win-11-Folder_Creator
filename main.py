@@ -189,16 +189,35 @@ class MainWindow(QMainWindow):
         self.date_time_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.date_time_config.lineEdit().setReadOnly(True)
 
-        button_row = QHBoxLayout()
-        button_row.setSpacing(20)
-        button_row.addWidget(self.folder_to_desktop)
-        button_row.addSpacing(120)
-        button_row.addWidget(self.date_time_toggle)
+        # ---- Controls Grid ----
+        desktop_controls = QGridLayout()
+        desktop_controls.setHorizontalSpacing(10)
+        desktop_controls.setVerticalSpacing(6)
 
-        button_row.addWidget(self.date_time_config)
-        
+        # Row 0
+        desktop_controls.addWidget(self.desktop_folder_line, 0, 0)
+        desktop_controls.addWidget(self.date_time_toggle, 0, 2)
 
-        self.desktop_layout.addLayout(button_row)
+        # Row 1
+        desktop_controls.addWidget(self.folder_to_desktop, 1, 0)
+        desktop_controls.addWidget(self.date_time_config, 1, 2)
+
+        desktop_controls.setColumnStretch(1, 1)
+
+        self.desktop_layout.addLayout(desktop_controls)
+            
+
+
+
+
+
+
+
+
+
+
+
+
 
         # ---- Status Label (NOW INSIDE FRAME, BELOW CONTROLS) ----
     
@@ -223,7 +242,28 @@ class MainWindow(QMainWindow):
         # Add entire frame to main layout
         main_layout.addWidget(self.desktop_folder_frame)
         main_layout.addSpacing(20)   # BIG separation between sections
-                
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # ---- Smart Frame ----
+        self.smart_folder_creator_frame = QFrame()
+        self.smart_folder_creator_frame.setFrameShape(QFrame.StyledPanel)
+
+        self.smart_layout = QVBoxLayout()
+        self.smart_layout.setSpacing(8)
+        self.smart_layout.setContentsMargins(12, 12, 12, 12)
+        self.smart_folder_creator_frame.setLayout(self.smart_layout)
+        
         # ==========================================================
         # FRAME 2 — Nested Folder Creator
         # ==========================================================
@@ -245,100 +285,14 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.smart_title_frame)
         main_layout.addSpacing(8)   # or whatever value you want
 
-        # ---- Smart Frame ----
-        self.smart_folder_creator_frame = QFrame()
-        self.smart_folder_creator_frame.setFrameShape(QFrame.StyledPanel)
-
-        self.smart_layout = QVBoxLayout()
-        self.smart_layout.setSpacing(8)
-        self.smart_layout.setContentsMargins(12, 12, 12, 12)
-        self.smart_folder_creator_frame.setLayout(self.smart_layout)
-
-        # ---- Base Path Field (Full Width Row) ----
-        self.base_path_line = QLineEdit()
-        self.base_path_line.setPlaceholderText(
-            "Select base directory for output folder location"
-        )
-        self.base_path_line.setReadOnly(True)
-        self.base_path_line.setMinimumHeight(35)
-
-        self.smart_layout.addWidget(self.base_path_line)
 
 
-        # ---- Base Path Buttons Row ----
-        base_button_row = QHBoxLayout()
-        base_button_row.setSpacing(8)
 
-        self.default_to_desktop_btn = QPushButton("Default Desktop")
-        self.browse_btn = QPushButton("Browse")
-        self.build_folders_btn = QPushButton("Build Folders")
-        
-        self.open_folder_build_toggle = QCheckBox("Open Folder After Build.")
-        self.minimize_after_build_toggle = QCheckBox("Minimized After Build.")
-        self.open_folder_build_toggle.setMinimumWidth(200)
-        self.minimize_after_build_toggle.setMinimumWidth(200)
-        
-        base_controls = QGridLayout()
-        base_controls.setHorizontalSpacing(8)
-        base_controls.setVerticalSpacing(6)
 
-        # Button sizes
-        for btn in [
-            self.default_to_desktop_btn,
-            self.browse_btn,
-            self.build_folders_btn
-        ]:
-            btn.setMinimumWidth(120)
-            btn.setMinimumHeight(35)
 
-        # Toggle sizes
-        for toggle in [
-            self.open_folder_build_toggle,
-            self.minimize_after_build_toggle
-        ]:
-            toggle.setMinimumHeight(35)
 
-        # Row 0
-        base_controls.addWidget(self.default_to_desktop_btn, 0, 0)
-        base_controls.addWidget(self.browse_btn,            0, 1)
-        base_controls.addWidget(self.build_folders_btn,     1,0)
-        base_controls.addWidget(self.open_folder_build_toggle, 0, 3)
 
-        # Row 1
-        base_controls.addWidget(self.minimize_after_build_toggle, 1, 3)
 
-        # Allow spacing to the right
-        base_controls.setColumnStretch(4, 1)
-
-        self.smart_layout.addLayout(base_controls)
-                
-        # ---- Tree Widget ----
-        self.tree = SmartTreeWidget()
-        self.tree.setColumnCount(1)
-        self.tree.setHeaderHidden(True)
-
-        self.tree.setEditTriggers(
-            QAbstractItemView.DoubleClicked |
-            QAbstractItemView.EditKeyPressed
-        )
-        
-        self.tree.setPlaceholderText(
-            (
-                "Files can either be drag drop loaded in here\n"
-                "(accepts json and txt files)\n"
-                "or created/loaded using the buttons below.\n\n"
-                "Tip: Drag and drop folders to change hierarchy.\n"
-                "Tip: Drag a folder below another folder to create a new parent-level folder.\n\n"
-                "Tip: Drag a folder onto another folder to nest it as a subfolder.\n\n"
-                "Tip: Auto-numbering only applies when using the Add Folder / Add Subfolder buttons.\n"
-                "Drag-and-drop only changes the folder structure."
-            ),
-            bold=True
-        )
-                
-        self.tree.setAlternatingRowColors(True)
-        self.smart_layout.addWidget(self.tree)
-        self.nested_folder_manager = NestedFolderManager(self.tree)
 
         # ==========================================================
         # Editing + Template + Build Controls  (GRID)
@@ -406,9 +360,9 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
             
-        self.nested_date_toggle = QCheckBox("Add Date Stamp")
+        self.nested_date_toggle = QCheckBox("Add Date Stamp  To Parent Folder")
         
-        self.auto_enumerate_folders = QCheckBox("Auto Number + Name Folders/Sub Folders")
+        self.auto_enumerate_folders = QCheckBox("Auto Number + \nName Folders/Sub Folders")
         
 
         self.nested_date_config = QComboBox()
@@ -434,17 +388,6 @@ class MainWindow(QMainWindow):
 
         self.nested_date_config.setMinimumHeight(35)
 
-
-
-        
-
-
-
-
-
-
-        
-
         for btn in [
             self.add_folder_btn, self.add_subfolder_btn,
             self.remove_btn, self.remove_all_btn,
@@ -454,29 +397,40 @@ class MainWindow(QMainWindow):
             btn.setMinimumHeight(35)
 
     
-        self.nested_date_config.setMinimumWidth(160)
+        self.nested_date_config.setMinimumWidth(140)
         self.nested_date_config.setMinimumHeight(35)
 
-        controls_layout.addWidget(self.add_folder_btn,      0, 0)
-        controls_layout.addWidget(self.add_subfolder_btn,   0, 1)
+        controls_layout.addWidget(self.add_folder_btn,      0,1)
+        controls_layout.addWidget(self.add_subfolder_btn,   1,1)
         controls_layout.addWidget(self.nested_date_toggle,  0, 2)
-        controls_layout.addWidget(self.nested_date_config,  0, 3)
+        controls_layout.addWidget(self.nested_date_config,  1, 2)
+        controls_layout.addWidget(self.auto_enumerate_folders, 2,2,1,2)
 
-        controls_layout.addWidget(self.remove_btn,             1, 0)
-        controls_layout.addWidget(self.remove_all_btn,         1, 1)
-        controls_layout.addWidget(self.auto_enumerate_folders, 1, 2, 1, 2)
-
-        controls_layout.addWidget(self.create_template_btn, 2, 0)
-        controls_layout.addWidget(self.load_user_template_dropdown, 3, 1)
-        controls_layout.addWidget(self.load_default_template_dropdown, 2, 1)
+        controls_layout.addWidget(self.remove_btn,             2,1)
+        controls_layout.addWidget(self.remove_all_btn,         3,1)
         
-       
+
+        controls_layout.addWidget(self.create_template_btn, 0, 0)
+        controls_layout.addWidget(self.load_user_template_dropdown, 1, 0)
+        controls_layout.addWidget(self.load_default_template_dropdown, 2, 0)
+        
+        controls_layout.setColumnStretch(0, 1)
+        controls_layout.setColumnStretch(1, 1)
         controls_layout.setColumnStretch(2, 1)
-        controls_layout.setColumnStretch(3, 1)
+                
 
         self.smart_layout.addLayout(controls_layout)
 
 
+    
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################
 
 
 
@@ -484,29 +438,121 @@ class MainWindow(QMainWindow):
 
 
 
+        
+                
+        # ---- Tree Widget ----
+        self.tree = SmartTreeWidget()
+        self.tree.setColumnCount(1)
+        self.tree.setHeaderHidden(True)
+
+        self.tree.setEditTriggers(
+            QAbstractItemView.DoubleClicked |
+            QAbstractItemView.EditKeyPressed
+        )
+        
+        self.tree.setPlaceholderText(
+            (
+                "Files can either be drag drop loaded in here\n"
+                "(accepts json and txt files)\n"
+                "or created/loaded using the buttons below.\n\n"
+                "Tip: Drag and drop folders to change hierarchy.\n"
+                "Tip: Drag a folder below another folder to create a new parent-level folder.\n\n"
+                "Tip: Drag a folder onto another folder to nest it as a subfolder.\n\n"
+                "Tip: Auto-numbering only applies when using the Add Folder / Add Subfolder buttons.\n"
+                "Drag-and-drop only changes the folder structure."
+            ),
+            bold=True
+        )
+                
+        self.tree.setAlternatingRowColors(True)
+        self.smart_layout.addWidget(self.tree)
+        self.nested_folder_manager = NestedFolderManager(self.tree)
+
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################
+
+        
+
+       
+
+        # ---- Base Path Field (Full Width Row) ----
+        self.base_path_line = QLineEdit()
+        self.base_path_line.setPlaceholderText(
+            "Select base directory for output folder location"
+        )
+        self.base_path_line.setReadOnly(True)
+        self.base_path_line.setMinimumHeight(35)
+
+        self.smart_layout.addWidget(self.base_path_line)
+        
+        
 
 
+        # ---- Base Path Buttons Row ----
+        base_button_row = QHBoxLayout()
+        base_button_row.setSpacing(8)
 
+        self.default_to_desktop_btn = QPushButton("Default Desktop")
+        self.browse_btn = QPushButton("Browse")
+        self.build_folders_btn = QPushButton("Build Folders")
+    
+        self.open_folder_build_toggle = QCheckBox("Open Folder After Build")
+        self.minimize_after_build_toggle = QCheckBox("Minimized After Build")
+        self.open_folder_build_toggle.setMinimumWidth(200)
+        self.minimize_after_build_toggle.setMinimumWidth(200)
+        
+        
+        base_controls = QGridLayout()
+        base_controls.setHorizontalSpacing(8)
+        base_controls.setVerticalSpacing(6)
 
+        # Button sizes
+        for btn in [
+            self.default_to_desktop_btn,
+            self.browse_btn,
+            self.build_folders_btn
+        ]:
+            btn.setMinimumWidth(120)
+            btn.setMinimumHeight(35)
 
+        # Toggle sizes
+        for toggle in [
+            self.open_folder_build_toggle,
+            self.minimize_after_build_toggle
+        ]:
+            toggle.setMinimumHeight(35)
 
+        # Row 0
+        base_controls.addWidget(self.default_to_desktop_btn, 0, 0)
+        base_controls.addWidget(self.browse_btn,             0, 1)
 
+        # expanding spacer column
+        base_controls.setColumnStretch(2, 1)
 
+        base_controls.addWidget(self.open_folder_build_toggle, 0, 3)
 
+        # Row 1
+        base_controls.addWidget(self.build_folders_btn, 1, 0)
+        base_controls.addWidget(self.minimize_after_build_toggle, 1, 3)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        self.smart_layout.addLayout(base_controls)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         # ---- Nested Status Panel (put back if you want it visible) ----
         self.smart_status_frame = QFrame()
         self.smart_status_frame.setObjectName("statusFrame")
@@ -527,6 +573,82 @@ class MainWindow(QMainWindow):
 
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -569,6 +691,14 @@ class MainWindow(QMainWindow):
         # self.load_user_template_dropdown.clicked.connect(self.load_template)
         self.load_default_template_dropdown.currentIndexChanged.connect(self.load_default_template)
         
+        self.open_folder_build_toggle.toggled.connect(
+            lambda v: self.state_manager.update("open_folder_after_build", v)
+        )
+
+        self.minimize_after_build_toggle.toggled.connect(
+            lambda v: self.state_manager.update("minimize_after_build", v)
+        )
+        
 
         self.tree.fileDropped.connect(self.load_template_from_path)
         
@@ -591,6 +721,8 @@ class MainWindow(QMainWindow):
         self.desktop_folder_service = DesktopFolderManager()
         self.template_service = TemplateService()
         self.state_manager = StateManager()
+        
+        
         
         
         state = self.state_manager.load_state()
@@ -654,6 +786,12 @@ class MainWindow(QMainWindow):
         auto_number = state.get("nested_auto_number_enabled", False)
         self.auto_enumerate_folders.setChecked(auto_number)
         
+        open_after = state.get("open_folder_after_build", False)
+        self.open_folder_build_toggle.setChecked(open_after)
+
+        min_after = state.get("minimize_after_build", False)
+        self.minimize_after_build_toggle.setChecked(min_after)
+                
         
         
 
