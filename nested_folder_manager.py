@@ -79,8 +79,15 @@ class NestedFolderManager:
         def tick():
             if not items:
                 return
+
             item = items.pop(0)
-            item.setExpanded(True)
+
+            try:
+                if item and item.treeWidget():
+                    item.setExpanded(True)
+            except RuntimeError:
+                pass
+
             QTimer.singleShot(step_ms, tick)
 
         QTimer.singleShot(0, tick)
