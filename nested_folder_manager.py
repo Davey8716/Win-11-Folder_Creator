@@ -37,6 +37,9 @@ class NestedFolderManager:
         else:
             for item in data:
                 self._deserialize_item(item, None)
+                
+        # ---- Auto expand all nodes after loading ----
+        self.tree.expandAll()
 
     def _deserialize_item(self, data, parent):
         item = QTreeWidgetItem([data.get("name", "Unnamed")])

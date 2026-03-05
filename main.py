@@ -5,6 +5,7 @@ from desktop_folder_manager import DesktopFolderManager
 from theme_controller import ThemeController
 from template_IO_layer import TemplateService
 
+from state_manager import StateManager
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
@@ -276,12 +277,19 @@ class MainWindow(QMainWindow):
         )
         
         self.tree.setPlaceholderText(
-            "Files can either be drag drop loaded in here\n "
-            "(accepts json and txt files)\n"
-            "or created/loaded using the buttons below.",
-            bold = True
+            (
+                "Files can either be drag drop loaded in here\n"
+                "(accepts json and txt files)\n"
+                "or created/loaded using the buttons below.\n\n"
+                "Tip: Drag and drop folders to change hierarchy.\n"
+                "Tip: Drag a folder below another folder to create a new parent-level folder.\n\n"
+                "Tip: Drag a folder onto another folder to nest it as a subfolder.\n\n"
+                "Tip: Auto-numbering only applies when using the Add Folder / Add Subfolder buttons.\n"
+                "Drag-and-drop only changes the folder structure."
+            ),
+            bold=True
         )
-        
+                
         self.tree.setAlternatingRowColors(True)
         self.smart_layout.addWidget(self.tree)
         self.nested_manager = NestedFolderManager(self.tree)
@@ -410,13 +418,12 @@ class MainWindow(QMainWindow):
         
         self.desktop_status_timer = QTimer(self)
         self.desktop_status_timer.setSingleShot(True)
+        self.desktop_status_timer.timeout.connect(lambda: self.reset_status("desktop"))
 
         self.smart_status_timer = QTimer(self)
         self.smart_status_timer.setSingleShot(True)
-
-        self.desktop_status_timer.timeout.connect(lambda: self.desktop_status_text.setText(""))
-        self.smart_status_timer.timeout.connect(lambda: self.smart_status_text.setText(""))
-                
+        self.smart_status_timer.timeout.connect(lambda: self.reset_status("nested"))
+                        
         # Apply initial theme
         initial_accent = self.theme_controller.apply_theme(6)
         self.apply_accent_styles(initial_accent)
@@ -427,6 +434,71 @@ class MainWindow(QMainWindow):
         # Loading of object instances
         self.desktop_folder_service = DesktopFolderManager()
         self.template_service = TemplateService()
+        self.state_manager = StateManager()
+        
+        
+        state = self.state_manager.load_state()
+        
+    
+        # ---------------------------------------------------------
+        # Restore Theme Dial
+        # ---------------------------------------------------------
+        theme_index = state.get("theme_index", 0)
+
+        self.colour_accent_dial.setValue(theme_index)
+
+        accent = self.theme_controller.apply_theme(theme_index)
+        self.apply_accent_styles(accent)
+
+
+        # ---------------------------------------------------------
+        # Restore Last Base Directory
+        # ---------------------------------------------------------
+        last_base = state.get("last_base_dir", "")
+        self.base_path_line.setText(last_base)
+
+
+        # ---------------------------------------------------------
+        # Desktop Timestamp
+        # ---------------------------------------------------------
+        desktop_enabled = state.get("desktop_date_stamp_enabled", False)
+        self.date_time_toggle.setChecked(desktop_enabled)
+        self.date_time_config.setEnabled(desktop_enabled)
+
+        desktop_mode = state.get("desktop_date_stamp_mode", "ISO")
+
+        if desktop_mode == "UK":
+            self.date_time_config.setCurrentIndex(1)
+        elif desktop_mode == "US":
+            self.date_time_config.setCurrentIndex(2)
+        else:
+            self.date_time_config.setCurrentIndex(0)
+
+
+        # ---------------------------------------------------------
+        # Nested Timestamp
+        # ---------------------------------------------------------
+        nested_enabled = state.get("nested_date_stamp_enabled", False)
+        self.nested_date_toggle.setChecked(nested_enabled)
+        self.nested_date_config.setEnabled(nested_enabled)
+
+        nested_mode = state.get("nested_date_stamp_mode", "ISO")
+
+        if nested_mode == "UK":
+            self.nested_date_config.setCurrentIndex(1)
+        elif nested_mode == "US":
+            self.nested_date_config.setCurrentIndex(2)
+        else:
+            self.nested_date_config.setCurrentIndex(0)
+
+
+        # ---------------------------------------------------------
+        # Auto Number Nested Folders
+        # ---------------------------------------------------------
+        auto_number = state.get("nested_auto_number_enabled", False)
+        self.auto_enumerate_folders.setChecked(auto_number)
+        
+        
         
 
     def change_accent_theme(self, index: int):
@@ -437,6 +509,7 @@ class MainWindow(QMainWindow):
         index = self.colour_accent_dial.value()
         accent = self.theme_controller.apply_theme(index)
         self.apply_accent_styles(accent)
+        self.state_manager.update("theme_index", index)
         
     def apply_accent_styles(self, accent_color: str):
         self.app_title.setStyleSheet(f"""
@@ -533,24 +606,56 @@ class MainWindow(QMainWindow):
         icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
         text_label.setText(message)
         
+    def reset_status(self, target: str):
+        if target == "nested":
+            icon_label = self.smart_status_icon
+            text_label = self.smart_status_text
+            frame = self.smart_status_frame
+        else:
+            icon_label = self.desktop_status_icon
+            text_label = self.desktop_status_text
+            frame = self.desktop_status_frame
+
+        icon_label.setText(">")
+        text_label.setText("")
+
+        frame.setStyleSheet("""
+            QFrame#statusFrame {
+                border-radius: 6px;
+                background-color: rgba(52, 152, 219, 0.10);
+            }
+            QLabel {
+                font-size: 14px;
+            }
+    """)
+        
         
     ####################### Desktop Folder Creator methods #################################
     
     def desktop_on_date_stamp_toggled(self, checked: bool):
         self.date_time_config.setEnabled(checked)
+        self.state_manager.update(
+            "desktop_date_stamp_enabled",
+            checked
+        )
 
     def create_desktop_folder(self):
         mode = None
 
         if self.date_time_toggle.isChecked():
             text = self.date_time_config.currentText()
-
+            
             if "ISO" in text:
                 mode = "ISO"
             elif "UK" in text:
                 mode = "UK"
             elif "US" in text:
                 mode = "US"
+                
+            self.state_manager.update(
+                "desktop_date_stamp_mode",
+                mode
+            )
 
         status, message = self.desktop_folder_service.create_folder(
             self.desktop_folder_line.text(),
@@ -572,13 +677,24 @@ class MainWindow(QMainWindow):
     
     def toggle_auto_number_folders(self, checked: bool):
         self.nested_manager.auto_number_enabled = checked
+        self.state_manager.update(
+            "nested_auto_number_enabled",
+            checked
+        )
     
     def nested_on_date_stamp_toggled(self, checked: bool):
         self.nested_date_config.setEnabled(checked)
+        self.state_manager.update(
+            "nested_date_stamp_enabled",
+            checked
+        )
 
     def default_to_desktop(self):
         desktop_path = self.desktop_folder_service.desktop_path
         self.base_path_line.setText(str(desktop_path))
+        
+            # persist to JSON
+        self.state_manager.update("last_base_dir", str(desktop_path))
 
         self.set_status(
             "Base directory set to Desktop.",
@@ -592,13 +708,23 @@ class MainWindow(QMainWindow):
             "Select Base Directory"
         )
 
+        
         if directory:
             self.base_path_line.setText(directory)
-            self.set_status(f"Base directory set: {directory}", target="nested", status_type="info")
 
+            self.state_manager.update("last_base_dir", directory)
+
+            self.set_status(
+                f"Base directory set: {directory}",
+                target="nested",
+                status_type="info"
+            )
         else:
-            self.base_path_line.clear()
-            self.set_status("No directory selected.", target="nested", status_type="error")
+            self.set_status(
+                "No directory selected.",
+                target="nested",
+                status_type="error"
+        )
 
     def create_template(self):
         status, message = self.template_service.save_from_tree(
@@ -657,6 +783,11 @@ class MainWindow(QMainWindow):
                 mode = "UK"
             elif "US" in text:
                 mode = "US"
+                
+            self.state_manager.update(
+                "nested_date_stamp_mode",
+                mode
+            )
 
         status, message = self.nested_manager.build_folders(base_path, mode)
 

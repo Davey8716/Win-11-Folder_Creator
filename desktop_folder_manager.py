@@ -39,7 +39,7 @@ class DesktopFolderManager:
             return "success", f'The folder "{name}" was created on Desktop.'
 
         except FileExistsError:
-            return "exists", "Folder already exists."
+            return "exists", "Folder already exists on desktop."
 
         except Exception:
             return "error", "Error creating folder"

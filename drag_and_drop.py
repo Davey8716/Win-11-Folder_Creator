@@ -1,5 +1,6 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QTreeWidget
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtGui import QPainter,QColor
 
 class SmartTreeWidget(QTreeWidget):
@@ -77,3 +78,20 @@ class SmartTreeWidget(QTreeWidget):
             event.acceptProposedAction()
         else:
             super().dropEvent(event)
+            
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() == Qt.Key_Delete:
+            item = self.currentItem()
+
+            if item:
+                parent = item.parent()
+
+                if parent:
+                    parent.removeChild(item)
+                else:
+                    index = self.indexOfTopLevelItem(item)
+                    self.takeTopLevelItem(index)
+
+            return
+
+        super().keyPressEvent(event)
