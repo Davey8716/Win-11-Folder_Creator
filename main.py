@@ -1,4 +1,5 @@
 import sys
+import os  
 
 from drag_and_drop import SmartTreeWidget
 from desktop_folder_manager import DesktopFolderManager
@@ -9,7 +10,7 @@ from pathlib import Path
 from state_manager import StateManager
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QPushButton
+from PySide6.QtWidgets import QPushButton, QSizePolicy
 from nested_folder_manager import NestedFolderManager
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QAbstractItemView
@@ -270,16 +271,47 @@ class MainWindow(QMainWindow):
 
         self.default_to_desktop_btn = QPushButton("Default Desktop")
         self.browse_btn = QPushButton("Browse")
+        self.build_folders_btn = QPushButton("Build Folders")
+        
+        self.open_folder_build_toggle = QCheckBox("Open Folder After Build.")
+        self.minimize_after_build_toggle = QCheckBox("Minimized After Build.")
+        self.open_folder_build_toggle.setMinimumWidth(200)
+        self.minimize_after_build_toggle.setMinimumWidth(200)
+        
+        base_controls = QGridLayout()
+        base_controls.setHorizontalSpacing(8)
+        base_controls.setVerticalSpacing(6)
 
-        for btn in [self.default_to_desktop_btn, self.browse_btn]:
-            btn.setMinimumWidth(130)
+        # Button sizes
+        for btn in [
+            self.default_to_desktop_btn,
+            self.browse_btn,
+            self.build_folders_btn
+        ]:
+            btn.setMinimumWidth(120)
             btn.setMinimumHeight(35)
 
-        base_button_row.addWidget(self.default_to_desktop_btn)
-        base_button_row.addWidget(self.browse_btn)
+        # Toggle sizes
+        for toggle in [
+            self.open_folder_build_toggle,
+            self.minimize_after_build_toggle
+        ]:
+            toggle.setMinimumHeight(35)
 
-        self.smart_layout.addLayout(base_button_row)
-        
+        # Row 0
+        base_controls.addWidget(self.default_to_desktop_btn, 0, 0)
+        base_controls.addWidget(self.browse_btn,            0, 1)
+        base_controls.addWidget(self.build_folders_btn,     1,0)
+        base_controls.addWidget(self.open_folder_build_toggle, 0, 3)
+
+        # Row 1
+        base_controls.addWidget(self.minimize_after_build_toggle, 1, 3)
+
+        # Allow spacing to the right
+        base_controls.setColumnStretch(4, 1)
+
+        self.smart_layout.addLayout(base_controls)
+                
         # ---- Tree Widget ----
         self.tree = SmartTreeWidget()
         self.tree.setColumnCount(1)
@@ -376,12 +408,6 @@ class MainWindow(QMainWindow):
             
         self.nested_date_toggle = QCheckBox("Add Date Stamp")
         
-        
-        
-        
-        
-        
-        
         self.auto_enumerate_folders = QCheckBox("Auto Number + Name Folders/Sub Folders")
         
 
@@ -410,10 +436,6 @@ class MainWindow(QMainWindow):
 
 
 
-        self.open_folder_build_toggle = QCheckBox("Open Folder After Build.")
-        self.minimize_after_build_toggle = QCheckBox("Minimized To Tray After Build.")
-        self.open_folder_build_toggle.setMinimumWidth(260)
-        self.minimize_after_build_toggle.setMinimumWidth(260)
         
 
 
@@ -421,20 +443,17 @@ class MainWindow(QMainWindow):
 
 
 
-
-
-
-        self.build_folders_btn = QPushButton("Build Folders")
+        
 
         for btn in [
             self.add_folder_btn, self.add_subfolder_btn,
             self.remove_btn, self.remove_all_btn,
-            self.create_template_btn,self.build_folders_btn,
+            self.create_template_btn,
         ]:
             btn.setMinimumWidth(150)
             btn.setMinimumHeight(35)
 
-        self.build_folders_btn.setMinimumHeight(40)
+    
         self.nested_date_config.setMinimumWidth(160)
         self.nested_date_config.setMinimumHeight(35)
 
@@ -451,10 +470,7 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.load_user_template_dropdown, 3, 1)
         controls_layout.addWidget(self.load_default_template_dropdown, 2, 1)
         
-        controls_layout.addWidget(self.build_folders_btn, 3, 0, 1, 1)
-        controls_layout.addWidget(self.open_folder_build_toggle,2,2)
-        controls_layout.addWidget(self.minimize_after_build_toggle,3,2)
-
+       
         controls_layout.setColumnStretch(2, 1)
         controls_layout.setColumnStretch(3, 1)
 
@@ -652,70 +668,63 @@ class MainWindow(QMainWindow):
         self.state_manager.update("theme_index", index)
         
     def apply_accent_styles(self, accent_color: str):
-        self.app_title.setStyleSheet(f"""
-            QLabel {{
-                font-size: 26px;
-                font-weight: 600;
-                color: {accent_color};
-            }}
-        """)
 
-        self.smart_folder_creator.setStyleSheet(f"""
-            QLabel {{
-                font-size: 22px;
-                font-weight: 600;
-                color: {accent_color};
-            }}
-        """)
+        # ---- Title labels ----
+        title_1 = [self.app_title]
 
-        self.date_time_toggle.setStyleSheet(f"""
-            QCheckBox {{
-                font-weight: 600;
-                color: {accent_color};
-            }}
-        """)
-        
-        self.nested_date_toggle.setStyleSheet(f"""
-            QCheckBox {{   
-                font-size: 15px;                           
-                font-weight: 600;
-                color: {accent_color}
-            }}                            
+        for lbl in title_1:
+            lbl.setStyleSheet(f"""
+                QLabel {{
+                    font-size: 26px;
+                    font-weight: 600;
+                    color: {accent_color};
+                }}
+            """)
 
-        """)
-        
-        self.auto_enumerate_folders.setStyleSheet(f"""
-            QCheckBox {{  
-                font-size: 15px;                           
-                font-weight: 600;
-                color: {accent_color}
-            }}                            
+        # ---- Section labels ----
+        title_2 = [
+            self.smart_folder_creator,
+            self.desktop_section_title
+        ]
 
-        """)
-        
-        self.desktop_section_title.setStyleSheet(f"""
-            QLabel {{
-                font-size: 22px;
-                font-weight: 600;
-                color: {accent_color};
-            }}
-        """)
-        
-        self.open_folder_build_toggle.setStyleSheet(f"""
-            QCheckBox {{
-                font-size: 15px;
-                font-weight: 600;
-                color: {accent_color};
-            }}
-        """)
-        
-        self.minimize_after_build_toggle.setStyleSheet(f"""
-            QCheckBox {{
-                font-size: 15px;
-                font-weight: 600;
-                color: {accent_color};
-            }}
-        """)
+        for lbl in title_2:
+            lbl.setStyleSheet(f"""
+                QLabel {{
+                    font-size: 22px;
+                    font-weight: 600;
+                    color: {accent_color};
+                }}
+            """)
+
+        # ---- Checkboxes (default size) ----
+        default_checks = [
+            self.date_time_toggle
+        ]
+
+        for cb in default_checks:
+            cb.setStyleSheet(f"""
+                QCheckBox {{
+                    font-weight: 600;
+                    color: {accent_color};
+                }}
+            """)
+
+        # ---- Larger checkboxes ----
+        large_checks = [
+            self.nested_date_toggle,
+            self.auto_enumerate_folders,
+            self.open_folder_build_toggle,
+            self.minimize_after_build_toggle
+        ]
+
+        for cb in large_checks:
+            cb.setStyleSheet(f"""
+                QCheckBox {{
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: {accent_color};
+                }}
+            """)
 
         self.current_accent_color = accent_color
     
@@ -828,10 +837,25 @@ class MainWindow(QMainWindow):
             stype = "error"
             
         self.set_status(message, target="desktop", status_type=stype)
-        
-        
 
     ###################### Nested Folder Creator methods #################################
+    
+    def minimize_after_build(self):
+        self.showMinimized()
+    
+    def open_output_folder(self, path: str):
+        from pathlib import Path
+       
+
+        p = Path(path)
+
+        if not p.exists():
+            return
+
+        try:
+            os.startfile(str(p))   # Windows Explorer
+        except Exception:
+            pass
     
     def toggle_auto_number_folders(self, checked: bool):
         self.nested_folder_manager.auto_number_enabled = checked
@@ -986,6 +1010,14 @@ class MainWindow(QMainWindow):
 
         if status == "success":
             stype = "success"
+
+            if self.open_folder_build_toggle.isChecked():
+                self.open_output_folder(base_path)
+            
+            
+            if self.minimize_after_build_toggle.isChecked():
+                self.minimize_after_build()
+
         elif status == "exists":
             stype = "info"
         else:
