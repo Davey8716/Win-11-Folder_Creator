@@ -161,24 +161,41 @@ class MainWindow(QMainWindow):
 
         self.date_time_toggle = QCheckBox("Add Date Stamp")
         self.date_time_toggle.setMinimumHeight(35)
+        self.date_time_toggle.setFixedWidth(180)
 
         self.date_time_config = QComboBox()
-        self.date_time_config.setFixedWidth(200)
+        self.date_time_config.setFixedWidth(160)
         self.date_time_config.setMinimumHeight(35)
+
         self.date_time_config.addItems([
             "ISO (YYYY-MM-DD)",
             "UK (DD-MM-YYYY)",
             "US (MM-DD-YYYY)"
         ])
-        
+
         self.date_time_config.setEnabled(False)
 
+        # Align dropdown items
+        for i in range(self.date_time_config.count()):
+            self.date_time_config.setItemData(
+                i,
+                Qt.AlignLeft | Qt.AlignVCenter,
+                Qt.TextAlignmentRole
+            )
+
+        # Align displayed text
+        self.date_time_config.setEditable(True)
+        self.date_time_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.date_time_config.lineEdit().setReadOnly(True)
+
         button_row = QHBoxLayout()
-        button_row.setSpacing(63)
+        button_row.setSpacing(20)
         button_row.addWidget(self.folder_to_desktop)
+        button_row.addSpacing(120)
         button_row.addWidget(self.date_time_toggle)
+
         button_row.addWidget(self.date_time_config)
-        button_row.addStretch()
+        
 
         self.desktop_layout.addLayout(button_row)
 
@@ -296,7 +313,7 @@ class MainWindow(QMainWindow):
         # ==========================================================
 
         controls_layout = QGridLayout()
-        controls_layout.setHorizontalSpacing(8)
+        controls_layout.setHorizontalSpacing(5)
         controls_layout.setVerticalSpacing(8)
 
         self.add_folder_btn = QPushButton("Add Folder")
@@ -310,12 +327,19 @@ class MainWindow(QMainWindow):
         self.load_user_template_dropdown.addItems([
             "User Template"
         ])
+    
+
+        # Insert separator at end
+        self.load_user_template_dropdown.insertSeparator(
+            self.load_user_template_dropdown.count()
+        )
         
         self.load_user_template_dropdown.setEnabled(True)
 
         self.load_default_template_dropdown = QComboBox()
         
         self.load_default_template_dropdown.addItem("Default Templates")
+        
         
         self.load_default_template_dropdown.insertSeparator(
             self.load_default_template_dropdown.count()
@@ -349,11 +373,10 @@ class MainWindow(QMainWindow):
                 Qt.AlignLeft | Qt.AlignVCenter,
                 Qt.TextAlignmentRole
             )
-        
-    
-    
+
         self.nested_date_toggle = QCheckBox("Add Date Stamp")
         self.auto_enumerate_folders = QCheckBox("Auto Number + Name Folders/Sub Folders")
+        
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -362,6 +385,33 @@ class MainWindow(QMainWindow):
             "US (MM-DD-YYYY)"
         ])
         self.nested_date_config.setEnabled(False)
+
+        # Align dropdown items
+        for i in range(self.nested_date_config.count()):
+            self.nested_date_config.setItemData(
+                i,
+                Qt.AlignLeft | Qt.AlignVCenter,
+                Qt.TextAlignmentRole
+            )
+
+        # Align the currently displayed text
+        self.nested_date_config.setEditable(True)
+        self.nested_date_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.nested_date_config.lineEdit().setReadOnly(True)
+
+        self.nested_date_config.setMinimumHeight(35)
+
+
+
+
+
+
+
+
+
+
+
+
 
         self.build_folders_btn = QPushButton("Build Folders")
 
@@ -374,7 +424,7 @@ class MainWindow(QMainWindow):
             btn.setMinimumHeight(35)
 
         self.build_folders_btn.setMinimumHeight(40)
-        self.nested_date_config.setMinimumWidth(170)
+        self.nested_date_config.setMinimumWidth(160)
         self.nested_date_config.setMinimumHeight(35)
 
         controls_layout.addWidget(self.add_folder_btn,      0, 0)
