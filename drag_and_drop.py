@@ -9,6 +9,9 @@ class SmartTreeWidget(QTreeWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Animation method for the drag and drop functionality
+        self.setAnimated(True)
 
         # ---- Drag & Drop configuration ----
         self.setDragEnabled(True)

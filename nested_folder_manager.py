@@ -3,6 +3,9 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QDir
 from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QTreeWidgetItemIterator
+
 
 
 import re
@@ -39,7 +42,7 @@ class NestedFolderManager:
                 self._deserialize_item(item, None)
                 
         # ---- Auto expand all nodes after loading ----
-        self.tree.expandAll()
+        self.expand_all_animated()
 
     def _deserialize_item(self, data, parent):
         item = QTreeWidgetItem([data.get("name", "Unnamed")])
@@ -52,6 +55,35 @@ class NestedFolderManager:
 
         for child in data.get("children", []):
             self._deserialize_item(child, item)
+            
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QTreeWidgetItemIterator
+
+    def expand_all_animated(self, step_ms: int = 500, max_items: int = 2000):
+        """
+        Expands the tree progressively so Qt's animation is actually visible.
+        step_ms: delay between expanding each item
+        max_items: safety cap for huge trees
+        """
+        it = QTreeWidgetItemIterator(self.tree)
+        items = []
+        n = 0
+        while it.value() and n < max_items:
+            items.append(it.value())
+            it += 1
+            n += 1
+
+        # Expand roots first for best visual effect
+        items.sort(key=lambda i: 0 if i.parent() is None else 1)
+
+        def tick():
+            if not items:
+                return
+            item = items.pop(0)
+            item.setExpanded(True)
+            QTimer.singleShot(step_ms, tick)
+
+        QTimer.singleShot(0, tick)
 
     def _count_leading_ws(self,line: str) -> Tuple[int, str]:
         """
