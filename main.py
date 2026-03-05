@@ -309,7 +309,7 @@ class MainWindow(QMainWindow):
         self.remove_all_btn = QPushButton("Remove All")
 
         self.create_template_btn = QPushButton("Create Template")
-        self.load_template_btn = QPushButton("Load Template")
+        # self.load_template_btn = QPushButton("Load Template")
     
 
         self.nested_date_toggle = QCheckBox("Add Date Stamp")
@@ -328,7 +328,8 @@ class MainWindow(QMainWindow):
         for btn in [
             self.add_folder_btn, self.add_subfolder_btn,
             self.remove_btn, self.remove_all_btn,
-            self.create_template_btn, self.load_template_btn
+            self.create_template_btn, 
+            # self.load_template_btn
         ]:
             btn.setMinimumWidth(150)
             btn.setMinimumHeight(35)
@@ -347,7 +348,7 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.auto_enumerate_folders, 1, 2, 1, 2)
 
         controls_layout.addWidget(self.create_template_btn, 2, 0)
-        controls_layout.addWidget(self.load_template_btn,   2, 1)
+        # controls_layout.addWidget(self.load_template_btn,   2, 1)
 
         controls_layout.addWidget(self.build_folders_btn, 3, 0, 1, 4)
 
@@ -412,7 +413,7 @@ class MainWindow(QMainWindow):
         self.remove_btn.clicked.connect(self.nested_manager.remove_selected_folders)
         self.remove_all_btn.clicked.connect(self.nested_manager.remove_all_folders)
         self.create_template_btn.clicked.connect(self.create_template)
-        self.load_template_btn.clicked.connect(self.load_template)
+        # self.load_template_btn.clicked.connect(self.load_template)
 
         self.tree.fileDropped.connect(self.load_template_from_path)
         
