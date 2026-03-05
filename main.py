@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         # ---- Input Row ----
         self.desktop_folder_line = QLineEdit()
         self.desktop_folder_line.setPlaceholderText("Enter folder name...")
-        self.desktop_folder_line.setFixedWidth(400)
+        self.desktop_folder_line.setFixedWidth(180)
         self.desktop_folder_line.setMinimumHeight(35)
 
         input_row = QHBoxLayout()
@@ -155,7 +155,7 @@ class MainWindow(QMainWindow):
         self.desktop_layout.addLayout(input_row)
 
         # ---- Button + Timestamp Row ----
-        self.folder_to_desktop = QPushButton("Folder_To_Desktop")
+        self.folder_to_desktop = QPushButton("Folder To Desktop")
         self.folder_to_desktop.setFixedWidth(180)
         self.folder_to_desktop.setMinimumHeight(35)
 
@@ -373,8 +373,15 @@ class MainWindow(QMainWindow):
                 Qt.AlignLeft | Qt.AlignVCenter,
                 Qt.TextAlignmentRole
             )
-
+            
         self.nested_date_toggle = QCheckBox("Add Date Stamp")
+        
+        
+        
+        
+        
+        
+        
         self.auto_enumerate_folders = QCheckBox("Auto Number + Name Folders/Sub Folders")
         
 
