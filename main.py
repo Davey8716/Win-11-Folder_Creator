@@ -361,7 +361,7 @@ class MainWindow(QMainWindow):
         
         
         # make the widget wide enough to show the longest entry
-        self.load_default_template_dropdown.setMinimumWidth(180)
+        self.load_default_template_dropdown.setMinimumWidth(160)
         # optional: let it grow if the layout allows
         self.load_default_template_dropdown.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
@@ -403,7 +403,11 @@ class MainWindow(QMainWindow):
 
 
 
-
+        self.open_folder_build_toggle = QCheckBox("Open Folder After Build.")
+        self.minimize_after_build_toggle = QCheckBox("Minimized To Tray After Build.")
+        self.open_folder_build_toggle.setMinimumWidth(260)
+        self.minimize_after_build_toggle.setMinimumWidth(260)
+        
 
 
 
@@ -418,7 +422,7 @@ class MainWindow(QMainWindow):
         for btn in [
             self.add_folder_btn, self.add_subfolder_btn,
             self.remove_btn, self.remove_all_btn,
-            self.create_template_btn,
+            self.create_template_btn,self.build_folders_btn,
         ]:
             btn.setMinimumWidth(150)
             btn.setMinimumHeight(35)
@@ -437,16 +441,48 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.auto_enumerate_folders, 1, 2, 1, 2)
 
         controls_layout.addWidget(self.create_template_btn, 2, 0)
-        controls_layout.addWidget(self.load_user_template_dropdown, 2, 1)
-        controls_layout.addWidget(self.load_default_template_dropdown, 2, 2)
+        controls_layout.addWidget(self.load_user_template_dropdown, 3, 1)
+        controls_layout.addWidget(self.load_default_template_dropdown, 2, 1)
         
-
-        controls_layout.addWidget(self.build_folders_btn, 3, 0, 1, 4)
+        controls_layout.addWidget(self.build_folders_btn, 3, 0, 1, 1)
+        controls_layout.addWidget(self.open_folder_build_toggle,2,2)
+        controls_layout.addWidget(self.minimize_after_build_toggle,3,2)
 
         controls_layout.setColumnStretch(2, 1)
         controls_layout.setColumnStretch(3, 1)
 
         self.smart_layout.addLayout(controls_layout)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # ---- Nested Status Panel (put back if you want it visible) ----
         self.smart_status_frame = QFrame()
@@ -633,7 +669,8 @@ class MainWindow(QMainWindow):
         """)
         
         self.nested_date_toggle.setStyleSheet(f"""
-            QCheckBox {{                             
+            QCheckBox {{   
+                font-size: 15px;                           
                 font-weight: 600;
                 color: {accent_color}
             }}                            
@@ -641,7 +678,8 @@ class MainWindow(QMainWindow):
         """)
         
         self.auto_enumerate_folders.setStyleSheet(f"""
-            QCheckBox {{                             
+            QCheckBox {{  
+                font-size: 15px;                           
                 font-weight: 600;
                 color: {accent_color}
             }}                            
@@ -651,6 +689,22 @@ class MainWindow(QMainWindow):
         self.desktop_section_title.setStyleSheet(f"""
             QLabel {{
                 font-size: 22px;
+                font-weight: 600;
+                color: {accent_color};
+            }}
+        """)
+        
+        self.open_folder_build_toggle.setStyleSheet(f"""
+            QCheckBox {{
+                font-size: 15px;
+                font-weight: 600;
+                color: {accent_color};
+            }}
+        """)
+        
+        self.minimize_after_build_toggle.setStyleSheet(f"""
+            QCheckBox {{
+                font-size: 15px;
                 font-weight: 600;
                 color: {accent_color};
             }}
