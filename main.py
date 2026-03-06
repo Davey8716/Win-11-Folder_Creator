@@ -1,12 +1,8 @@
 import sys
 import os  
-
-from drag_and_drop import SmartTreeWidget
-from desktop_folder_manager import DesktopFolderManager
-from theme_controller import ThemeController
-from template_IO_layer import TemplateService
+from app_service import AppService
 from pathlib import Path
-
+from drag_and_drop import SmartTreeWidget
 from state_manager import StateManager
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
@@ -35,6 +31,11 @@ from PySide6.QtWidgets import (
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        
+        self.tree = SmartTreeWidget()
+        
+        self.service = AppService(self.tree)
+        state = self.service.state
         
         self.setWindowTitle("Folder Generator")
         
@@ -109,11 +110,10 @@ class MainWindow(QMainWindow):
         dial_layout.setAlignment(Qt.AlignCenter)
         self.dial_frame.setLayout(dial_layout)
 
-        self.theme_controller = ThemeController()
 
         self.colour_accent_dial = QDial()
         self.colour_accent_dial.setFixedSize(80, 80)
-        self.colour_accent_dial.setRange(0, self.theme_controller.theme_count() - 1)
+        self.colour_accent_dial.setRange(0, self.service.theme_count() - 1)
 
         dial_layout.addWidget(self.colour_accent_dial, 0, Qt.AlignCenter)
 
@@ -489,9 +489,8 @@ class MainWindow(QMainWindow):
         tree_layout.setContentsMargins(6, 6, 6, 6)
         tree_layout.setSpacing(0)
         self.tree_frame.setLayout(tree_layout)
-
+        
         # ---- Tree Widget ----
-        self.tree = SmartTreeWidget()
         self.tree.setColumnCount(1)
         self.tree.setHeaderHidden(True)
 
@@ -785,11 +784,11 @@ class MainWindow(QMainWindow):
         self.load_default_template_dropdown.currentIndexChanged.connect(self.load_default_template)
         
         self.open_folder_build_toggle.toggled.connect(
-            lambda v: self.state_manager.update("open_folder_after_build", v)
+            lambda v: self.service.state_manager.update("open_folder_after_build", v)
         )
 
         self.minimize_after_build_toggle.toggled.connect(
-            lambda v: self.state_manager.update("minimize_after_build", v)
+            lambda v: self.service.state_manager.update("minimize_after_build", v)
         )
         
 
@@ -804,18 +803,15 @@ class MainWindow(QMainWindow):
         self.smart_status_timer.timeout.connect(lambda: self.reset_status("nested"))
                         
         # Apply initial theme
-        initial_accent = self.theme_controller.apply_theme(6)
-        self.apply_accent_styles(initial_accent)
+
+
 
         # React to dial changes
         self.colour_accent_dial.sliderReleased.connect(self.apply_selected_theme)
         
         # Loading of object instances
-        self.desktop_folder_service = DesktopFolderManager()
-        self.template_service = TemplateService()
-        self.state_manager = StateManager()
         
-        state = self.state_manager.load_state()
+        state = self.service.state
         self.current_mode = state.get("ui_mode", "desktop")
         
         # ---------------------------------------------------------
@@ -845,7 +841,7 @@ class MainWindow(QMainWindow):
 
         self.colour_accent_dial.setValue(theme_index)
 
-        accent = self.theme_controller.apply_theme(theme_index)
+        accent = self.service.apply_theme(theme_index)
         self.apply_accent_styles(accent)
 
 
@@ -906,8 +902,7 @@ class MainWindow(QMainWindow):
 
         if self.current_mode == "desktop":
             self.current_mode = "nested"
-            self.state_manager.update("ui_mode", self.current_mode)
-            
+            self.service.set_state("ui_mode", self.current_mode)
 
             self.desktop_section_title.setText(
                 "Nested Folder Creator\n(click to switch)"
@@ -915,13 +910,12 @@ class MainWindow(QMainWindow):
 
             self.smart_folder_creator_frame.show()
             self.desktop_folder_frame.hide()
-            
+
             self.setFixedSize(650, self.nested_mode_height)
-   
 
         else:
             self.current_mode = "desktop"
-            self.state_manager.update("ui_mode", self.current_mode)
+            self.service.set_state("ui_mode", self.current_mode)
 
             self.desktop_section_title.setText(
                 "Desktop Folder Creator\n(click to switch)"
@@ -929,19 +923,20 @@ class MainWindow(QMainWindow):
 
             self.desktop_folder_frame.show()
             self.smart_folder_creator_frame.hide()
-            
+
             self.setFixedSize(650, self.desktop_mode_height)
            
     
     def change_accent_theme(self, index: int):
-        accent = self.theme_controller.apply_theme(index)
+        accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
         
     def apply_selected_theme(self):
         index = self.colour_accent_dial.value()
-        accent = self.theme_controller.apply_theme(index)
+        accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
-        self.state_manager.update("theme_index", index)
+        self.service.set_state("theme_index", index)
+        
         
     def apply_accent_styles(self, accent_color: str):
 
@@ -1067,7 +1062,8 @@ class MainWindow(QMainWindow):
     
     def desktop_on_date_stamp_toggled(self, checked: bool):
         self.date_time_config.setEnabled(checked)
-        self.state_manager.update(
+
+        self.service.set_state(
             "desktop_date_stamp_enabled",
             checked
         )
@@ -1085,12 +1081,12 @@ class MainWindow(QMainWindow):
             elif "US" in text:
                 mode = "US"
                 
-            self.state_manager.update(
+            self.service.set_state(
                 "desktop_date_stamp_mode",
                 mode
             )
 
-        status, message = self.desktop_folder_service.create_folder(
+        status, message = self.service.create_desktop_folder(
             self.desktop_folder_line.text(),
             mode
         )
@@ -1124,25 +1120,28 @@ class MainWindow(QMainWindow):
             pass
     
     def toggle_auto_number_folders(self, checked: bool):
-        self.nested_folder_manager.auto_number_enabled = checked
-        self.state_manager.update(
+        self.service.nested_manager.auto_number_enabled = checked
+
+        self.service.set_state(
             "nested_auto_number_enabled",
             checked
         )
-    
+
+
     def nested_on_date_stamp_toggled(self, checked: bool):
         self.nested_date_config.setEnabled(checked)
-        self.state_manager.update(
+
+        self.service.set_state(
             "nested_date_stamp_enabled",
             checked
         )
 
+
     def default_to_desktop(self):
-        desktop_path = self.desktop_folder_service.desktop_path
+        desktop_path = self.service.desktop_manager.desktop_path
         self.base_path_line.setText(str(desktop_path))
-        
-            # persist to JSON
-        self.state_manager.update("last_base_dir", str(desktop_path))
+
+        self.service.set_state("last_base_dir", str(desktop_path))
 
         self.set_status(
             "Base directory set to Desktop.",
@@ -1156,11 +1155,10 @@ class MainWindow(QMainWindow):
             "Select Base Directory"
         )
 
-        
         if directory:
             self.base_path_line.setText(directory)
 
-            self.state_manager.update("last_base_dir", directory)
+            self.service.set_state("last_base_dir", directory)
 
             self.set_status(
                 f"Base directory set: {directory}",
@@ -1172,13 +1170,11 @@ class MainWindow(QMainWindow):
                 "No directory selected.",
                 target="nested",
                 status_type="error"
-        )
+            )
+
 
     def create_template(self):
-        status, message = self.template_service.save_from_tree(
-            self,                 # parent
-            self.nested_folder_manager    # tree manager
-        )
+        status, message = self.service.save_template(self)
 
         if status == "success":
             self.set_status(message, target="nested", status_type="success")
@@ -1223,29 +1219,28 @@ class MainWindow(QMainWindow):
         self.nested_folder_manager.expand_all_animated()
         
     def load_template(self):
-        status, message = self.template_service.load_into_tree(
-            self,                 # parent
-            self.nested_folder_manager    # tree manager
-        )
+        status, message = self.service.load_template_dialog(self)
 
         if status == "success":
             self.set_status(message, target="nested", status_type="success")
         elif status != "cancelled":
             self.set_status(message, target="nested", status_type="error")
-    
+
+
     # Drag and drop load
     def load_template_from_path(self, file_path):
         try:
-            # Disable auto naming/numbering for imported structures
+            # Disable auto numbering for imported structures
             if self.auto_enumerate_folders.isChecked():
                 self.auto_enumerate_folders.setChecked(False)
-            data = self.template_service.load_template(
-                file_path,
-                self.nested_folder_manager.parse_indented_text
-            )
 
-            self.nested_folder_manager.deserialize_tree(data)
-            self.set_status("Template loaded via drag & drop", target="nested", status_type="success")
+            self.service.load_template_from_path(file_path)
+
+            self.set_status(
+                "Template loaded via drag & drop",
+                target="nested",
+                status_type="success"
+            )
 
         except Exception:
             self.smart_status_text.setText("Error loading dropped file")
@@ -1272,7 +1267,7 @@ class MainWindow(QMainWindow):
                 mode
             )
 
-        status, message = self.nested_folder_manager.build_folders(base_path, mode)
+        status, message = self.service.build_tree(base_path, mode)
 
         if status == "success":
             stype = "success"
