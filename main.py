@@ -42,9 +42,7 @@ class MainWindow(QMainWindow):
         self.nested_mode_height = 975
         
         self.setFixedSize(650, self.desktop_mode_height)
-        
-        
-        
+
 
         # ===== Central Widget =====
         central_widget = QWidget()
@@ -55,6 +53,12 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(2,2,2,2)
         main_layout.setSpacing(5)
         central_widget.setLayout(main_layout)
+        
+        
+        
+        
+        
+        
 
         # ==========================================================
         # Dial
@@ -64,6 +68,9 @@ class MainWindow(QMainWindow):
         header_grid.setContentsMargins(5, 5, 5, 5)
         header_grid.setHorizontalSpacing(12)
         header_grid.setVerticalSpacing(0)
+        
+        
+        
 
         # ------------------------------
         # Title Frame (LEFT)
