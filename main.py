@@ -116,20 +116,26 @@ class MainWindow(QMainWindow):
         self.desktop_layout.setContentsMargins(12, 12, 12, 12)
         self.desktop_folder_frame.setLayout(self.desktop_layout)
 
-        # ---- Input Row ----
+        # ==========================================================
+        # Parent controls frame
+        # ==========================================================
+        self.desktop_controls_frame = QFrame()
+        self.desktop_controls_frame.setFrameShape(QFrame.StyledPanel)
+
+        desktop_controls_layout = QGridLayout()
+        desktop_controls_layout.setContentsMargins(6, 6, 6, 6)
+        desktop_controls_layout.setHorizontalSpacing(8)
+        desktop_controls_layout.setVerticalSpacing(0)
+        self.desktop_controls_frame.setLayout(desktop_controls_layout)
+
+        # ==========================================================
+        # Create widgets
+        # ==========================================================
         self.desktop_folder_line = QLineEdit()
-        self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
+        self.desktop_folder_line.setPlaceholderText("Enter folder name...")
         self.desktop_folder_line.setFixedWidth(180)
         self.desktop_folder_line.setMinimumHeight(35)
 
-        input_row = QHBoxLayout()
-        input_row.setSpacing(8)
-        input_row.addWidget(self.desktop_folder_line)
-        input_row.addStretch()
-
-        self.desktop_layout.addLayout(input_row)
-
-        # ---- Button + Timestamp Row ----
         self.folder_to_desktop = QPushButton("Folder To Desktop")
         self.folder_to_desktop.setFixedWidth(180)
         self.folder_to_desktop.setMinimumHeight(35)
@@ -141,16 +147,13 @@ class MainWindow(QMainWindow):
         self.date_time_config = QComboBox()
         self.date_time_config.setFixedWidth(160)
         self.date_time_config.setMinimumHeight(35)
-
         self.date_time_config.addItems([
             "ISO (YYYY-MM-DD)",
             "UK (DD-MM-YYYY)",
             "US (MM-DD-YYYY)"
         ])
-
         self.date_time_config.setEnabled(False)
 
-        # Align dropdown items
         for i in range(self.date_time_config.count()):
             self.date_time_config.setItemData(
                 i,
@@ -158,30 +161,69 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        # Align displayed text
         self.date_time_config.setEditable(True)
         self.date_time_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.date_time_config.lineEdit().setReadOnly(True)
 
-        # ---- Controls Grid ----
-        desktop_controls = QGridLayout()
-        desktop_controls.setHorizontalSpacing(10)
-        desktop_controls.setVerticalSpacing(6)
+        # ==========================================================
+        # Column 1 — Input frame
+        # ==========================================================
+        self.desktop_input_frame = QFrame()
+        self.desktop_input_frame.setFrameShape(QFrame.StyledPanel)
 
-        # Row 0
-        desktop_controls.addWidget(self.desktop_folder_line, 0, 0)
-        desktop_controls.addWidget(self.date_time_toggle, 0, 2)
+        desktop_input_layout = QVBoxLayout()
+        desktop_input_layout.setContentsMargins(6, 6, 6, 6)
+        desktop_input_layout.setSpacing(8)
+        self.desktop_input_frame.setLayout(desktop_input_layout)
 
-        # Row 1
-        desktop_controls.addWidget(self.folder_to_desktop, 1, 0)
-        desktop_controls.addWidget(self.date_time_config, 1, 2)
+        desktop_input_layout.addWidget(self.desktop_folder_line)
+        desktop_input_layout.addWidget(self.folder_to_desktop)
+        desktop_input_layout.addStretch()
 
-        desktop_controls.setColumnStretch(1, 1)
+        # ==========================================================
+        # Column 2 — Button frame
+        # ==========================================================
+        self.desktop_button_frame = QFrame()
+        self.desktop_button_frame.setFrameShape(QFrame.StyledPanel)
 
-        self.desktop_layout.addLayout(desktop_controls)
-            
+        desktop_button_layout = QVBoxLayout()
+        desktop_button_layout.setContentsMargins(6, 6, 6, 6)
+        desktop_button_layout.setSpacing(8)
+        self.desktop_button_frame.setLayout(desktop_button_layout)
 
+    
+        desktop_button_layout.addStretch()
 
+        # ==========================================================
+        # Column 3 — Date controls frame
+        # ==========================================================
+        self.desktop_date_frame = QFrame()
+        self.desktop_date_frame.setFrameShape(QFrame.StyledPanel)
+
+        desktop_date_layout = QVBoxLayout()
+        desktop_date_layout.setContentsMargins(6, 6, 6, 6)
+        desktop_date_layout.setSpacing(8)
+        self.desktop_date_frame.setLayout(desktop_date_layout)
+
+        desktop_date_layout.addWidget(self.date_time_toggle, 0, Qt.AlignCenter)
+        desktop_date_layout.addWidget(self.date_time_config, 0, Qt.AlignCenter)
+        desktop_date_layout.addStretch()
+
+        # ==========================================================
+        # Add subframes into parent controls frame
+        # ==========================================================
+        desktop_controls_layout.addWidget(self.desktop_input_frame, 0, 0)
+        desktop_controls_layout.addWidget(self.desktop_button_frame, 0, 1)
+        desktop_controls_layout.addWidget(self.desktop_date_frame, 0, 2)
+
+        desktop_controls_layout.setColumnStretch(0, 1)
+        desktop_controls_layout.setColumnStretch(1, 1)
+        desktop_controls_layout.setColumnStretch(2, 1)
+
+        # Add controls frame to desktop section
+        self.desktop_layout.addWidget(self.desktop_controls_frame)
+
+        
 
 
 
@@ -261,29 +303,21 @@ class MainWindow(QMainWindow):
         main_layout.addSpacing(8)   # or whatever value you want
 
 
-
-
-
-
-
-
-
-
-        # ==========================================================
-        # Editing + Template + Build Controls  (GRID)
-        # ==========================================================
-        
-
         self.controls_frame = QFrame()
         self.controls_frame.setFrameShape(QFrame.StyledPanel)
 
-        # ---- Layout inside the frame ----
-        frame_layout_editing = QVBoxLayout()
-        frame_layout_editing.setContentsMargins(6, 6, 6, 6)
-        frame_layout_editing.setSpacing(0)
-        self.controls_frame.setLayout(frame_layout_editing)
+        # ==========================================================
+        # Parent layout inside controls_frame
+        # ==========================================================
+        main_controls_layout = QGridLayout()
+        main_controls_layout.setContentsMargins(6, 6, 6, 6)
+        main_controls_layout.setHorizontalSpacing(8)
+        main_controls_layout.setVerticalSpacing(0)
+        self.controls_frame.setLayout(main_controls_layout)
 
-        # ---- Widgets ----
+        # ==========================================================
+        # Create all widgets first
+        # ==========================================================
         self.add_folder_btn = QPushButton("Add Folder")
         self.add_subfolder_btn = QPushButton("Add Subfolder")
 
@@ -293,17 +327,19 @@ class MainWindow(QMainWindow):
         self.create_template_btn = QPushButton("Create Template")
 
         self.load_user_template_dropdown = QComboBox()
-        self.load_user_template_dropdown.addItem("User Template")
+        self.load_user_template_dropdown.addItems([
+            "User Template"
+        ])
         self.load_user_template_dropdown.insertSeparator(
             self.load_user_template_dropdown.count()
         )
+        self.load_user_template_dropdown.setEnabled(True)
 
         self.load_default_template_dropdown = QComboBox()
         self.load_default_template_dropdown.addItem("Default Templates")
         self.load_default_template_dropdown.insertSeparator(
             self.load_default_template_dropdown.count()
         )
-
         self.load_default_template_dropdown.addItems([
             "Architects",
             "Creative Writers",
@@ -319,6 +355,7 @@ class MainWindow(QMainWindow):
 
         self.load_default_template_dropdown.setMinimumWidth(160)
         self.load_default_template_dropdown.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.load_default_template_dropdown.setEnabled(True)
 
         for i in range(self.load_default_template_dropdown.count()):
             self.load_default_template_dropdown.setItemData(
@@ -327,11 +364,8 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        self.nested_date_toggle = QCheckBox("Add Date Stamp To\n Parent Folder")
-
-        self.auto_enumerate_folders = QCheckBox(
-            "Auto Number + Name\n Folders/Sub Folders"
-        )
+        self.nested_date_toggle = QCheckBox("Add Date Stamp\n To Parent Folder")
+        self.auto_enumerate_folders = QCheckBox("Auto Number +\n Name Folders\n Sub Folders")
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -340,8 +374,8 @@ class MainWindow(QMainWindow):
             "US (MM-DD-YYYY)"
         ])
         self.nested_date_config.setEnabled(False)
-        self.nested_date_config.setMinimumWidth(140)
-        self.nested_date_config.setMinimumHeight(35)
+        self.nested_date_config.setMaximumWidth(140)
+        self.nested_date_config.setMaximumHeight(35)
 
         for i in range(self.nested_date_config.count()):
             self.nested_date_config.setItemData(
@@ -354,7 +388,6 @@ class MainWindow(QMainWindow):
         self.nested_date_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.nested_date_config.lineEdit().setReadOnly(True)
 
-        # ---- Button sizing ----
         for btn in [
             self.add_folder_btn,
             self.add_subfolder_btn,
@@ -365,34 +398,70 @@ class MainWindow(QMainWindow):
             btn.setMinimumWidth(150)
             btn.setMinimumHeight(35)
 
-        # ---- Grid Layout ----
-        controls_layout = QGridLayout()
-        controls_layout.setHorizontalSpacing(5)
-        controls_layout.setVerticalSpacing(8)
+        # ==========================================================
+        # Column 1 — Template frame
+        # ==========================================================
+        self.template_controls_frame = QFrame()
+        self.template_controls_frame.setFrameShape(QFrame.StyledPanel)
 
-        controls_layout.addWidget(self.create_template_btn, 0, 0)
-        controls_layout.addWidget(self.load_user_template_dropdown, 1, 0)
-        controls_layout.addWidget(self.load_default_template_dropdown, 2, 0)
+        template_layout = QVBoxLayout()
+        template_layout.setContentsMargins(8,8,8,8)
+        template_layout.setSpacing(8)
+        self.template_controls_frame.setLayout(template_layout)
 
-        controls_layout.addWidget(self.add_folder_btn, 0, 1)
-        controls_layout.addWidget(self.add_subfolder_btn, 1, 1)
-        controls_layout.addWidget(self.remove_btn, 2, 1)
-        controls_layout.addWidget(self.remove_all_btn, 3, 1)
+        template_layout.addWidget(self.create_template_btn)
+        template_layout.addWidget(self.load_user_template_dropdown)
+        template_layout.addWidget(self.load_default_template_dropdown)
+        template_layout.addStretch()
 
-        controls_layout.addWidget(self.nested_date_toggle, 0, 2)
-        controls_layout.addWidget(self.nested_date_config, 1, 2)
-        controls_layout.addWidget(self.auto_enumerate_folders, 2, 2, 1, 2)
+        # ==========================================================
+        # Column 2 — Folder buttons frame
+        # ==========================================================
+        self.folder_buttons_frame = QFrame()
+        self.folder_buttons_frame.setFrameShape(QFrame.StyledPanel)
 
-        controls_layout.setColumnStretch(0, 1)
-        controls_layout.setColumnStretch(1, 1)
-        controls_layout.setColumnStretch(2, 1)
+        folder_buttons_layout = QVBoxLayout()
+        folder_buttons_layout.setContentsMargins(6, 6, 6, 6)
+        folder_buttons_layout.setSpacing(8)
+        self.folder_buttons_frame.setLayout(folder_buttons_layout)
 
-        # ---- Add grid into frame ----
-        frame_layout_editing.addLayout(controls_layout)
+        folder_buttons_layout.addWidget(self.add_folder_btn)
+        folder_buttons_layout.addWidget(self.add_subfolder_btn)
+        folder_buttons_layout.addWidget(self.remove_btn)
+        folder_buttons_layout.addWidget(self.remove_all_btn)
+        folder_buttons_layout.addStretch()
 
-        # ---- Add frame into main layout ----
-        self.smart_layout.addWidget(self.controls_frame)   
+        # ==========================================================
+        # Column 3 — Date / auto-number frame
+        # ==========================================================
+        self.date_controls_frame = QFrame()
+        self.date_controls_frame.setFrameShape(QFrame.StyledPanel)
 
+        date_layout = QVBoxLayout()
+        date_layout.setContentsMargins(10,10,10,10)
+        date_layout.setSpacing(15)
+        self.date_controls_frame.setLayout(date_layout)
+
+        date_layout.addWidget(self.nested_date_toggle, 0 , Qt.AlignCenter)
+        date_layout.addWidget(self.nested_date_config,0 , Qt.AlignCenter)
+        date_layout.addWidget(self.auto_enumerate_folders,0 , Qt.AlignCenter)
+        date_layout.addStretch()
+
+        # ==========================================================
+        # Add the 3 child frames into the parent controls frame
+        # ==========================================================
+        main_controls_layout.addWidget(self.template_controls_frame, 0, 0)
+        main_controls_layout.addWidget(self.folder_buttons_frame, 0, 1)
+        main_controls_layout.addWidget(self.date_controls_frame, 0, 2)
+
+        main_controls_layout.setColumnStretch(0, 1)
+        main_controls_layout.setColumnStretch(1, 1)
+        main_controls_layout.setColumnStretch(2, 1)
+
+        # ==========================================================
+        # Add parent frame to smart layout
+        # ==========================================================
+        self.smart_layout.addWidget(self.controls_frame)
 
     
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
