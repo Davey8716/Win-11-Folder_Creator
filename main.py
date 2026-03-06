@@ -37,7 +37,14 @@ class MainWindow(QMainWindow):
         super().__init__()
         
         self.setWindowTitle("Folder Generator")
-        self.setFixedSize(650, 1000)
+        
+        self.desktop_mode_height = 300
+        self.nested_mode_height = 975
+        
+        self.setFixedSize(650, self.desktop_mode_height)
+        
+        
+        
 
         # ===== Central Widget =====
         central_widget = QWidget()
@@ -66,12 +73,27 @@ class MainWindow(QMainWindow):
         self.desktop_title_frame.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
 
         desktop_title_layout = QVBoxLayout()
-        desktop_title_layout.setContentsMargins(8, 2, 8, 6)
+        desktop_title_layout.setContentsMargins(10,10,10,10)
         desktop_title_layout.setSpacing(0)
         self.desktop_title_frame.setLayout(desktop_title_layout)
 
-        self.desktop_section_title = QLabel("Desktop Folder Creator")
-        self.desktop_section_title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.current_mode = "desktop"
+
+        self.desktop_section_title = QPushButton(
+            "Desktop Folder Creator\n(click to switch)"
+        )
+
+        self.desktop_section_title.setCursor(Qt.PointingHandCursor)
+        self.desktop_section_title.setFlat(True)
+        self.desktop_section_title.setStyleSheet("""
+        QPushButton {
+            font-size: 26px;
+            font-weight: 600;
+            text-align: left;
+        }
+        """)
+
+        self.desktop_section_title.clicked.connect(self.toggle_mode)
 
         desktop_title_layout.addWidget(self.desktop_section_title)
 
@@ -109,7 +131,10 @@ class MainWindow(QMainWindow):
         # ==========================================================
 
         self.desktop_folder_frame = QFrame()
+        
         self.desktop_folder_frame.setFrameShape(QFrame.StyledPanel)
+
+
 
         self.desktop_layout = QVBoxLayout()
         self.desktop_layout.setSpacing(6)
@@ -132,7 +157,7 @@ class MainWindow(QMainWindow):
         # Create widgets
         # ==========================================================
         self.desktop_folder_line = QLineEdit()
-        self.desktop_folder_line.setPlaceholderText("Enter folder name...")
+        self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
         self.desktop_folder_line.setFixedWidth(180)
         self.desktop_folder_line.setMinimumHeight(35)
 
@@ -213,8 +238,8 @@ class MainWindow(QMainWindow):
         # Add subframes into parent controls frame
         # ==========================================================
         desktop_controls_layout.addWidget(self.desktop_input_frame, 0, 0)
-        desktop_controls_layout.addWidget(self.desktop_button_frame, 0, 1)
-        desktop_controls_layout.addWidget(self.desktop_date_frame, 0, 2)
+        desktop_controls_layout.addWidget(self.desktop_button_frame, 0, 2)
+        desktop_controls_layout.addWidget(self.desktop_date_frame, 0, 1)
 
         desktop_controls_layout.setColumnStretch(0, 1)
         desktop_controls_layout.setColumnStretch(1, 1)
@@ -275,34 +300,12 @@ class MainWindow(QMainWindow):
         self.smart_folder_creator_frame = QFrame()
         self.smart_folder_creator_frame.setFrameShape(QFrame.StyledPanel)
 
+
         self.smart_layout = QVBoxLayout()
-        self.smart_layout.setSpacing(8)
-        self.smart_layout.setContentsMargins(12, 12, 12, 12)
+        self.smart_layout.setSpacing(6)
+        self.smart_layout.setContentsMargins(6,6,6,6)
         self.smart_folder_creator_frame.setLayout(self.smart_layout)
         
-        # ==========================================================
-        # FRAME 2 — Nested Folder Creator
-        # ==========================================================
-
-        # ---- Section Title Frame ----
-        self.smart_title_frame = QFrame()
-        self.smart_title_frame.setFrameShape(QFrame.StyledPanel)
-        self.smart_title_frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-
-        smart_title_layout = QVBoxLayout()
-        smart_title_layout.setContentsMargins(8, 6, 8, 6)
-        smart_title_layout.setSpacing(8)
-        self.smart_title_frame.setLayout(smart_title_layout)
-
-        self.smart_folder_creator = QLabel("Nested Folder Creator")
-        self.smart_folder_creator.setAlignment(Qt.AlignLeft)
-
-        smart_title_layout.addWidget(self.smart_folder_creator)
-
-        main_layout.addWidget(self.smart_title_frame)
-        main_layout.addSpacing(5)   # or whatever value you want
-
-
         self.controls_frame = QFrame()
         self.controls_frame.setFrameShape(QFrame.StyledPanel)
 
@@ -325,6 +328,7 @@ class MainWindow(QMainWindow):
         self.remove_all_btn = QPushButton("Remove All")
 
         self.create_template_btn = QPushButton("Create Template")
+        
 
         self.load_user_template_dropdown = QComboBox()
         self.load_user_template_dropdown.addItems([
@@ -408,14 +412,14 @@ class MainWindow(QMainWindow):
         self.template_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         template_layout = QVBoxLayout()
-        template_layout.setContentsMargins(8,8,8,8)
-        template_layout.setSpacing(8)
+        template_layout.setContentsMargins(6,6,6,6)
+        template_layout.setSpacing(6)
         self.template_controls_frame.setLayout(template_layout)
 
         template_layout.addWidget(self.create_template_btn)
         template_layout.addWidget(self.load_user_template_dropdown)
         template_layout.addWidget(self.load_default_template_dropdown)
-        template_layout.addStretch()
+        
 
         # ==========================================================
         # Column 2 — Folder buttons frame
@@ -432,7 +436,7 @@ class MainWindow(QMainWindow):
         folder_buttons_layout.addWidget(self.add_subfolder_btn)
         folder_buttons_layout.addWidget(self.remove_btn)
         folder_buttons_layout.addWidget(self.remove_all_btn)
-        folder_buttons_layout.addStretch()
+        
 
         # ==========================================================
         # Column 3 — Date / auto-number frame
@@ -449,8 +453,7 @@ class MainWindow(QMainWindow):
         date_layout.addWidget(self.auto_enumerate_folders,)
         date_layout.addWidget(self.nested_date_toggle,)
         date_layout.addWidget(self.nested_date_config,)
-        
-        date_layout.addStretch()
+
 
         # ==========================================================
         # Add the 3 child frames into the parent controls frame
@@ -589,7 +592,7 @@ class MainWindow(QMainWindow):
         build_layout.addWidget(self.default_to_desktop_btn)
         build_layout.addWidget(self.browse_btn)
         build_layout.addWidget(self.build_folders_btn)
-        build_layout.addStretch()
+        
 
         # ==========================================================
         # CENTER FRAME — Empty spacer
@@ -616,14 +619,13 @@ class MainWindow(QMainWindow):
 
         post_build_layout.addWidget(self.open_folder_build_toggle,0,Qt.AlignHCenter)
         post_build_layout.addWidget(self.minimize_after_build_toggle,0,Qt.AlignHCenter)
-        post_build_layout.addStretch()
 
         # ----------------------------------------------------------
         # Add the 3 frames to the parent
         # ----------------------------------------------------------
         output_controls_layout.addWidget(self.build_buttons_frame,0,0)
-        output_controls_layout.addWidget(self.output_spacer_frame,0,1)
-        output_controls_layout.addWidget(self.post_build_frame,0,2)
+        output_controls_layout.addWidget(self.output_spacer_frame,0,2)
+        output_controls_layout.addWidget(self.post_build_frame,0,1)
 
         output_controls_layout.setColumnStretch(0,1)
         output_controls_layout.setColumnStretch(1,1)
@@ -651,7 +653,7 @@ class MainWindow(QMainWindow):
 
         smart_status_layout.addWidget(self.smart_status_icon)
         smart_status_layout.addWidget(self.smart_status_text)
-        smart_status_layout.addStretch()
+
 
 
         frame_layout_output.addWidget(self.smart_status_frame)
@@ -663,7 +665,8 @@ class MainWindow(QMainWindow):
   
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
-
+        
+        
 
 
 
@@ -812,12 +815,29 @@ class MainWindow(QMainWindow):
         self.template_service = TemplateService()
         self.state_manager = StateManager()
         
-        
-        
-        
         state = self.state_manager.load_state()
+        self.current_mode = state.get("ui_mode", "desktop")
         
+        # ---------------------------------------------------------
+        # Initial UI mode
+        # ---------------------------------------------------------
+        if self.current_mode == "nested":
+            self.desktop_section_title.setText(
+                "Nested Folder Creator\n(click to switch)"
+            )
+            self.desktop_folder_frame.hide()
+            self.smart_folder_creator_frame.show()
+            self.setFixedSize(650, self.nested_mode_height)
+        else:
+            self.desktop_section_title.setText(
+                "Desktop Folder Creator\n(click to switch)"
+            )
+            self.smart_folder_creator_frame.hide()
+            self.desktop_folder_frame.show()
+            self.setFixedSize(650, self.desktop_mode_height)
+
     
+
         # ---------------------------------------------------------
         # Restore Theme Dial
         # ---------------------------------------------------------
@@ -881,7 +901,37 @@ class MainWindow(QMainWindow):
 
         min_after = state.get("minimize_after_build", False)
         self.minimize_after_build_toggle.setChecked(min_after)
-                
+        
+    def toggle_mode(self):
+
+        if self.current_mode == "desktop":
+            self.current_mode = "nested"
+            self.state_manager.update("ui_mode", self.current_mode)
+            
+
+            self.desktop_section_title.setText(
+                "Nested Folder Creator\n(click to switch)"
+            )
+
+            self.smart_folder_creator_frame.show()
+            self.desktop_folder_frame.hide()
+            
+            self.setFixedSize(650, self.nested_mode_height)
+   
+
+        else:
+            self.current_mode = "desktop"
+            self.state_manager.update("ui_mode", self.current_mode)
+
+            self.desktop_section_title.setText(
+                "Desktop Folder Creator\n(click to switch)"
+            )
+
+            self.desktop_folder_frame.show()
+            self.smart_folder_creator_frame.hide()
+            
+            self.setFixedSize(650, self.desktop_mode_height)
+           
     
     def change_accent_theme(self, index: int):
         accent = self.theme_controller.apply_theme(index)
@@ -898,7 +948,7 @@ class MainWindow(QMainWindow):
 
         # ---- Section labels ----
         title_2 = [
-            self.smart_folder_creator,
+            # self.smart_folder_creator,
             self.desktop_section_title
         ]
 
