@@ -13,13 +13,21 @@ class StateManager:
             "theme_index": 0,
             "last_base_dir": "",
 
+            # Desktop creator
             "desktop_date_stamp_enabled": False,
             "desktop_date_stamp_mode": "ISO",
 
+            # Nested creator
             "nested_date_stamp_enabled": False,
             "nested_date_stamp_mode": "ISO",
+            "nested_auto_number_enabled": False,
 
-            "nested_auto_number_enabled": False
+            # Nested build behaviour
+            "open_folder_after_build": False,
+            "minimize_after_build": False,
+
+            # UI mode
+            "ui_mode": "desktop"
         }
 
     # ---------------------------------------------------------

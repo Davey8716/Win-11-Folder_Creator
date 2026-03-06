@@ -1,9 +1,12 @@
 {
     "theme_index": 9,
-    "last_base_dir": "C:\\Users\\davey\\Desktop",
-    "desktop_date_stamp_enabled": true,
-    "desktop_date_stamp_mode": "US",
+    "last_base_dir": "C:/Users/davey/Desktop/Research_Project_2026-03-06/References",
+    "desktop_date_stamp_enabled": false,
+    "desktop_date_stamp_mode": "ISO",
     "nested_date_stamp_enabled": true,
     "nested_date_stamp_mode": "ISO",
-    "nested_auto_number_enabled": false
+    "nested_auto_number_enabled": true,
+    "open_folder_after_build": false,
+    "minimize_after_build": false,
+    "ui_mode": "nested"
 }
