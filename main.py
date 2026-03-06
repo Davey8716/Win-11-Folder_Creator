@@ -3,7 +3,6 @@ import os
 from app_service import AppService
 from pathlib import Path
 from drag_and_drop import SmartTreeWidget
-from state_manager import StateManager
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton, QSizePolicy
