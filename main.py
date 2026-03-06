@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         
         self.setWindowTitle("Folder Generator")
         
-        self.desktop_mode_height = 300
+        self.desktop_mode_height = 315
         self.nested_mode_height = 975
         
         self.setFixedSize(650, self.desktop_mode_height)
