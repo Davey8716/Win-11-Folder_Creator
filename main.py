@@ -45,49 +45,45 @@ class MainWindow(QMainWindow):
 
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
-        main_layout.setContentsMargins(20, 15, 20, 20)
-        main_layout.setSpacing(3)
+        main_layout.setContentsMargins(10, 5, 10,10)
+        main_layout.setSpacing(5)
         central_widget.setLayout(main_layout)
 
         # ==========================================================
-        # HEADER SECTION — Title (Left) + Dial (Right)
+        # Dial
         # ==========================================================
 
-        header_row = QHBoxLayout()
-        header_row.setSpacing(15)
-        header_row.setContentsMargins(5,5,5,5)
+        header_grid = QGridLayout()
+        header_grid.setContentsMargins(5, 5, 5, 5)
+        header_grid.setHorizontalSpacing(12)
+        header_grid.setVerticalSpacing(0)
 
         # ------------------------------
-        # Main Title Frame (LEFT)  ✅ now tight
+        # Title Frame (LEFT)
         # ------------------------------
-        self.title_frame = QFrame()
-        self.title_frame.setFrameShape(QFrame.StyledPanel)
-        
+        self.desktop_title_frame = QFrame()
+        self.desktop_title_frame.setFrameShape(QFrame.StyledPanel)
+        self.desktop_title_frame.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
 
-        # Key: do NOT expand horizontally
-        self.title_frame.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+        desktop_title_layout = QVBoxLayout()
+        desktop_title_layout.setContentsMargins(8, 2, 8, 6)
+        desktop_title_layout.setSpacing(0)
+        self.desktop_title_frame.setLayout(desktop_title_layout)
 
-        title_layout = QVBoxLayout()
-        title_layout.setContentsMargins(14, 10, 14, 10)  # tweak as you like
-        title_layout.setSpacing(0)
-        title_layout.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.title_frame.setLayout(title_layout)
+        self.desktop_section_title = QLabel("Desktop Folder Creator")
+        self.desktop_section_title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-        self.app_title = QLabel("Folder Generator")
-        self.app_title.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.app_title.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-
-        title_layout.addWidget(self.app_title)
+        desktop_title_layout.addWidget(self.desktop_section_title)
 
         # ------------------------------
         # Dial Frame (RIGHT)
         # ------------------------------
         self.dial_frame = QFrame()
         self.dial_frame.setFrameShape(QFrame.StyledPanel)
-        self.dial_frame.setFixedWidth(120)
+        self.dial_frame.setFixedSize(90,90)
 
         dial_layout = QVBoxLayout()
-        dial_layout.setContentsMargins(14,10,14,10)
+        dial_layout.setContentsMargins(5,5,5,5)
         dial_layout.setAlignment(Qt.AlignCenter)
         self.dial_frame.setLayout(dial_layout)
 
@@ -97,39 +93,17 @@ class MainWindow(QMainWindow):
         self.colour_accent_dial.setFixedSize(80, 80)
         self.colour_accent_dial.setRange(0, self.theme_controller.theme_count() - 1)
 
-        dial_layout.addWidget(self.colour_accent_dial)
+        dial_layout.addWidget(self.colour_accent_dial, 0, Qt.AlignCenter)
 
         # ------------------------------
-        # Add to Header Row  ✅ keep wheel spacing, pin right
+        # Grid placement
         # ------------------------------
-        header_row.addWidget(self.title_frame, 0, Qt.AlignTop)
-        header_row.addWidget(self.title_frame, 0, Qt.AlignLeft)
-        header_row.addStretch(1)
-        header_row.addWidget(self.dial_frame, 0, Qt.AlignRight)
+        header_grid.addWidget(self.desktop_title_frame, 0, 5, Qt.AlignLeft | Qt.AlignBottom)
+        header_grid.addWidget(self.dial_frame, 0, 5, Qt.AlignRight | Qt.AlignBottom)
 
-        main_layout.addLayout(header_row)
-        main_layout.addSpacing(15)
-
-        # ==========================================================
-        # Desktop Section Title Frame
-        # ==========================================================
-
-        self.desktop_title_frame = QFrame()
-        self.desktop_title_frame.setFrameShape(QFrame.StyledPanel)
-
-        desktop_title_layout = QVBoxLayout()
-        desktop_title_layout.setContentsMargins(8, 6, 8, 6)
-        desktop_title_layout.setSpacing(0)
-        self.desktop_title_frame.setLayout(desktop_title_layout)
-
-        self.desktop_section_title = QLabel("Desktop Folder Creator")
-        self.desktop_section_title.setAlignment(Qt.AlignLeft)
-
-        desktop_title_layout.addWidget(self.desktop_section_title)
-
-        main_layout.addWidget(self.desktop_title_frame)
-        main_layout.addSpacing(6)   # tight title → frame
-
+        main_layout.addLayout(header_grid)
+        main_layout.addSpacing(8)
+                
         # ==========================================================
         # FRAME 1 — Desktop Folder Creator
         # ==========================================================
@@ -144,7 +118,7 @@ class MainWindow(QMainWindow):
 
         # ---- Input Row ----
         self.desktop_folder_line = QLineEdit()
-        self.desktop_folder_line.setPlaceholderText("Enter folder name...")
+        self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
         self.desktop_folder_line.setFixedWidth(180)
         self.desktop_folder_line.setMinimumHeight(35)
 
@@ -271,6 +245,7 @@ class MainWindow(QMainWindow):
         # ---- Section Title Frame ----
         self.smart_title_frame = QFrame()
         self.smart_title_frame.setFrameShape(QFrame.StyledPanel)
+        self.smart_title_frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
 
         smart_title_layout = QVBoxLayout()
         smart_title_layout.setContentsMargins(8, 6, 8, 6)
@@ -297,11 +272,18 @@ class MainWindow(QMainWindow):
         # ==========================================================
         # Editing + Template + Build Controls  (GRID)
         # ==========================================================
+        
 
-        controls_layout = QGridLayout()
-        controls_layout.setHorizontalSpacing(5)
-        controls_layout.setVerticalSpacing(8)
+        self.controls_frame = QFrame()
+        self.controls_frame.setFrameShape(QFrame.StyledPanel)
 
+        # ---- Layout inside the frame ----
+        frame_layout_editing = QVBoxLayout()
+        frame_layout_editing.setContentsMargins(6, 6, 6, 6)
+        frame_layout_editing.setSpacing(0)
+        self.controls_frame.setLayout(frame_layout_editing)
+
+        # ---- Widgets ----
         self.add_folder_btn = QPushButton("Add Folder")
         self.add_subfolder_btn = QPushButton("Add Subfolder")
 
@@ -309,28 +291,19 @@ class MainWindow(QMainWindow):
         self.remove_all_btn = QPushButton("Remove All")
 
         self.create_template_btn = QPushButton("Create Template")
-        self.load_user_template_dropdown = QComboBox()
-        self.load_user_template_dropdown.addItems([
-            "User Template"
-        ])
-    
 
-        # Insert separator at end
+        self.load_user_template_dropdown = QComboBox()
+        self.load_user_template_dropdown.addItem("User Template")
         self.load_user_template_dropdown.insertSeparator(
             self.load_user_template_dropdown.count()
         )
-        
-        self.load_user_template_dropdown.setEnabled(True)
 
         self.load_default_template_dropdown = QComboBox()
-        
         self.load_default_template_dropdown.addItem("Default Templates")
-        
-        
         self.load_default_template_dropdown.insertSeparator(
             self.load_default_template_dropdown.count()
         )
-    
+
         self.load_default_template_dropdown.addItems([
             "Architects",
             "Creative Writers",
@@ -342,28 +315,23 @@ class MainWindow(QMainWindow):
             "Researchers",
             "Software Developers",
             "Video Editing"
-            
         ])
-        
-        
-        # make the widget wide enough to show the longest entry
+
         self.load_default_template_dropdown.setMinimumWidth(160)
-        # optional: let it grow if the layout allows
         self.load_default_template_dropdown.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
-        self.load_default_template_dropdown.setEnabled(True)
-        
         for i in range(self.load_default_template_dropdown.count()):
             self.load_default_template_dropdown.setItemData(
                 i,
                 Qt.AlignLeft | Qt.AlignVCenter,
                 Qt.TextAlignmentRole
             )
-            
-        self.nested_date_toggle = QCheckBox("Add Date Stamp  To Parent Folder")
-        
-        self.auto_enumerate_folders = QCheckBox("Auto Number + \nName Folders/Sub Folders")
-        
+
+        self.nested_date_toggle = QCheckBox("Add Date Stamp To\n Parent Folder")
+
+        self.auto_enumerate_folders = QCheckBox(
+            "Auto Number + Name\n Folders/Sub Folders"
+        )
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -372,8 +340,9 @@ class MainWindow(QMainWindow):
             "US (MM-DD-YYYY)"
         ])
         self.nested_date_config.setEnabled(False)
+        self.nested_date_config.setMinimumWidth(140)
+        self.nested_date_config.setMinimumHeight(35)
 
-        # Align dropdown items
         for i in range(self.nested_date_config.count()):
             self.nested_date_config.setItemData(
                 i,
@@ -381,65 +350,69 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        # Align the currently displayed text
         self.nested_date_config.setEditable(True)
         self.nested_date_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.nested_date_config.lineEdit().setReadOnly(True)
 
-        self.nested_date_config.setMinimumHeight(35)
-
+        # ---- Button sizing ----
         for btn in [
-            self.add_folder_btn, self.add_subfolder_btn,
-            self.remove_btn, self.remove_all_btn,
-            self.create_template_btn,
+            self.add_folder_btn,
+            self.add_subfolder_btn,
+            self.remove_btn,
+            self.remove_all_btn,
+            self.create_template_btn
         ]:
             btn.setMinimumWidth(150)
             btn.setMinimumHeight(35)
 
-    
-        self.nested_date_config.setMinimumWidth(140)
-        self.nested_date_config.setMinimumHeight(35)
-
-        controls_layout.addWidget(self.add_folder_btn,      0,1)
-        controls_layout.addWidget(self.add_subfolder_btn,   1,1)
-        controls_layout.addWidget(self.nested_date_toggle,  0, 2)
-        controls_layout.addWidget(self.nested_date_config,  1, 2)
-        controls_layout.addWidget(self.auto_enumerate_folders, 2,2,1,2)
-
-        controls_layout.addWidget(self.remove_btn,             2,1)
-        controls_layout.addWidget(self.remove_all_btn,         3,1)
-        
+        # ---- Grid Layout ----
+        controls_layout = QGridLayout()
+        controls_layout.setHorizontalSpacing(5)
+        controls_layout.setVerticalSpacing(8)
 
         controls_layout.addWidget(self.create_template_btn, 0, 0)
         controls_layout.addWidget(self.load_user_template_dropdown, 1, 0)
         controls_layout.addWidget(self.load_default_template_dropdown, 2, 0)
-        
+
+        controls_layout.addWidget(self.add_folder_btn, 0, 1)
+        controls_layout.addWidget(self.add_subfolder_btn, 1, 1)
+        controls_layout.addWidget(self.remove_btn, 2, 1)
+        controls_layout.addWidget(self.remove_all_btn, 3, 1)
+
+        controls_layout.addWidget(self.nested_date_toggle, 0, 2)
+        controls_layout.addWidget(self.nested_date_config, 1, 2)
+        controls_layout.addWidget(self.auto_enumerate_folders, 2, 2, 1, 2)
+
         controls_layout.setColumnStretch(0, 1)
         controls_layout.setColumnStretch(1, 1)
         controls_layout.setColumnStretch(2, 1)
-                
 
-        self.smart_layout.addLayout(controls_layout)
+        # ---- Add grid into frame ----
+        frame_layout_editing.addLayout(controls_layout)
+
+        # ---- Add frame into main layout ----
+        self.smart_layout.addWidget(self.controls_frame)   
 
 
     
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################
 
 
-
-
-
-
-
+        # # # # # # # # # # # # # # # # # # # # # # # Ouput Folder Creator # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        self.tree_frame = QFrame()
+        self.tree_frame.setFrameShape(QFrame.StyledPanel)
         
-                
+        
+        tree_layout = QVBoxLayout()
+        tree_layout.setContentsMargins(6, 6, 6, 6)
+        tree_layout.setSpacing(0)
+        self.tree_frame.setLayout(tree_layout)
+
         # ---- Tree Widget ----
         self.tree = SmartTreeWidget()
         self.tree.setColumnCount(1)
@@ -463,9 +436,14 @@ class MainWindow(QMainWindow):
             ),
             bold=True
         )
-                
+        
+        # IMPORTANT: put the tree inside the frame
+        tree_layout.addWidget(self.tree)
+        
+        # add the frame instead of the tree
+        self.smart_layout.addWidget(self.tree_frame)
+        
         self.tree.setAlternatingRowColors(True)
-        self.smart_layout.addWidget(self.tree)
         self.nested_folder_manager = NestedFolderManager(self.tree)
 
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
@@ -477,11 +455,16 @@ class MainWindow(QMainWindow):
 ################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################
 
-        
+        # ---- Output Frame ----
+        self.out_put_frame = QFrame()
+        self.out_put_frame.setFrameShape(QFrame.StyledPanel)
 
-       
+        frame_layout_output = QVBoxLayout()
+        frame_layout_output.setContentsMargins(6, 6, 6, 6)
+        frame_layout_output.setSpacing(6)
+        self.out_put_frame.setLayout(frame_layout_output)
 
-        # ---- Base Path Field (Full Width Row) ----
+        # ---- Base Path Field ----
         self.base_path_line = QLineEdit()
         self.base_path_line.setPlaceholderText(
             "Select base directory for output folder location"
@@ -489,30 +472,20 @@ class MainWindow(QMainWindow):
         self.base_path_line.setReadOnly(True)
         self.base_path_line.setMinimumHeight(35)
 
-        self.smart_layout.addWidget(self.base_path_line)
-        
-        
+        frame_layout_output.addWidget(self.base_path_line)
 
-
-        # ---- Base Path Buttons Row ----
-        base_button_row = QHBoxLayout()
-        base_button_row.setSpacing(8)
-
+        # ---- Buttons / Toggles ----
         self.default_to_desktop_btn = QPushButton("Default Desktop")
         self.browse_btn = QPushButton("Browse")
         self.build_folders_btn = QPushButton("Build Folders")
-    
+
         self.open_folder_build_toggle = QCheckBox("Open Folder After Build")
-        self.minimize_after_build_toggle = QCheckBox("Minimized After Build")
+        self.minimize_after_build_toggle = QCheckBox("Minimize After Build")
+
         self.open_folder_build_toggle.setMinimumWidth(200)
         self.minimize_after_build_toggle.setMinimumWidth(200)
-        
-        
-        base_controls = QGridLayout()
-        base_controls.setHorizontalSpacing(8)
-        base_controls.setVerticalSpacing(6)
 
-        # Button sizes
+        # Button sizing
         for btn in [
             self.default_to_desktop_btn,
             self.browse_btn,
@@ -521,18 +494,22 @@ class MainWindow(QMainWindow):
             btn.setMinimumWidth(120)
             btn.setMinimumHeight(35)
 
-        # Toggle sizes
         for toggle in [
             self.open_folder_build_toggle,
             self.minimize_after_build_toggle
         ]:
             toggle.setMinimumHeight(35)
 
+        # ---- Grid Layout ----
+        base_controls = QGridLayout()
+        base_controls.setHorizontalSpacing(8)
+        base_controls.setVerticalSpacing(6)
+
         # Row 0
         base_controls.addWidget(self.default_to_desktop_btn, 0, 0)
-        base_controls.addWidget(self.browse_btn,             0, 1)
+        base_controls.addWidget(self.browse_btn, 0, 1)
 
-        # expanding spacer column
+        # spacer column
         base_controls.setColumnStretch(2, 1)
 
         base_controls.addWidget(self.open_folder_build_toggle, 0, 3)
@@ -541,25 +518,17 @@ class MainWindow(QMainWindow):
         base_controls.addWidget(self.build_folders_btn, 1, 0)
         base_controls.addWidget(self.minimize_after_build_toggle, 1, 3)
 
-        self.smart_layout.addLayout(base_controls)
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        # ---- Nested Status Panel (put back if you want it visible) ----
+        # add grid to frame
+        frame_layout_output.addLayout(base_controls)
+
+        # ---- Status Panel ----
         self.smart_status_frame = QFrame()
         self.smart_status_frame.setObjectName("statusFrame")
 
-        smart_status_layout = QHBoxLayout(self.smart_status_frame)
+        smart_status_layout = QHBoxLayout()
         smart_status_layout.setContentsMargins(10, 6, 10, 6)
         smart_status_layout.setSpacing(8)
+        self.smart_status_frame.setLayout(smart_status_layout)
 
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
@@ -569,7 +538,11 @@ class MainWindow(QMainWindow):
         smart_status_layout.addWidget(self.smart_status_text)
         smart_status_layout.addStretch()
 
-        self.smart_layout.addWidget(self.smart_status_frame)
+        frame_layout_output.addWidget(self.smart_status_frame)
+
+        # ---- Add output frame to section ----
+        self.smart_layout.addWidget(self.out_put_frame)
+        
 
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
@@ -792,9 +765,7 @@ class MainWindow(QMainWindow):
         min_after = state.get("minimize_after_build", False)
         self.minimize_after_build_toggle.setChecked(min_after)
                 
-        
-        
-
+    
     def change_accent_theme(self, index: int):
         accent = self.theme_controller.apply_theme(index)
         self.apply_accent_styles(accent)
@@ -807,17 +778,6 @@ class MainWindow(QMainWindow):
         
     def apply_accent_styles(self, accent_color: str):
 
-        # ---- Title labels ----
-        title_1 = [self.app_title]
-
-        for lbl in title_1:
-            lbl.setStyleSheet(f"""
-                QLabel {{
-                    font-size: 26px;
-                    font-weight: 600;
-                    color: {accent_color};
-                }}
-            """)
 
         # ---- Section labels ----
         title_2 = [
@@ -842,6 +802,7 @@ class MainWindow(QMainWindow):
         for cb in default_checks:
             cb.setStyleSheet(f"""
                 QCheckBox {{
+                    font-size: 15px;
                     font-weight: 600;
                     color: {accent_color};
                 }}
