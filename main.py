@@ -1268,7 +1268,8 @@ class MainWindow(QMainWindow):
             elif "US" in text:
                 mode = "US"
                 
-            self.state_manager.update(
+
+            self.service.state_manager.update(
                 "nested_date_stamp_mode",
                 mode
             )
