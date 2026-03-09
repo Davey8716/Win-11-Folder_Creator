@@ -22,10 +22,16 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
     QComboBox,
-    QDial,
-    QGridLayout,QSpinBox
+    QSlider,
+    QGridLayout,QSpinBox,
 
 )
+
+from PySide6.QtWidgets import QSlider
+from PySide6.QtCore import Qt
+
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -50,7 +56,7 @@ class MainWindow(QMainWindow):
 
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
-        main_layout.setContentsMargins(2,2,2,2)
+        main_layout.setContentsMargins(10,10,10,10)
         main_layout.setSpacing(5)
         central_widget.setLayout(main_layout)
         
@@ -61,7 +67,7 @@ class MainWindow(QMainWindow):
         
 
         # ==========================================================
-        # Dial
+        # Slider
         # ==========================================================
 
         header_grid = QGridLayout()
@@ -103,32 +109,58 @@ class MainWindow(QMainWindow):
         self.desktop_section_title.clicked.connect(self.toggle_mode)
 
         desktop_title_layout.addWidget(self.desktop_section_title)
+        
+        self.theme_selector_frame = QFrame()
+        self.theme_selector_frame.setFrameShape(QFrame.StyledPanel)
 
-        # ------------------------------
-        # Dial Frame (RIGHT)
-        # ------------------------------
-        self.dial_frame = QFrame()
-        self.dial_frame.setFrameShape(QFrame.StyledPanel)
-        self.dial_frame.setFixedSize(90,90)
+        theme_layout = QGridLayout()
+        theme_layout.setSpacing(6)
+        theme_layout.setContentsMargins(6,6,6,6)
 
-        dial_layout = QVBoxLayout()
-        dial_layout.setContentsMargins(5,5,5,5)
-        dial_layout.setAlignment(Qt.AlignCenter)
-        self.dial_frame.setLayout(dial_layout)
+        self.theme_selector_frame.setLayout(theme_layout)
 
+        self.theme_buttons = []
 
-        self.colour_accent_dial = QDial()
-        self.colour_accent_dial.setFixedSize(80, 80)
-        self.colour_accent_dial.setRange(0, self.service.theme_count() - 1)
+        theme_count = self.service.theme_count()
+        cols = (theme_count + 1) // 2
 
-        dial_layout.addWidget(self.colour_accent_dial, 0, Qt.AlignCenter)
+        for i in range(theme_count):
+
+            btn = QPushButton()
+            btn.setFixedSize(20,20)
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.setCheckable(True)
+
+            btn.clicked.connect(lambda _, idx=i: self.select_theme(idx))
+
+            row = i // cols
+            col = i % cols
+
+            theme_layout.addWidget(btn, row, col)
+
+            self.theme_buttons.append(btn)
+            
+    
+            
+        for btn in self.theme_buttons:
+            btn.setStyleSheet("""
+            QPushButton {
+                border-radius: 10px;
+                border: 2px solid rgba(120,120,120,0.4);
+            }
+            QPushButton:checked {
+                border: 3px solid white;
+            }
+            """)
 
         # ------------------------------
         # Grid placement
         # ------------------------------
-        header_grid.addWidget(self.desktop_title_frame, 0, 5, Qt.AlignLeft | Qt.AlignBottom)
-        header_grid.addWidget(self.dial_frame, 0, 5, Qt.AlignRight | Qt.AlignBottom)
-
+        header_grid.addWidget(self.desktop_title_frame, 0, 0, Qt.AlignLeft | Qt.AlignBottom)
+        header_grid.addWidget(self.theme_selector_frame, 0, 1, Qt.AlignRight | Qt.AlignBottom)
+        header_grid.setColumnStretch(0, 1)
+        header_grid.setColumnStretch(1, 0)
+                
         main_layout.addLayout(header_grid)
         main_layout.addSpacing(5)
                 
@@ -137,10 +169,7 @@ class MainWindow(QMainWindow):
         # ==========================================================
 
         self.desktop_folder_frame = QFrame()
-        
         self.desktop_folder_frame.setFrameShape(QFrame.StyledPanel)
-
-
 
         self.desktop_layout = QVBoxLayout()
         self.desktop_layout.setSpacing(6)
@@ -453,7 +482,7 @@ class MainWindow(QMainWindow):
         self.date_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         date_layout = QVBoxLayout()
-        date_layout.setContentsMargins(20,20,20,20)
+        date_layout.setContentsMargins(10,10,10,10)
         date_layout.setSpacing(15)
         self.date_controls_frame.setLayout(date_layout)
         
@@ -805,6 +834,10 @@ class MainWindow(QMainWindow):
             lambda v: self.service.set_state("desktop_enumeration_count", v)
         )
         
+        theme_index = state.get("theme_index", 0)
+
+        self.select_theme(theme_index)
+                
 
         self.tree.fileDropped.connect(self.load_template_from_path)
         
@@ -820,8 +853,8 @@ class MainWindow(QMainWindow):
 
 
 
-        # React to dial changes
-        self.colour_accent_dial.sliderReleased.connect(self.apply_selected_theme)
+        # # React to slider changes
+        # self.colour_accent_slider.sliderReleased.connect(self.apply_selected_theme)
         
         # Loading of object instances
         
@@ -847,11 +880,11 @@ class MainWindow(QMainWindow):
             self.setFixedSize(650, self.desktop_mode_height)
 
         # ---------------------------------------------------------
-        # Restore Theme Dial
+        # Restore Theme Slider
         # ---------------------------------------------------------
         theme_index = state.get("theme_index", 0)
 
-        self.colour_accent_dial.setValue(theme_index)
+        # self.colour_accent_slider.setValue(theme_index)
 
         accent = self.service.apply_theme(theme_index)
         self.apply_accent_styles(accent)
@@ -951,8 +984,16 @@ class MainWindow(QMainWindow):
         accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
         
+    def preview_theme(self, index):
+        accent = self.service.apply_theme(index)
+        self.apply_accent_styles(accent)
+
+    def commit_theme(self):
+        index = self.colour_accent_slider.value()
+        self.service.set_state("theme_index", index)
+        
     def apply_selected_theme(self):
-        index = self.colour_accent_dial.value()
+        index = self.colour_accent_slider.value()
         accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
         self.service.set_state("theme_index", index)
@@ -1051,7 +1092,7 @@ class MainWindow(QMainWindow):
             }}
         """)
 
-        # Make the icon follow the dial accent color
+        # Make the icon follow the slider accent color
         icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
         text_label.setText(message)
         
@@ -1080,6 +1121,17 @@ class MainWindow(QMainWindow):
         
         
     ####################### Desktop Folder Creator methods #################################
+    
+    def select_theme(self, index):
+
+        accent = self.service.apply_theme(index)
+
+        self.apply_accent_styles(accent)
+
+        self.service.set_state("theme_index", index)
+
+        for i, btn in enumerate(self.theme_buttons):
+            btn.setChecked(i == index)
     
     def desktop_on_date_stamp_toggled(self, checked: bool):
         self.date_time_config.setEnabled(checked)
