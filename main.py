@@ -6,7 +6,6 @@ from drag_and_drop import SmartTreeWidget
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton, QSizePolicy
-from nested_folder_manager import NestedFolderManager
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QAbstractItemView
 from PySide6.QtWidgets import (
@@ -22,12 +21,10 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
     QComboBox,
-    QSlider,
     QGridLayout,QSpinBox,
 
 )
 
-from PySide6.QtWidgets import QSlider
 from PySide6.QtCore import Qt
 
 
@@ -557,7 +554,6 @@ class MainWindow(QMainWindow):
         self.smart_layout.addWidget(self.tree_frame)
         
         self.tree.setAlternatingRowColors(True)
-        self.nested_folder_manager = NestedFolderManager(self.tree)
 
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################
@@ -811,10 +807,10 @@ class MainWindow(QMainWindow):
         self.browse_btn.clicked.connect(self.select_base_directory)
         self.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
         
-        self.add_folder_btn.clicked.connect(self.nested_folder_manager.add_root_folder)
-        self.add_subfolder_btn.clicked.connect(self.nested_folder_manager.add_subfolder)
-        self.remove_btn.clicked.connect(self.nested_folder_manager.remove_selected_folders)
-        self.remove_all_btn.clicked.connect(self.nested_folder_manager.remove_all_folders)
+        self.add_folder_btn.clicked.connect(self.service.nested_manager.add_root_folder)
+        self.add_subfolder_btn.clicked.connect(self.service.nested_manager.add_subfolder)
+        self.remove_btn.clicked.connect(self.service.nested_manager.remove_selected_folders)
+        self.remove_all_btn.clicked.connect(self.service.nested_manager.remove_all_folders)
         self.create_template_btn.clicked.connect(self.create_template)
         
         # Placeholders to connect to the user and default template drops to their respective methods.
