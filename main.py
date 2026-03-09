@@ -690,6 +690,7 @@ class MainWindow(QMainWindow):
 
         smart_status_layout.addWidget(self.smart_status_icon)
         smart_status_layout.addWidget(self.smart_status_text)
+        smart_status_layout.addStretch()
 
 
 
