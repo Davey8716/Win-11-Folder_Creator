@@ -27,6 +27,8 @@ from PySide6.QtWidgets import (
 
 from PySide6.QtCore import Qt
 
+from pathlib import Path
+
 
 
 
@@ -35,6 +37,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         
         self.tree = SmartTreeWidget()
+       
         
         self.service = AppService(self.tree)
         state = self.service.state
@@ -625,6 +628,8 @@ class MainWindow(QMainWindow):
         build_layout.addWidget(self.browse_btn)
         build_layout.addWidget(self.build_folders_btn)
         
+        self.update_build_button_state()
+        
 
         # ==========================================================
         # CENTER FRAME — Empty spacer
@@ -802,16 +807,13 @@ class MainWindow(QMainWindow):
         self.build_folders_btn.clicked.connect(self.build_folders_from_tree)
         self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
         self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
-
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
         self.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
-        
-        self.add_folder_btn.clicked.connect(self.service.nested_manager.add_root_folder)
-        self.add_subfolder_btn.clicked.connect(self.service.nested_manager.add_subfolder)
-        self.remove_btn.clicked.connect(self.service.nested_manager.remove_selected_folders)
-        self.remove_all_btn.clicked.connect(self.service.nested_manager.remove_all_folders)
         self.create_template_btn.clicked.connect(self.create_template)
+        self.remove_all_btn.clicked.connect(self.remove_all_folders)
+        
+        
         
         # Placeholders to connect to the user and default template drops to their respective methods.
         
@@ -829,6 +831,23 @@ class MainWindow(QMainWindow):
         self.desktop_folder_number_enumerator.valueChanged.connect(
             lambda v: self.service.set_state("desktop_enumeration_count", v)
         )
+        
+        self.add_folder_btn.clicked.connect(
+            lambda: (self.service.nested_manager.add_root_folder(), self.update_build_button_state())
+        )
+        
+        self.add_subfolder_btn.clicked.connect(
+            lambda: (self.service.nested_manager.add_subfolder(), self.update_build_button_state())
+        )
+                
+        self.remove_btn.clicked.connect(
+            lambda: (self.service.nested_manager.remove_selected_folders(), self.update_build_button_state())
+        )
+        
+        
+        
+        self.tree.itemSelectionChanged.connect(self.update_build_button_state)
+        
         
         theme_index = state.get("theme_index", 0)
 
@@ -876,7 +895,7 @@ class MainWindow(QMainWindow):
             self.setFixedSize(650, self.desktop_mode_height)
 
         # ---------------------------------------------------------
-        # Restore Theme Slider
+        # Restore Theme
         # ---------------------------------------------------------
         theme_index = state.get("theme_index", 0)
 
@@ -943,7 +962,23 @@ class MainWindow(QMainWindow):
         enum_enabled = state.get("desktop_enumeration_enabled", False)
         self.enumerate_toggle.setChecked(enum_enabled)
         self.desktop_folder_number_enumerator.setEnabled(enum_enabled)
-                        
+        
+        
+        
+        
+        
+    def update_build_button_state(self):
+        has_items = self.tree.topLevelItemCount() > 0
+        has_selection = self.tree.currentItem() is not None
+        
+        self.build_folders_btn.setEnabled(has_items)
+        self.remove_all_btn.setEnabled(has_items)
+        
+        # Requires a selected item
+        self.remove_btn.setEnabled(has_selection)
+        self.add_subfolder_btn.setEnabled(has_selection)
+
+                            
         
         
         
@@ -1253,9 +1288,19 @@ class MainWindow(QMainWindow):
     
     def minimize_after_build(self):
         self.showMinimized()
+        
+    def remove_all_folders(self):
+
+        self.service.nested_manager.remove_all_folders()
+
+        # reset template dropdown
+        self.load_default_template_dropdown.setCurrentIndex(0)
+
+        # disable build button
+        self.update_build_button_state()
     
     def open_output_folder(self, path: str):
-        from pathlib import Path
+        
        
 
         p = Path(path)
@@ -1340,6 +1385,7 @@ class MainWindow(QMainWindow):
         # Reset option
         if text == "Default Templates":
             self.tree.clear()
+            self.update_build_button_state()
             return
 
         # Convert dropdown text → filename
@@ -1359,13 +1405,16 @@ class MainWindow(QMainWindow):
         self.tree.clear()
 
         # Parse template
-        data = self.nested_folder_manager.parse_indented_text(text)
+        data = self.service.nested_manager.parse_indented_text(text)
 
         # Populate tree
-        self.nested_folder_manager.deserialize_tree(data)
+        self.service.nested_manager.deserialize_tree(data)
 
         # Expand nodes so the structure is visible
-        self.nested_folder_manager.expand_all_animated()
+        self.service.nested_manager.expand_all_animated()
+        
+        
+        self.update_build_button_state()
         
     def load_template(self):
         status, message = self.service.load_template_dialog(self)
@@ -1384,6 +1433,8 @@ class MainWindow(QMainWindow):
                 self.auto_enumerate_folders.setChecked(False)
 
             self.service.load_template_from_path(file_path)
+            
+            self.update_build_button_state()
 
             self.set_status(
                 "Template loaded via drag & drop",

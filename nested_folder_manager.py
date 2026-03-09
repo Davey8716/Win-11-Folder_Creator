@@ -236,6 +236,7 @@ class NestedFolderManager:
             item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
 
             self.tree.addTopLevelItem(item)
+            self.tree.setCurrentItem(item)   
             self.tree.editItem(item, 0)
             return
 
@@ -279,6 +280,7 @@ class NestedFolderManager:
 
             selected.addChild(child)
             selected.setExpanded(True)
+            self.tree.setCurrentItem(child) 
             self.tree.editItem(child, 0)
             return
 
