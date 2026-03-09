@@ -867,6 +867,7 @@ class MainWindow(QMainWindow):
         self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
         self.nested_date_toggle.toggled.connect(self.nested_on_date_stamp_toggled)
         self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
+        
         self.build_folders_btn.clicked.connect(self.build_folders_from_tree)
         self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
         self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
@@ -910,7 +911,7 @@ class MainWindow(QMainWindow):
             lambda: (self.service.nested_manager.remove_selected_folders(), self.update_build_button_state())
         )
         
-        
+       
         
         self.tree.itemSelectionChanged.connect(self.update_build_button_state)
         
@@ -930,14 +931,12 @@ class MainWindow(QMainWindow):
         self.smart_status_timer.setSingleShot(True)
         self.smart_status_timer.timeout.connect(lambda: self.reset_status("nested"))
                         
-        # Apply initial theme
-
-
-
-        # # React to slider changes
-        # self.colour_accent_slider.sliderReleased.connect(self.apply_selected_theme)
         
-        # Loading of object instances
+
+
+
+
+
         
         state = self.service.state
         self.current_mode = state.get("ui_mode", "desktop")
@@ -1030,6 +1029,12 @@ class MainWindow(QMainWindow):
         self.enumerate_toggle.setChecked(enum_enabled)
         self.desktop_folder_number_enumerator.setEnabled(enum_enabled)
         
+        self.desktop_folder_line.textChanged.connect(self.update_desktop_build_state)
+        
+        
+        self.update_desktop_build_state()
+        
+        
     def make_vline(self):
         line = QFrame()
         line.setFrameShape(QFrame.VLine)
@@ -1048,6 +1053,12 @@ class MainWindow(QMainWindow):
 
         self.update_expand_button_text()
         
+    
+    def update_desktop_build_state(self):
+        text = self.desktop_folder_line.text().strip()
+        self.folder_to_desktop.setEnabled(bool(text))
+    
+            
     def update_build_button_state(self):
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
@@ -1137,15 +1148,15 @@ class MainWindow(QMainWindow):
         accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
 
-    def commit_theme(self):
-        index = self.colour_accent_slider.value()
-        self.service.set_state("theme_index", index)
+    # def commit_theme(self):
+    #     index = self.colour_accent_slider.value()
+    #     self.service.set_state("theme_index", index)
         
-    def apply_selected_theme(self):
-        index = self.colour_accent_slider.value()
-        accent = self.service.apply_theme(index)
-        self.apply_accent_styles(accent)
-        self.service.set_state("theme_index", index)
+    # def apply_selected_theme(self):
+    #     index = self.colour_accent_slider.value()
+    #     accent = self.service.apply_theme(index)
+    #     self.apply_accent_styles(accent)
+    #     self.service.set_state("theme_index", index)
         
         
     def apply_accent_styles(self, accent_color: str):
