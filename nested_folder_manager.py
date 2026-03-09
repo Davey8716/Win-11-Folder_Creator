@@ -59,7 +59,7 @@ class NestedFolderManager:
     from PySide6.QtCore import QTimer
     from PySide6.QtWidgets import QTreeWidgetItemIterator
 
-    def expand_all_animated(self, step_ms: int = 100, max_items: int = 2000):
+    def expand_all_animated(self, step_ms: int = 25, max_items: int = 2000):
         """
         Expands the tree progressively so Qt's animation is actually visible.
         step_ms: delay between expanding each item
@@ -236,6 +236,7 @@ class NestedFolderManager:
             item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
 
             self.tree.addTopLevelItem(item)
+            self.tree.setCurrentItem(item)   
             self.tree.editItem(item, 0)
             return
 
@@ -279,6 +280,7 @@ class NestedFolderManager:
 
             selected.addChild(child)
             selected.setExpanded(True)
+            self.tree.setCurrentItem(child) 
             self.tree.editItem(child, 0)
             return
 
