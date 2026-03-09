@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
     QComboBox,
-    QGridLayout,QSpinBox,
+    QGridLayout,QSpinBox,QHeaderView
 
 )
 
@@ -37,8 +37,21 @@ class MainWindow(QMainWindow):
         super().__init__()
         
         self.tree = SmartTreeWidget()
-       
+        self.tree.setColumnCount(1)
+        self.tree.setHeaderHidden(True)
         
+        self.tree.setEditTriggers(
+            QAbstractItemView.DoubleClicked |
+            QAbstractItemView.EditKeyPressed
+        )
+
+        # ---- Horizontal scroll support for wide trees ----
+        self.tree.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.tree.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+
+        self.tree.header().setStretchLastSection(False)
+        self.tree.header().setSectionResizeMode(QHeaderView.ResizeToContents)
+
         self.service = AppService(self.tree)
         state = self.service.state
         
@@ -47,7 +60,10 @@ class MainWindow(QMainWindow):
         self.desktop_mode_height = 340
         self.nested_mode_height = 975
         
-        self.setFixedSize(650, self.desktop_mode_height)
+        self.desktop_mode_width = 650
+        self.nested_mode_width = 1075
+        
+        self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
 
 
         # ===== Central Widget =====
@@ -59,11 +75,6 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(10,10,10,10)
         main_layout.setSpacing(5)
         central_widget.setLayout(main_layout)
-        
-        
-        
-        
-        
         
 
         # ==========================================================
@@ -449,7 +460,7 @@ class MainWindow(QMainWindow):
         self.template_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         template_layout = QVBoxLayout()
-        template_layout.setContentsMargins(6,6,6,6)
+        template_layout.setContentsMargins(10,10,10,10)
         template_layout.setSpacing(6)
         self.template_controls_frame.setLayout(template_layout)
 
@@ -465,7 +476,7 @@ class MainWindow(QMainWindow):
         self.folder_buttons_frame.setFrameShape(QFrame.StyledPanel)
 
         folder_buttons_layout = QVBoxLayout()
-        folder_buttons_layout.setContentsMargins(6, 6, 6, 6)
+        folder_buttons_layout.setContentsMargins(10,10,10,10)
         folder_buttons_layout.setSpacing(8)
         self.folder_buttons_frame.setLayout(folder_buttons_layout)
 
@@ -490,18 +501,15 @@ class MainWindow(QMainWindow):
         date_layout.addWidget(self.auto_enumerate_folders,)
         date_layout.addWidget(self.nested_date_toggle,)
         date_layout.addWidget(self.nested_date_config,)
+        
+        # ---- Output Frame ----
+        self.out_put_frame = QFrame()
+        self.out_put_frame.setFrameShape(QFrame.StyledPanel)
 
-
-        # ==========================================================
-        # Add the 3 child frames into the parent controls frame
-        # ==========================================================
-        main_controls_layout.addWidget(self.template_controls_frame, 0, 2)
-        main_controls_layout.addWidget(self.folder_buttons_frame, 0, 0)
-        main_controls_layout.addWidget(self.date_controls_frame, 0, 1)
-
-        main_controls_layout.setColumnStretch(0, 1)
-        main_controls_layout.setColumnStretch(1, 1)
-        main_controls_layout.setColumnStretch(2, 1)
+        frame_layout_output = QVBoxLayout()
+        frame_layout_output.setContentsMargins(10,10,10,10)
+        frame_layout_output.setSpacing(6)
+        self.out_put_frame.setLayout(frame_layout_output)
 
         # ==========================================================
         # Add parent frame to smart layout
@@ -523,7 +531,7 @@ class MainWindow(QMainWindow):
         
         
         tree_layout = QVBoxLayout()
-        tree_layout.setContentsMargins(6, 6, 6, 6)
+        tree_layout.setContentsMargins(10,10,10,10)
         tree_layout.setSpacing(0)
         self.tree_frame.setLayout(tree_layout)
         
@@ -557,25 +565,7 @@ class MainWindow(QMainWindow):
         self.smart_layout.addWidget(self.tree_frame)
         
         self.tree.setAlternatingRowColors(True)
-
-################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################
-
-        # ---- Output Frame ----
-        self.out_put_frame = QFrame()
-        self.out_put_frame.setFrameShape(QFrame.StyledPanel)
-
-        frame_layout_output = QVBoxLayout()
-        frame_layout_output.setContentsMargins(6,6,6,6)
-        frame_layout_output.setSpacing(6)
-        self.out_put_frame.setLayout(frame_layout_output)
-
+        
         # ----------------------------------------------------------
         # Base Path Field (UNCHANGED)
         # ----------------------------------------------------------
@@ -588,28 +578,24 @@ class MainWindow(QMainWindow):
 
         frame_layout_output.addWidget(self.base_path_line)
 
-        # ----------------------------------------------------------
-        # Parent controls row
-        # ----------------------------------------------------------
-        output_controls_frame = QFrame()
-        output_controls_frame.setFrameShape(QFrame.StyledPanel)
-
-        output_controls_layout = QGridLayout()
-        output_controls_layout.setContentsMargins(6,6,6,6)
-        output_controls_layout.setHorizontalSpacing(8)
-        output_controls_layout.setVerticalSpacing(0)
-
-        output_controls_frame.setLayout(output_controls_layout)
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################################
 
         # ==========================================================
-        # LEFT FRAME — Build buttons
+        # Full Frame
         # ==========================================================
         self.build_buttons_frame = QFrame()
         self.build_buttons_frame.setFrameShape(QFrame.StyledPanel)
 
         build_layout = QVBoxLayout()
-        build_layout.setContentsMargins(6,6,6,6)
-        build_layout.setSpacing(8)
+        build_layout.setContentsMargins(10,10,10,10)
+        build_layout.setSpacing(2)
         self.build_buttons_frame.setLayout(build_layout)
 
         self.default_to_desktop_btn = QPushButton("Default Desktop")
@@ -621,58 +607,102 @@ class MainWindow(QMainWindow):
             self.browse_btn,
             self.build_folders_btn
         ]:
-            btn.setMinimumWidth(120)
             btn.setMinimumHeight(35)
+            
+        # btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         build_layout.addWidget(self.default_to_desktop_btn)
         build_layout.addWidget(self.browse_btn)
         build_layout.addWidget(self.build_folders_btn)
         
         self.update_build_button_state()
-        
+    
 
-        # ==========================================================
-        # CENTER FRAME — Empty spacer
-        # ==========================================================
-        self.output_spacer_frame = QFrame()
-        self.output_spacer_frame.setFrameShape(QFrame.StyledPanel)
 
-        # ==========================================================
-        # RIGHT FRAME — Post-build toggles
-        # ==========================================================
         self.post_build_frame = QFrame()
         self.post_build_frame.setFrameShape(QFrame.StyledPanel)
+        
+        self.sep1 = self.make_vline()
+        self.sep2 = self.make_vline()
+        self.sep3 = self.make_vline()
+        self.sep4 = self.make_vline()
+    
 
         post_build_layout = QVBoxLayout()
-        post_build_layout.setContentsMargins(6,6,6,6)
+        post_build_layout.setContentsMargins(15,15,15,15)
         post_build_layout.setSpacing(8)
         self.post_build_frame.setLayout(post_build_layout)
 
         self.open_folder_build_toggle = QCheckBox("Open Folder Location\n After Build")
         self.minimize_after_build_toggle = QCheckBox("Minimize After Build")
+        
+        post_build_layout.addWidget(self.open_folder_build_toggle, alignment=Qt.AlignHCenter)
+        post_build_layout.addWidget(self.minimize_after_build_toggle, alignment=Qt.AlignHCenter)
+        
 
-        self.open_folder_build_toggle.setMinimumWidth(200)
-        self.minimize_after_build_toggle.setMinimumWidth(200)
+        main_controls_layout.setHorizontalSpacing(6)
+        main_controls_layout.setVerticalSpacing(0)
 
-        post_build_layout.addWidget(self.open_folder_build_toggle,0,Qt.AlignHCenter)
-        post_build_layout.addWidget(self.minimize_after_build_toggle,0,Qt.AlignHCenter)
+        # group 1
+        main_controls_layout.addWidget(self.folder_buttons_frame,   0, 0)
+        main_controls_layout.addWidget(self.date_controls_frame,    0, 1)
+
+        # separators after frame 2
+        main_controls_layout.addWidget(self.sep1,                   0, 2)
+        main_controls_layout.addWidget(self.sep2,                   0, 3)
+
+        # group 2
+        main_controls_layout.addWidget(self.template_controls_frame, 0, 4)
+        main_controls_layout.addWidget(self.out_put_frame,           0, 5)
+        main_controls_layout.addWidget(self.build_buttons_frame,     0, 6)
+
+        # separators AFTER build frame
+        main_controls_layout.addWidget(self.sep3,                   0, 7)
+        main_controls_layout.addWidget(self.sep4,                   0, 8)
+
+        # final frame
+        main_controls_layout.addWidget(self.post_build_frame,       0, 9)
+
+
+        for frame in [
+            self.folder_buttons_frame,
+            self.date_controls_frame,
+            self.template_controls_frame,
+            self.out_put_frame,
+            self.build_buttons_frame,
+            self.post_build_frame
+        ]:
+            frame.setMinimumWidth(170)
+            frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+            
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # ----------------------------------------------------------
-        # Add the 3 frames to the parent
+        # Status frame
         # ----------------------------------------------------------
-        output_controls_layout.addWidget(self.build_buttons_frame,0,0)
-        output_controls_layout.addWidget(self.output_spacer_frame,0,2)
-        output_controls_layout.addWidget(self.post_build_frame,0,1)
-
-        output_controls_layout.setColumnStretch(0,1)
-        output_controls_layout.setColumnStretch(1,1)
-        output_controls_layout.setColumnStretch(2,1)
-
-        frame_layout_output.addWidget(output_controls_frame)
-
-        # ----------------------------------------------------------
-        # Status frame (UNCHANGED)
-        # ----------------------------------------------------------
+        
+        self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.out_put_frame.setMinimumWidth(0)
+        
+        self.base_path_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.base_path_line.setMinimumWidth(0)
+        
         
         # ---- Nested Status Panel ----
         self.smart_status_frame = QFrame()
@@ -695,12 +725,8 @@ class MainWindow(QMainWindow):
 
 
         frame_layout_output.addWidget(self.smart_status_frame)
-
         # Add entire section to smart layout
         self.smart_layout.addWidget(self.out_put_frame)
-
-        
-  
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
         
@@ -886,7 +912,8 @@ class MainWindow(QMainWindow):
             )
             self.desktop_folder_frame.hide()
             self.smart_folder_creator_frame.show()
-            self.setFixedSize(650, self.nested_mode_height)
+            self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
+            
         else:
             self.desktop_section_title.setText(
                 "Desktop Folder Creator\n(click to switch)"
@@ -964,9 +991,15 @@ class MainWindow(QMainWindow):
         self.enumerate_toggle.setChecked(enum_enabled)
         self.desktop_folder_number_enumerator.setEnabled(enum_enabled)
         
-        
-        
-        
+    def make_vline(self):
+        line = QFrame()
+        line.setFrameShape(QFrame.VLine)
+        line.setFrameShadow(QFrame.Plain)
+        line.setLineWidth(1)
+        line.setMidLineWidth(0)
+        line.setFixedWidth(6)
+        return line
+            
         
     def update_build_button_state(self):
         has_items = self.tree.topLevelItemCount() > 0
@@ -996,7 +1029,7 @@ class MainWindow(QMainWindow):
             self.smart_folder_creator_frame.show()
             self.desktop_folder_frame.hide()
 
-            self.setFixedSize(650, self.nested_mode_height)
+            self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
 
         else:
             self.current_mode = "desktop"

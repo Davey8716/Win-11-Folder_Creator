@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QTreeWidget
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtGui import QPainter,QColor
+from PySide6.QtWidgets import QTreeWidget, QAbstractItemView, QHeaderView
 
 class SmartTreeWidget(QTreeWidget):
 
@@ -23,6 +24,8 @@ class SmartTreeWidget(QTreeWidget):
         # ---- Placeholder state ----
         self._placeholder = ""
         self._placeholder_bold = False
+        
+        
 
 
     def setPlaceholderText(self, text: str, bold: bool = False):
