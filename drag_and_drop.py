@@ -2,7 +2,9 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QTreeWidget
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtGui import QPainter,QColor
-from PySide6.QtWidgets import QTreeWidget, QAbstractItemView, QHeaderView
+from PySide6.QtWidgets import QTreeWidget, QAbstractItemView, QHeaderView,QApplication,QKeySequenceEdit
+from PySide6.QtGui import QKeySequence
+
 
 class SmartTreeWidget(QTreeWidget):
 
@@ -85,7 +87,31 @@ class SmartTreeWidget(QTreeWidget):
         else:
             super().dropEvent(event)
             
+    
     def keyPressEvent(self, event: QKeyEvent):
+
+        # Paste indented text
+        if event.matches(QKeySequence.Paste):
+            clipboard = QApplication.clipboard()
+            text = clipboard.text().strip()
+
+            if text:
+                try:
+                    window = self.window()
+
+                    data = window.service.nested_manager.parse_indented_text(text)
+
+                    self.clear()
+                    window.service.nested_manager.deserialize_tree(data)
+                    window.update_build_button_state()
+
+                except Exception:
+                    pass
+
+            return
+
+
+        # Delete key support
         if event.key() == Qt.Key_Delete:
             item = self.currentItem()
 
@@ -97,6 +123,12 @@ class SmartTreeWidget(QTreeWidget):
                 else:
                     index = self.indexOfTopLevelItem(item)
                     self.takeTopLevelItem(index)
+                    
+                # refresh UI state
+                window = self.window()
+                if hasattr(window, "update_build_button_state"):
+                    window.update_build_button_state()
+
 
             return
 
