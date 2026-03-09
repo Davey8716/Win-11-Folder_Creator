@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         self.nested_mode_height = 975
         
         self.desktop_mode_width = 650
-        self.nested_mode_width = 1200
+        self.nested_mode_width = 1075
         
         self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
 
@@ -446,7 +446,7 @@ class MainWindow(QMainWindow):
         self.template_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         template_layout = QVBoxLayout()
-        template_layout.setContentsMargins(6,6,6,6)
+        template_layout.setContentsMargins(10,10,10,10)
         template_layout.setSpacing(6)
         self.template_controls_frame.setLayout(template_layout)
 
@@ -462,7 +462,7 @@ class MainWindow(QMainWindow):
         self.folder_buttons_frame.setFrameShape(QFrame.StyledPanel)
 
         folder_buttons_layout = QVBoxLayout()
-        folder_buttons_layout.setContentsMargins(6, 6, 6, 6)
+        folder_buttons_layout.setContentsMargins(10,10,10,10)
         folder_buttons_layout.setSpacing(8)
         self.folder_buttons_frame.setLayout(folder_buttons_layout)
 
@@ -493,7 +493,7 @@ class MainWindow(QMainWindow):
         self.out_put_frame.setFrameShape(QFrame.StyledPanel)
 
         frame_layout_output = QVBoxLayout()
-        frame_layout_output.setContentsMargins(6,6,6,6)
+        frame_layout_output.setContentsMargins(10,10,10,10)
         frame_layout_output.setSpacing(6)
         self.out_put_frame.setLayout(frame_layout_output)
 
@@ -517,7 +517,7 @@ class MainWindow(QMainWindow):
         
         
         tree_layout = QVBoxLayout()
-        tree_layout.setContentsMargins(6, 6, 6, 6)
+        tree_layout.setContentsMargins(10,10,10,10)
         tree_layout.setSpacing(0)
         self.tree_frame.setLayout(tree_layout)
         
@@ -580,7 +580,7 @@ class MainWindow(QMainWindow):
         self.build_buttons_frame.setFrameShape(QFrame.StyledPanel)
 
         build_layout = QVBoxLayout()
-        build_layout.setContentsMargins(6,6,6,6)
+        build_layout.setContentsMargins(10,10,10,10)
         build_layout.setSpacing(2)
         self.build_buttons_frame.setLayout(build_layout)
 
@@ -615,7 +615,7 @@ class MainWindow(QMainWindow):
     
 
         post_build_layout = QVBoxLayout()
-        post_build_layout.setContentsMargins(6,6,6,6)
+        post_build_layout.setContentsMargins(15,15,15,15)
         post_build_layout.setSpacing(8)
         self.post_build_frame.setLayout(post_build_layout)
 
@@ -661,28 +661,34 @@ class MainWindow(QMainWindow):
             frame.setMinimumWidth(170)
             frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
             
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # ----------------------------------------------------------
+        # Status frame
+        # ----------------------------------------------------------
+        
         self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.out_put_frame.setMinimumWidth(0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # ----------------------------------------------------------
-        # Status frame (UNCHANGED)
-        # ----------------------------------------------------------
+        
+        self.base_path_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.base_path_line.setMinimumWidth(0)
+        
         
         # ---- Nested Status Panel ----
         self.smart_status_frame = QFrame()
@@ -705,12 +711,8 @@ class MainWindow(QMainWindow):
 
 
         frame_layout_output.addWidget(self.smart_status_frame)
-
         # Add entire section to smart layout
         self.smart_layout.addWidget(self.out_put_frame)
-
-        
-  
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
         
@@ -1013,7 +1015,7 @@ class MainWindow(QMainWindow):
             self.smart_folder_creator_frame.show()
             self.desktop_folder_frame.hide()
 
-            self.setFixedSize(650, self.nested_mode_height)
+            self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
 
         else:
             self.current_mode = "desktop"
