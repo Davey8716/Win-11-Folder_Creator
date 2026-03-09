@@ -585,7 +585,7 @@ class MainWindow(QMainWindow):
         self.build_buttons_frame.setLayout(build_layout)
 
         self.default_to_desktop_btn = QPushButton("Default Desktop")
-        self.browse_btn = QPushButton("Browse")
+        self.browse_btn = QPushButton("Output Location")
         self.build_folders_btn = QPushButton("Build Folders")
 
         for btn in [
@@ -618,8 +618,8 @@ class MainWindow(QMainWindow):
         post_build_layout.setSpacing(8)
         self.post_build_frame.setLayout(post_build_layout)
 
-        self.open_folder_build_toggle = QCheckBox("Open Folder After Build")
-        self.minimize_after_build_toggle = QCheckBox("Minimized After Build")
+        self.open_folder_build_toggle = QCheckBox("Open Folder Location\n After Build")
+        self.minimize_after_build_toggle = QCheckBox("Minimize After Build")
 
         self.open_folder_build_toggle.setMinimumWidth(200)
         self.minimize_after_build_toggle.setMinimumWidth(200)
