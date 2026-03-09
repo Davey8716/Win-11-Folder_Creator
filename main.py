@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
     QComboBox,
-    QGridLayout,QSpinBox,
+    QGridLayout,QSpinBox,QHeaderView
 
 )
 
@@ -37,6 +37,20 @@ class MainWindow(QMainWindow):
         super().__init__()
         
         self.tree = SmartTreeWidget()
+        self.tree.setColumnCount(1)
+        self.tree.setHeaderHidden(True)
+        
+        self.tree.setEditTriggers(
+            QAbstractItemView.DoubleClicked |
+            QAbstractItemView.EditKeyPressed
+        )
+
+        # ---- Horizontal scroll support for wide trees ----
+        self.tree.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.tree.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+
+        self.tree.header().setStretchLastSection(False)
+        self.tree.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.service = AppService(self.tree)
         state = self.service.state
