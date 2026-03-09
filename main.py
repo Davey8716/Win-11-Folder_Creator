@@ -111,8 +111,8 @@ class MainWindow(QMainWindow):
         self.desktop_section_title.setFlat(True)
         self.desktop_section_title.setStyleSheet("""
         QPushButton {
-            font-size: 26px;
-            font-weight: 600;
+            font-size: 40px;
+            font-weight: 1000;
             text-align: left;
         }
         """)
