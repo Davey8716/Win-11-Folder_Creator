@@ -564,6 +564,42 @@ class MainWindow(QMainWindow):
         # add the frame instead of the tree
         self.smart_layout.addWidget(self.tree_frame)
         
+        # ==========================================================
+        # Tree Controls Frame (Expand / Find / Sort)
+        # ==========================================================
+        self.tree_controls_frame = QFrame()
+        self.tree_controls_frame.setFrameShape(QFrame.StyledPanel)
+
+        tree_controls_layout = QHBoxLayout()
+        tree_controls_layout.setContentsMargins(6, 6, 6, 6)
+        tree_controls_layout.setSpacing(8)
+        self.tree_controls_frame.setLayout(tree_controls_layout)
+
+        # Buttons
+        self.expand_collapse_btn = QPushButton("Expand All")
+        self.find_btn = QPushButton("Find")
+        self.sort_btn = QPushButton("Sort")
+
+        for btn in [
+            self.expand_collapse_btn,
+            self.find_btn,
+            self.sort_btn
+        ]:
+            btn.setMinimumHeight(35)
+            btn.setMinimumWidth(120)
+
+        tree_controls_layout.addWidget(self.expand_collapse_btn)
+        tree_controls_layout.addWidget(self.find_btn)
+        tree_controls_layout.addWidget(self.sort_btn)
+        tree_controls_layout.addStretch()
+        
+        self.expand_collapse_btn.setEnabled(False)
+        self.find_btn.setEnabled(False)
+        self.sort_btn.setEnabled(False)
+
+        # Add frame BELOW the tree
+        self.smart_layout.addWidget(self.tree_controls_frame)
+        
         self.tree.setAlternatingRowColors(True)
         
         # ----------------------------------------------------------
@@ -839,6 +875,9 @@ class MainWindow(QMainWindow):
         self.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
         self.create_template_btn.clicked.connect(self.create_template)
         self.remove_all_btn.clicked.connect(self.remove_all_folders)
+        self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
+        self.tree.itemExpanded.connect(self.update_expand_button_text)
+        self.tree.itemCollapsed.connect(self.update_expand_button_text)
         
         
         
@@ -999,22 +1038,67 @@ class MainWindow(QMainWindow):
         line.setMidLineWidth(0)
         line.setFixedWidth(6)
         return line
-            
+    
+    def toggle_tree_expand(self):
+
+        if self.tree_has_collapsed_nodes():
+            self.tree.expandAll()
+        else:
+            self.tree.collapseAll()
+
+        self.update_expand_button_text()
         
     def update_build_button_state(self):
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
         
+            
+        # Detect if tree actually has nested folders
+        has_children = False
+        for i in range(self.tree.topLevelItemCount()):
+            item = self.tree.topLevelItem(i)
+            if item.childCount() > 0:
+                has_children = True
+                break
+        
         self.build_folders_btn.setEnabled(has_items)
         self.remove_all_btn.setEnabled(has_items)
+        
+         # Tree control buttons
+        self.expand_collapse_btn.setEnabled(has_items)
+        self.find_btn.setEnabled(has_items)
+        self.sort_btn.setEnabled(has_items)
+        
+        # Expand/Collapse only useful if nesting exists
+        self.expand_collapse_btn.setEnabled(has_children)
+
         
         # Requires a selected item
         self.remove_btn.setEnabled(has_selection)
         self.add_subfolder_btn.setEnabled(has_selection)
 
-                            
-        
-        
+    def tree_has_collapsed_nodes(self):
+
+        for i in range(self.tree.topLevelItemCount()):
+            item = self.tree.topLevelItem(i)
+
+            if not item.isExpanded() and item.childCount() > 0:
+                return True
+
+            stack = [item]
+
+            while stack:
+                node = stack.pop()
+
+                for j in range(node.childCount()):
+                    child = node.child(j)
+
+                    if not child.isExpanded() and child.childCount() > 0:
+                        return True
+
+                    stack.append(child)
+
+        return False
         
     def toggle_mode(self):
 
@@ -1320,6 +1404,13 @@ class MainWindow(QMainWindow):
 
     ###################### Nested Folder Creator methods #################################
     
+    def update_expand_button_text(self):
+
+        if self.tree_has_collapsed_nodes():
+            self.expand_collapse_btn.setText("Expand All")
+        else:
+            self.expand_collapse_btn.setText("Collapse All")
+    
     def minimize_after_build(self):
         self.showMinimized()
         
@@ -1446,6 +1537,7 @@ class MainWindow(QMainWindow):
 
         # Expand nodes so the structure is visible
         self.service.nested_manager.expand_all_animated()
+        self.update_expand_button_text()
         
         
         self.update_build_button_state()
