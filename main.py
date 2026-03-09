@@ -877,8 +877,14 @@ class MainWindow(QMainWindow):
         self.create_template_btn.clicked.connect(self.create_template)
         self.remove_all_btn.clicked.connect(self.remove_all_folders)
         self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
+        
+        
         self.tree.itemExpanded.connect(self.update_expand_button_text)
         self.tree.itemCollapsed.connect(self.update_expand_button_text)
+        self.tree.addFolderShortcut.connect(self.add_folder_btn.click)
+        self.tree.addSubfolderShortcut.connect(self.add_subfolder_btn.click)
+        self.tree.saveTemplateShortcut.connect(self.create_template_btn.click)
+        self.tree.loadTemplateShortcut.connect(self.load_template)
         
         
         
@@ -1058,11 +1064,10 @@ class MainWindow(QMainWindow):
         text = self.desktop_folder_line.text().strip()
         self.folder_to_desktop.setEnabled(bool(text))
     
-            
+    
     def update_build_button_state(self):
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
-        
             
         # Detect if tree actually has nested folders
         has_children = False
@@ -1071,22 +1076,36 @@ class MainWindow(QMainWindow):
             if item.childCount() > 0:
                 has_children = True
                 break
-        
+            
         self.build_folders_btn.setEnabled(has_items)
         self.remove_all_btn.setEnabled(has_items)
-        
-         # Tree control buttons
+            
+        # Tree control buttons
         self.expand_collapse_btn.setEnabled(has_items)
         self.find_btn.setEnabled(has_items)
         self.sort_btn.setEnabled(has_items)
-        
+            
         # Expand/Collapse only useful if nesting exists
         self.expand_collapse_btn.setEnabled(has_children)
 
-        
         # Requires a selected item
         self.remove_btn.setEnabled(has_selection)
         self.add_subfolder_btn.setEnabled(has_selection)
+            
+        # tree utilities safety checks
+        if hasattr(self, "expand_collapse_btn"):
+            self.expand_collapse_btn.setEnabled(has_items)
+
+        if hasattr(self, "find_btn"):
+            self.find_btn.setEnabled(has_items)
+
+        if hasattr(self, "sort_btn"):
+            self.sort_btn.setEnabled(has_items)
+
+        # reapply nesting rule so it is not overridden
+        if hasattr(self, "expand_collapse_btn"):
+            self.expand_collapse_btn.setEnabled(has_children) 
+   
 
     def tree_has_collapsed_nodes(self):
 
@@ -1557,6 +1576,7 @@ class MainWindow(QMainWindow):
         status, message = self.service.load_template_dialog(self)
 
         if status == "success":
+            self.update_build_button_state() 
             self.set_status(message, target="nested", status_type="success")
         elif status != "cancelled":
             self.set_status(message, target="nested", status_type="error")
