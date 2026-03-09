@@ -179,7 +179,7 @@ class MainWindow(QMainWindow):
         self.desktop_folder_number_enumerator = QSpinBox()
         self.desktop_folder_number_enumerator.setMinimumHeight(35)
         self.desktop_folder_number_enumerator.setFixedWidth(155)
-        self.desktop_folder_number_enumerator.setRange(1, 999)
+        self.desktop_folder_number_enumerator.setRange(1, 100)
         self.desktop_folder_number_enumerator.setEnabled(False)
 
         # ---- Timestamp controls ----
@@ -775,6 +775,7 @@ class MainWindow(QMainWindow):
         self.nested_date_toggle.toggled.connect(self.nested_on_date_stamp_toggled)
         self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
         self.build_folders_btn.clicked.connect(self.build_folders_from_tree)
+        self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
 
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
@@ -797,6 +798,10 @@ class MainWindow(QMainWindow):
 
         self.minimize_after_build_toggle.toggled.connect(
             lambda v: self.service.state_manager.update("minimize_after_build", v)
+        )
+        
+        self.desktop_folder_number_enumerator.valueChanged.connect(
+            lambda v: self.service.set_state("desktop_enumeration_count", v)
         )
         
 
@@ -840,8 +845,6 @@ class MainWindow(QMainWindow):
             self.desktop_folder_frame.show()
             self.setFixedSize(650, self.desktop_mode_height)
 
-    
-
         # ---------------------------------------------------------
         # Restore Theme Dial
         # ---------------------------------------------------------
@@ -852,13 +855,11 @@ class MainWindow(QMainWindow):
         accent = self.service.apply_theme(theme_index)
         self.apply_accent_styles(accent)
 
-
         # ---------------------------------------------------------
         # Restore Last Base Directory
         # ---------------------------------------------------------
         last_base = state.get("last_base_dir", "")
         self.base_path_line.setText(last_base)
-
 
         # ---------------------------------------------------------
         # Desktop Timestamp
@@ -906,6 +907,16 @@ class MainWindow(QMainWindow):
         min_after = state.get("minimize_after_build", False)
         self.minimize_after_build_toggle.setChecked(min_after)
         
+        enum_count = state.get("desktop_enumeration_count", 2)
+        self.desktop_folder_number_enumerator.setValue(enum_count)
+
+        enum_enabled = state.get("desktop_enumeration_enabled", False)
+        self.enumerate_toggle.setChecked(enum_enabled)
+        self.desktop_folder_number_enumerator.setEnabled(enum_enabled)
+                        
+        
+        
+        
     def toggle_mode(self):
 
         if self.current_mode == "desktop":
@@ -933,7 +944,7 @@ class MainWindow(QMainWindow):
             self.smart_folder_creator_frame.hide()
 
             self.setFixedSize(650, self.desktop_mode_height)
-           
+
     
     def change_accent_theme(self, index: int):
         accent = self.service.apply_theme(index)
@@ -966,7 +977,8 @@ class MainWindow(QMainWindow):
 
         # ---- Checkboxes (default size) ----
         default_checks = [
-            self.date_time_toggle
+            self.date_time_toggle,
+            self.enumerate_toggle
         ]
 
         for cb in default_checks:
@@ -1075,38 +1087,100 @@ class MainWindow(QMainWindow):
             "desktop_date_stamp_enabled",
             checked
         )
+    
+    def on_enumerate_toggle(self, checked: bool):
 
+        self.desktop_folder_number_enumerator.setEnabled(checked)
+
+        if checked and self.desktop_folder_number_enumerator.value() == 1:
+            self.desktop_folder_number_enumerator.setValue(2)
+
+        self.service.set_state(
+            "desktop_enumeration_enabled",
+            checked
+        )
+                    
     def create_desktop_folder(self):
+
+        base_name = self.desktop_folder_line.text().strip()
+
+        if not base_name:
+            self.set_status(
+                "No folder name entered.",
+                target="desktop",
+                status_type="error"
+            )
+            return
+
+        # ----------------------------------
+        # Timestamp mode
+        # ----------------------------------
         mode = None
 
         if self.date_time_toggle.isChecked():
             text = self.date_time_config.currentText()
-            
+
             if "ISO" in text:
                 mode = "ISO"
             elif "UK" in text:
                 mode = "UK"
             elif "US" in text:
                 mode = "US"
-                
+
             self.service.set_state(
                 "desktop_date_stamp_mode",
                 mode
             )
 
-        status, message = self.service.create_desktop_folder(
-            self.desktop_folder_line.text(),
-            mode
-        )
+        # ----------------------------------
+        # Determine how many folders
+        # ----------------------------------
+        if self.enumerate_toggle.isChecked():
+            count = self.desktop_folder_number_enumerator.value()
+        else:
+            count = 1
 
-        if status == "success":
-            stype = "success"
-        elif status == "exists":
-            stype = "info"
-        else:  # "invalid" or "error"
-            stype = "error"
-            
-        self.set_status(message, target="desktop", status_type=stype)
+        created = 0
+
+        # ----------------------------------
+        # Create folders
+        # ----------------------------------
+        for i in range(1, count + 1):
+
+            if count == 1:
+                name = base_name
+            else:
+                name = f"{base_name}_{i}"
+
+            status, _ = self.service.create_desktop_folder(name, mode)
+
+            if status == "success":
+                created += 1
+
+        # ----------------------------------
+        # Status output
+        # ----------------------------------
+        if created == 1:
+            self.set_status(
+                f'Folder "{base_name}" created on Desktop.',
+                target="desktop",
+                status_type="success"
+            )
+
+        elif created > 1:
+            self.set_status(
+                f"{created} folders created on Desktop.",
+                target="desktop",
+                status_type="success"
+            )
+
+        else:
+            self.set_status(
+                "Folders already exist or could not be created.",
+                target="desktop",
+                status_type="error"
+            )
+        
 
     ###################### Nested Folder Creator methods #################################
     

@@ -16,6 +16,8 @@ class StateManager:
             # Desktop creator
             "desktop_date_stamp_enabled": False,
             "desktop_date_stamp_mode": "ISO",
+            "desktop_enumeration_enabled": False,
+            "desktop_enumeration_count": 2,
 
             # Nested creator
             "nested_date_stamp_enabled": False,
