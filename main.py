@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDial,
-    QGridLayout
+    QGridLayout,QSpinBox
 
 )
 
@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         
         self.setWindowTitle("Folder Generator")
         
-        self.desktop_mode_height = 315
+        self.desktop_mode_height = 340
         self.nested_mode_height = 975
         
         self.setFixedSize(650, self.desktop_mode_height)
@@ -171,6 +171,18 @@ class MainWindow(QMainWindow):
         self.folder_to_desktop.setFixedWidth(180)
         self.folder_to_desktop.setMinimumHeight(35)
 
+        # ---- Enumeration controls ----
+        self.enumerate_toggle = QCheckBox("Create Multiple\nFolders")
+        self.enumerate_toggle.setMinimumHeight(35)
+        self.enumerate_toggle.setFixedWidth(155)
+
+        self.desktop_folder_number_enumerator = QSpinBox()
+        self.desktop_folder_number_enumerator.setMinimumHeight(35)
+        self.desktop_folder_number_enumerator.setFixedWidth(155)
+        self.desktop_folder_number_enumerator.setRange(1, 999)
+        self.desktop_folder_number_enumerator.setEnabled(False)
+
+        # ---- Timestamp controls ----
         self.date_time_toggle = QCheckBox("Add Date Stamp")
         self.date_time_toggle.setMinimumHeight(35)
         self.date_time_toggle.setFixedWidth(155)
@@ -196,8 +208,9 @@ class MainWindow(QMainWindow):
         self.date_time_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.date_time_config.lineEdit().setReadOnly(True)
 
+
         # ==========================================================
-        # Column 1 — Input frame
+        # Column 1 — Input frame (Create Folder)
         # ==========================================================
         self.desktop_input_frame = QFrame()
         self.desktop_input_frame.setFrameShape(QFrame.StyledPanel)
@@ -209,21 +222,22 @@ class MainWindow(QMainWindow):
 
         desktop_input_layout.addWidget(self.desktop_folder_line)
         desktop_input_layout.addWidget(self.folder_to_desktop)
-        desktop_input_layout.addStretch()
+
 
         # ==========================================================
-        # Column 2 — Button frame
+        # Column 2 — Enumeration frame
         # ==========================================================
-        self.desktop_button_frame = QFrame()
-        self.desktop_button_frame.setFrameShape(QFrame.StyledPanel)
+        self.desktop_enumerator_frame = QFrame()
+        self.desktop_enumerator_frame.setFrameShape(QFrame.StyledPanel)
 
-        desktop_button_layout = QVBoxLayout()
-        desktop_button_layout.setContentsMargins(6, 6, 6, 6)
-        desktop_button_layout.setSpacing(8)
-        self.desktop_button_frame.setLayout(desktop_button_layout)
+        enumerator_layout = QVBoxLayout()
+        enumerator_layout.setContentsMargins(6, 6, 6, 6)
+        enumerator_layout.setSpacing(8)
+        self.desktop_enumerator_frame.setLayout(enumerator_layout)
 
-    
-        desktop_button_layout.addStretch()
+        enumerator_layout.addWidget(self.enumerate_toggle, 0, Qt.AlignCenter)
+        enumerator_layout.addWidget(self.desktop_folder_number_enumerator, 0, Qt.AlignCenter)
+
 
         # ==========================================================
         # Column 3 — Date controls frame
@@ -238,34 +252,22 @@ class MainWindow(QMainWindow):
 
         desktop_date_layout.addWidget(self.date_time_toggle, 0, Qt.AlignCenter)
         desktop_date_layout.addWidget(self.date_time_config, 0, Qt.AlignCenter)
-        desktop_date_layout.addStretch()
 
         # ==========================================================
         # Add subframes into parent controls frame
         # ==========================================================
         desktop_controls_layout.addWidget(self.desktop_input_frame, 0, 0)
-        desktop_controls_layout.addWidget(self.desktop_button_frame, 0, 2)
-        desktop_controls_layout.addWidget(self.desktop_date_frame, 0, 1)
+        desktop_controls_layout.addWidget(self.desktop_enumerator_frame, 0, 1)
+        desktop_controls_layout.addWidget(self.desktop_date_frame, 0, 2)
 
         desktop_controls_layout.setColumnStretch(0, 1)
         desktop_controls_layout.setColumnStretch(1, 1)
         desktop_controls_layout.setColumnStretch(2, 1)
 
+
         # Add controls frame to desktop section
         self.desktop_layout.addWidget(self.desktop_controls_frame)
-
         
-
-
-
-
-
-
-
-
-
-
-
         # ---- Status Label (NOW INSIDE FRAME, BELOW CONTROLS) ----
     
         self.desktop_status_frame = QFrame()
@@ -464,9 +466,9 @@ class MainWindow(QMainWindow):
         # ==========================================================
         # Add the 3 child frames into the parent controls frame
         # ==========================================================
-        main_controls_layout.addWidget(self.template_controls_frame, 0, 0)
-        main_controls_layout.addWidget(self.folder_buttons_frame, 0, 1)
-        main_controls_layout.addWidget(self.date_controls_frame, 0, 2)
+        main_controls_layout.addWidget(self.template_controls_frame, 0, 2)
+        main_controls_layout.addWidget(self.folder_buttons_frame, 0, 0)
+        main_controls_layout.addWidget(self.date_controls_frame, 0, 1)
 
         main_controls_layout.setColumnStretch(0, 1)
         main_controls_layout.setColumnStretch(1, 1)
