@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
         self.folder_to_desktop.setMinimumHeight(35)
 
         # ---- Enumeration controls ----
-        self.enumerate_toggle = QCheckBox("Create Multiple\nFolders")
+        self.enumerate_toggle = QCheckBox("Create Multiple\nNumbered Folders")
         self.enumerate_toggle.setMinimumHeight(35)
         self.enumerate_toggle.setFixedWidth(155)
 
@@ -776,6 +776,7 @@ class MainWindow(QMainWindow):
         self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
         self.build_folders_btn.clicked.connect(self.build_folders_from_tree)
         self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
+        self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
 
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
@@ -1098,6 +1099,24 @@ class MainWindow(QMainWindow):
         self.service.set_state(
             "desktop_enumeration_enabled",
             checked
+        )
+        
+    def desktop_on_date_mode_changed(self, index: int):
+
+        text = self.date_time_config.currentText()
+
+        if "ISO" in text:
+            mode = "ISO"
+        elif "UK" in text:
+            mode = "UK"
+        elif "US" in text:
+            mode = "US"
+        else:
+            mode = "ISO"
+
+        self.service.set_state(
+            "desktop_date_stamp_mode",
+            mode
         )
                     
     def create_desktop_folder(self):

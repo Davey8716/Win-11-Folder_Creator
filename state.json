@@ -1,14 +1,14 @@
 {
-    "theme_index": 9,
+    "theme_index": 8,
     "last_base_dir": "C:\\Users\\davey\\Desktop",
     "desktop_date_stamp_enabled": false,
-    "desktop_date_stamp_mode": "US",
-    "nested_date_stamp_enabled": true,
+    "desktop_date_stamp_mode": "ISO",
+    "nested_date_stamp_enabled": false,
     "nested_date_stamp_mode": "ISO",
-    "nested_auto_number_enabled": true,
+    "nested_auto_number_enabled": false,
     "open_folder_after_build": false,
-    "minimize_after_build": true,
+    "minimize_after_build": false,
     "ui_mode": "desktop",
-    "desktop_enumeration_enabled": true,
-    "desktop_enumeration_count": 24
+    "desktop_enumeration_enabled": false,
+    "desktop_enumeration_count": 11
 }
