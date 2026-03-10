@@ -303,6 +303,8 @@ class NestedFolderManager:
         selected.addChild(child)
         selected.setExpanded(True)
         self.tree.editItem(child, 0)
+        
+    
 
     def remove_all_folders(self):
         self.tree.clear()
@@ -349,3 +351,34 @@ class NestedFolderManager:
         data = walk(root)
 
         self.deserialize_tree([data])
+        
+    def sort_tree(self):
+        """
+        Alphabetically sorts the entire tree recursively.
+        """
+
+        def sort_item(parent):
+            children = []
+            for i in range(parent.childCount()):
+                children.append(parent.takeChild(0))
+
+            children.sort(key=lambda x: x.text(0).lower())
+
+            for child in children:
+                parent.addChild(child)
+                sort_item(child)
+
+        # ---- Sort top level items ----
+        roots = []
+        for i in range(self.tree.topLevelItemCount()):
+            roots.append(self.tree.takeTopLevelItem(0))
+
+        roots.sort(key=lambda x: x.text(0).lower())
+
+        for root in roots:
+            self.tree.addTopLevelItem(root)
+            sort_item(root)
+            
+        self.expand_all_animated()
+        
+        
