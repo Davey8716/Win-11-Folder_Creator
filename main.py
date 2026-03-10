@@ -879,6 +879,7 @@ class MainWindow(QMainWindow):
         self.build_folders_btn.clicked.connect(self.build_folders_from_tree)
         self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
         self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
+        self.nested_date_config.currentIndexChanged.connect(self.nested_on_date_mode_changed)
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
         self.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
@@ -1576,6 +1577,8 @@ class MainWindow(QMainWindow):
             "nested_auto_number_enabled",
             checked
         )
+    
+    
 
 
     def nested_on_date_stamp_toggled(self, checked: bool):
@@ -1724,6 +1727,26 @@ class MainWindow(QMainWindow):
 
         except Exception:
             self.smart_status_text.setText("Error loading dropped file")
+            
+            
+            
+    def nested_on_date_mode_changed(self, index: int):
+
+        text = self.nested_date_config.currentText()
+
+        if "ISO" in text:
+            mode = "ISO"
+        elif "UK" in text:
+            mode = "UK"
+        elif "US" in text:
+            mode = "US"
+        else:
+            mode = "ISO"
+
+        self.service.set_state(
+            "nested_date_stamp_mode",
+            mode
+        )
 
     def build_folders_from_tree(self):
         base_path = self.base_path_line.text().strip()
