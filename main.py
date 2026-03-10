@@ -535,15 +535,7 @@ class MainWindow(QMainWindow):
         paths_layout.setSpacing(8)
         self.paths_frame.setLayout(paths_layout)
 
-        self.base_path_column = QFrame()
-        base_col_layout = QVBoxLayout()
-        base_col_layout.setContentsMargins(10,10,10,10)
-        base_col_layout.setSpacing(6)
-        self.base_path_column.setLayout(base_col_layout)
-
-        self.base_path_title = QLabel("Output Folder Location")
-        base_col_layout.addWidget(self.base_path_title)
-        base_col_layout.addWidget(self.base_path_line)
+        
 
         self.template_path_column = QFrame()
         template_col_layout = QVBoxLayout()
@@ -554,9 +546,20 @@ class MainWindow(QMainWindow):
         self.template_path_title = QLabel("Template Save Location")
         template_col_layout.addWidget(self.template_path_title)
         template_col_layout.addWidget(self.template_path_line)
+        
+        self.base_path_column = QFrame()
+        base_col_layout = QVBoxLayout()
+        base_col_layout.setContentsMargins(10,10,10,10)
+        base_col_layout.setSpacing(6)
+        self.base_path_column.setLayout(base_col_layout)
 
-        paths_layout.addWidget(self.base_path_column)
+        self.base_path_title = QLabel("Output Folder Location")
+        base_col_layout.addWidget(self.base_path_title)
+        base_col_layout.addWidget(self.base_path_line)
+        
         paths_layout.addWidget(self.template_path_column)
+        paths_layout.addWidget(self.base_path_column)
+        
 
         frame_layout_output = QVBoxLayout()
         frame_layout_output.setContentsMargins(10,10,10,10)
@@ -766,11 +769,11 @@ class MainWindow(QMainWindow):
         
         self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         
-        self.base_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.base_path_line.setMinimumWidth(400)
+        self.base_path_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.base_path_line.setMinimumWidth(450)
         
-        self.template_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.template_path_line.setMinimumWidth(400)
+        self.template_path_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.template_path_line.setMinimumWidth(450)
         
         
         # ---- Nested Status Panel ----
