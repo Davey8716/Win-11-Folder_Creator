@@ -992,6 +992,7 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
         last_base = state.get("last_base_dir", "")
         self.base_path_line.setText(last_base)
+        self.update_build_button_state()
 
         
         # Desktop Timestamp
@@ -1073,52 +1074,97 @@ class MainWindow(QMainWindow):
     def update_desktop_build_state(self):
         text = self.desktop_folder_line.text().strip()
         self.folder_to_desktop.setEnabled(bool(text))
-    
-    
+        
     def update_build_button_state(self):
+
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
-        
-            
-        # Detect if tree actually has nested folders
-        has_children = False
-        for i in range(self.tree.topLevelItemCount()):
-            item = self.tree.topLevelItem(i)
-            if item.childCount() > 0:
-                has_children = True
-                break
-            
+
+        # Detect if nesting exists
+        has_children = any(
+            self.tree.topLevelItem(i).childCount() > 0
+            for i in range(self.tree.topLevelItemCount())
+        )
+
+        # Detect desktop path
+        desktop_path = str(self.service.desktop_manager.desktop_path)
+        current_path = self.base_path_line.text().strip()
+        is_desktop = current_path == desktop_path
+
+        # Desktop button
+        self.default_to_desktop_btn.setEnabled(not is_desktop)
+
+        # Search
         self.find_output_line.setEnabled(has_items)
-            
+
+        # Build/remove
         self.build_folders_btn.setEnabled(has_items)
         self.remove_all_btn.setEnabled(has_items)
-            
-        # Tree control buttons
-        self.expand_collapse_btn.setEnabled(has_items)
+
+        # Tree utilities
         self.find_btn.setEnabled(has_items)
         self.sort_btn.setEnabled(has_items)
-        
-            
-        # Expand/Collapse only useful if nesting exists
+
+        # Expand/collapse only useful if nesting exists
         self.expand_collapse_btn.setEnabled(has_children)
 
-        # Requires a selected item
+        # Selection-dependent buttons
         self.remove_btn.setEnabled(has_selection)
         self.add_subfolder_btn.setEnabled(has_selection)
+        
+    
+    # def update_build_button_state(self):
+    #     has_items = self.tree.topLevelItemCount() > 0
+    #     has_selection = self.tree.currentItem() is not None
+        
             
-        # tree utilities safety checks
-        if hasattr(self, "expand_collapse_btn"):
-            self.expand_collapse_btn.setEnabled(has_items)
+    #     # Detect if tree actually has nested folders
+    #     has_children = False
+    #     for i in range(self.tree.topLevelItemCount()):
+    #         item = self.tree.topLevelItem(i)
+    #         if item.childCount() > 0:
+    #             has_children = True
+    #             break
+            
+    #     desktop_path = str(self.service.desktop_manager.desktop_path)
+    #     current_path = self.base_path_line.text().strip()
 
-        if hasattr(self, "find_btn"):
-            self.find_btn.setEnabled(has_items)
+    #     is_desktop = current_path == desktop_path
+        
+    #     self.default_to_desktop_btn.setEnabled(not is_desktop)
+        
+            
+    #     self.find_output_line.setEnabled(has_items)
+            
+    #     self.build_folders_btn.setEnabled(has_items)
+    #     self.remove_all_btn.setEnabled(has_items)
+            
+    #     # Tree control buttons
+    #     self.expand_collapse_btn.setEnabled(has_items)
+    #     self.find_btn.setEnabled(has_items)
+    #     self.sort_btn.setEnabled(has_items)
+        
+            
+    #     # Expand/Collapse only useful if nesting exists
+    #     self.expand_collapse_btn.setEnabled(has_children)
 
-        if hasattr(self, "sort_btn"):
-            self.sort_btn.setEnabled(has_items)
+    #     # Requires a selected item
+    #     self.remove_btn.setEnabled(has_selection)
+    #     self.add_subfolder_btn.setEnabled(has_selection)
+            
+    #     # tree utilities safety checks
+    #     if hasattr(self, "expand_collapse_btn"):
+    #         self.expand_collapse_btn.setEnabled(has_items)
 
-        # reapply nesting rule so it is not overridden
-        if hasattr(self, "expand_collapse_btn"):
-            self.expand_collapse_btn.setEnabled(has_children) 
+    #     if hasattr(self, "find_btn"):
+    #         self.find_btn.setEnabled(has_items)
+
+    #     if hasattr(self, "sort_btn"):
+    #         self.sort_btn.setEnabled(has_items)
+
+    #     # reapply nesting rule so it is not overridden
+    #     if hasattr(self, "expand_collapse_btn"):
+    #         self.expand_collapse_btn.setEnabled(has_children) 
    
 
     def tree_has_collapsed_nodes(self):
@@ -1546,13 +1592,14 @@ class MainWindow(QMainWindow):
         self.base_path_line.setText(str(desktop_path))
 
         self.service.set_state("last_base_dir", str(desktop_path))
+        self.update_build_button_state()
 
         self.set_status(
             "Base directory set to Desktop.",
             target="nested",
             status_type="info"
         )
-        
+   
     def select_base_directory(self):
         directory = QFileDialog.getExistingDirectory(
             self,
@@ -1560,15 +1607,36 @@ class MainWindow(QMainWindow):
         )
 
         if directory:
-            self.base_path_line.setText(directory)
 
-            self.service.set_state("last_base_dir", directory)
+            desktop_path = Path(self.service.desktop_manager.desktop_path).resolve()
+            current_path = Path(self.base_path_line.text().strip()).resolve()
+            selected_path = Path(directory).resolve()
+
+            # Only block if Desktop is already the active path
+            if selected_path == desktop_path and current_path == desktop_path:
+                self.update_build_button_state()
+                self.set_status(
+                    "Desktop is already the active output location.",
+                    target="nested",
+                    status_type="info"
+                )
+                return
+
+            # store normalized path
+            normalized = str(selected_path)
+
+            self.base_path_line.setText(normalized)
+
+            self.service.set_state("last_base_dir", normalized)
+            
+            self.update_build_button_state()
 
             self.set_status(
-                f"Base directory set: {directory}",
+                f"Base directory set: {normalized}",
                 target="nested",
                 status_type="info"
             )
+
         else:
             self.set_status(
                 "No directory selected.",
