@@ -89,7 +89,7 @@ class SmartTreeWidget(QTreeWidget):
                 # ----------------------------
                 # Template files (.json/.txt)
                 # ----------------------------
-                if low.endswith(".json") or low.endswith(".txt"):
+                if low.endswith((".json", ".txt", ".md")):
                     self.fileDropped.emit(path)
 
                     # mimic template load behaviour
