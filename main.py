@@ -1080,6 +1080,10 @@ class MainWindow(QMainWindow):
         self.folder_to_desktop.setEnabled(bool(text))
         
     def update_build_button_state(self):
+        
+        default_template_loaded = (
+            self.load_default_template_dropdown.currentIndex() != 0
+        )
 
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
@@ -1165,6 +1169,15 @@ class MainWindow(QMainWindow):
         # Selection-dependent buttons
         self.remove_btn.setEnabled(has_selection)
         self.add_subfolder_btn.setEnabled(has_selection)
+        
+        # ---------------------------------------------------------
+        # Auto-number rule
+        # ---------------------------------------------------------
+        if default_template_loaded:
+            self.auto_enumerate_folders.setChecked(False)
+            self.auto_enumerate_folders.setEnabled(False)
+        else:
+            self.auto_enumerate_folders.setEnabled(True)
         
     
     def tree_has_collapsed_nodes(self):
@@ -1275,6 +1288,9 @@ class MainWindow(QMainWindow):
                     font-size: 15px;
                     font-weight: 600;
                     color: {accent_color};
+                }}
+                QCheckBox:disabled {{
+                    color: rgba(140,140,140,0.6);
                 }}
             """)
 
