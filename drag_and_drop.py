@@ -91,6 +91,12 @@ class SmartTreeWidget(QTreeWidget):
                 # ----------------------------
                 if low.endswith(".json") or low.endswith(".txt"):
                     self.fileDropped.emit(path)
+
+                    # mimic template load behaviour
+                    if self.topLevelItemCount() > 0:
+                        root = self.topLevelItem(0)
+                        self.setCurrentItem(root)
+
                     continue
 
                 # ----------------------------
@@ -98,11 +104,15 @@ class SmartTreeWidget(QTreeWidget):
                 # ----------------------------
                 try:
                     from pathlib import Path
-
                     p = Path(path)
 
                     if p.is_dir():
                         window.service.nested_manager.import_folder_tree(path)
+
+                        # select root node
+                        if self.topLevelItemCount() > 0:
+                            root = self.topLevelItem(0)
+                            self.setCurrentItem(root)
 
                         if hasattr(window, "update_build_button_state"):
                             window.update_build_button_state()
