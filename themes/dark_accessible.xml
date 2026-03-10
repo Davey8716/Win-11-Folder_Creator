@@ -1,0 +1,10 @@
+<resources>
+    <color name="primaryColor">#FFFFFF</color>
+    <color name="primaryTextColor">#FFFFFF</color>
+    <color name="secondaryTextColor">#CCCCCC</color>
+
+    <color name="backgroundColor">#000000</color>
+    <color name="secondaryColor">#000000</color>
+
+    <color name="accentColor">#FFFFFF</color>
+</resources>
