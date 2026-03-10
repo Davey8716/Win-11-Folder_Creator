@@ -40,6 +40,7 @@ class MainWindow(QMainWindow):
         self.tree.setColumnCount(1)
         self.tree.setHeaderHidden(True)
         
+        
         self.tree.setEditTriggers(
             QAbstractItemView.DoubleClicked |
             QAbstractItemView.EditKeyPressed
@@ -925,6 +926,7 @@ class MainWindow(QMainWindow):
         theme_index = state.get("theme_index", 0)
 
         self.select_theme(theme_index)
+        self.state = self.service.state
                 
 
         self.tree.fileDropped.connect(self.load_template_from_path)
@@ -982,38 +984,55 @@ class MainWindow(QMainWindow):
         last_base = state.get("last_base_dir", "")
         self.base_path_line.setText(last_base)
 
-        # ---------------------------------------------------------
+        # # ---------------------------------------------------------
+        # # Desktop Timestamp
+        # # ---------------------------------------------------------
+        # desktop_enabled = state.get("desktop_date_stamp_enabled", False)
+        # self.date_time_toggle.setChecked(desktop_enabled)
+        # self.date_time_config.setEnabled(desktop_enabled)
+
+        # desktop_mode = state.get("desktop_date_stamp_mode", "ISO")
+
+        # if desktop_mode == "UK":
+        #     self.date_time_config.setCurrentIndex(1)
+        # elif desktop_mode == "US":
+        #     self.date_time_config.setCurrentIndex(2)
+        # else:
+        #     self.date_time_config.setCurrentIndex(0)
+
+
+        # # ---------------------------------------------------------
+        # # Nested Timestamp
+        # # ---------------------------------------------------------
+        # nested_enabled = state.get("nested_date_stamp_enabled", False)
+        # self.nested_date_toggle.setChecked(nested_enabled)
+        # self.nested_date_config.setEnabled(nested_enabled)
+
+        # nested_mode = state.get("nested_date_stamp_mode", "ISO")
+
+        # if nested_mode == "UK":
+        #     self.nested_date_config.setCurrentIndex(1)
+        # elif nested_mode == "US":
+        #     self.nested_date_config.setCurrentIndex(2)
+        # else:
+        #     self.nested_date_config.setCurrentIndex(0)
+        
+        
         # Desktop Timestamp
-        # ---------------------------------------------------------
-        desktop_enabled = state.get("desktop_date_stamp_enabled", False)
-        self.date_time_toggle.setChecked(desktop_enabled)
-        self.date_time_config.setEnabled(desktop_enabled)
+        self.restore_timestamp_state(
+            self.date_time_toggle,
+            self.date_time_config,
+            "desktop_date_stamp_enabled",
+            "desktop_date_stamp_mode"
+        )
 
-        desktop_mode = state.get("desktop_date_stamp_mode", "ISO")
-
-        if desktop_mode == "UK":
-            self.date_time_config.setCurrentIndex(1)
-        elif desktop_mode == "US":
-            self.date_time_config.setCurrentIndex(2)
-        else:
-            self.date_time_config.setCurrentIndex(0)
-
-
-        # ---------------------------------------------------------
         # Nested Timestamp
-        # ---------------------------------------------------------
-        nested_enabled = state.get("nested_date_stamp_enabled", False)
-        self.nested_date_toggle.setChecked(nested_enabled)
-        self.nested_date_config.setEnabled(nested_enabled)
-
-        nested_mode = state.get("nested_date_stamp_mode", "ISO")
-
-        if nested_mode == "UK":
-            self.nested_date_config.setCurrentIndex(1)
-        elif nested_mode == "US":
-            self.nested_date_config.setCurrentIndex(2)
-        else:
-            self.nested_date_config.setCurrentIndex(0)
+        self.restore_timestamp_state(
+            self.nested_date_toggle,
+            self.nested_date_config,
+            "nested_date_stamp_enabled",
+            "nested_date_stamp_mode"
+        )
 
 
         # ---------------------------------------------------------
@@ -1039,6 +1058,21 @@ class MainWindow(QMainWindow):
         
         
         self.update_desktop_build_state()
+        
+    def restore_timestamp_state(self, toggle, combo, enabled_key, mode_key):
+        enabled = self.state.get(enabled_key, False)
+        toggle.setChecked(enabled)
+        combo.setEnabled(enabled)
+
+        mode = self.state.get(mode_key, "ISO")
+
+        index_map = {
+            "ISO": 0,
+            "UK": 1,
+            "US": 2
+        }
+
+        combo.setCurrentIndex(index_map.get(mode, 0))
         
         
     def make_vline(self):
@@ -1084,6 +1118,7 @@ class MainWindow(QMainWindow):
         self.expand_collapse_btn.setEnabled(has_items)
         self.find_btn.setEnabled(has_items)
         self.sort_btn.setEnabled(has_items)
+        
             
         # Expand/Collapse only useful if nesting exists
         self.expand_collapse_btn.setEnabled(has_children)
@@ -1166,18 +1201,8 @@ class MainWindow(QMainWindow):
     def preview_theme(self, index):
         accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
+        
 
-    # def commit_theme(self):
-    #     index = self.colour_accent_slider.value()
-    #     self.service.set_state("theme_index", index)
-        
-    # def apply_selected_theme(self):
-    #     index = self.colour_accent_slider.value()
-    #     accent = self.service.apply_theme(index)
-    #     self.apply_accent_styles(accent)
-    #     self.service.set_state("theme_index", index)
-        
-        
     def apply_accent_styles(self, accent_color: str):
 
 
