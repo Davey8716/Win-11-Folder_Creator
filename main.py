@@ -717,19 +717,22 @@ class MainWindow(QMainWindow):
     
 
         post_build_layout = QVBoxLayout()
-        post_build_layout.setContentsMargins(15,15,15,15)
+        post_build_layout.setContentsMargins(10,10,10,10)
         post_build_layout.setSpacing(8)
         self.post_build_frame.setLayout(post_build_layout)
 
         self.open_folder_build_toggle = QCheckBox("Open Folder Location\n After Build")
         self.minimize_after_build_toggle = QCheckBox("Minimize After Build")
         
-        post_build_layout.addWidget(self.open_folder_build_toggle, alignment=Qt.AlignHCenter)
-        post_build_layout.addWidget(self.minimize_after_build_toggle, alignment=Qt.AlignHCenter)
+        
+
+        
+        post_build_layout.addWidget(self.open_folder_build_toggle, alignment=Qt.AlignTop)
+        post_build_layout.addWidget(self.minimize_after_build_toggle, alignment=Qt.AlignTop)
         
 
         main_controls_layout.setHorizontalSpacing(6)
-        main_controls_layout.setVerticalSpacing(0)
+        main_controls_layout.setVerticalSpacing(5)
 
         # group 1
         main_controls_layout.addWidget(self.folder_buttons_frame,   0, 0)
@@ -1016,6 +1019,14 @@ class MainWindow(QMainWindow):
             self.tree.topLevelItem(i).childCount() > 0
             for i in range(self.tree.topLevelItemCount())
         )
+        
+        # ---------------------------------------------------------
+        # Pure parent structure → sorting not useful
+        # ---------------------------------------------------------
+        if not has_children:
+            self.sort_btn.setEnabled(False)
+
+        
 
         # Detect desktop path
         desktop_path = str(self.service.desktop_manager.desktop_path)
@@ -1076,28 +1087,35 @@ class MainWindow(QMainWindow):
 
         can_sort = False
 
-        # ---- Check top level ----
-        root_names = [
-            self.tree.topLevelItem(i).text(0)
-            for i in range(self.tree.topLevelItemCount())
-        ]
+        # If tree has no nesting, sorting is not useful
+        if not has_children:
+            can_sort = False
+        else:
 
-        if len(root_names) > 1 and names_would_change(root_names):
-            can_sort = True
+            # ---- Check top level ----
+            root_names = [
+                self.tree.topLevelItem(i).text(0)
+                for i in range(self.tree.topLevelItemCount())
+            ]
 
-        # ---- Check child groups ----
-        if not can_sort:
-            for i in range(self.tree.topLevelItemCount()):
-                parent = self.tree.topLevelItem(i)
+            if len(root_names) > 1 and names_would_change(root_names):
+                can_sort = True
 
-                child_names = [
-                    parent.child(j).text(0)
-                    for j in range(parent.childCount())
-                ]
+            # ---- Check child groups ----
+            if not can_sort:
+                for i in range(self.tree.topLevelItemCount()):
+                    parent = self.tree.topLevelItem(i)
 
-                if len(child_names) > 1 and names_would_change(child_names):
-                    can_sort = True
-                    break
+                    child_names = [
+                        parent.child(j).text(0)
+                        for j in range(parent.childCount())
+                    ]
+
+                    if len(child_names) > 1 and names_would_change(child_names):
+                        can_sort = True
+                        break
+
+        self.sort_btn.setEnabled(can_sort)
 
 
         # Expand/collapse only useful if nesting exists
