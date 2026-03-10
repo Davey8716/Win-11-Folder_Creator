@@ -508,9 +508,59 @@ class MainWindow(QMainWindow):
         self.out_put_frame = QFrame()
         self.out_put_frame.setFrameShape(QFrame.StyledPanel)
 
+        # ----------------------------------------------------------
+        # Create path fields FIRST
+        # ----------------------------------------------------------
+        self.base_path_line = QLineEdit()
+        self.base_path_line.setPlaceholderText(
+            "Select base directory for output folder location"
+        )
+        self.base_path_line.setReadOnly(True)
+        self.base_path_line.setMinimumHeight(35)
+
+        self.template_path_line = QLineEdit()
+        self.template_path_line.setPlaceholderText(
+            "Output Location For User Made Templates"
+        )
+        self.template_path_line.setReadOnly(True)
+        self.template_path_line.setMinimumHeight(35)
+
+        # ----------------------------------------------------------
+        # Paths row
+        # ----------------------------------------------------------
+        self.paths_frame = QFrame()
+        paths_layout = QHBoxLayout()
+        paths_layout.setContentsMargins(10,10,10,10)
+        paths_layout.setSpacing(8)
+        self.paths_frame.setLayout(paths_layout)
+
+        self.base_path_column = QFrame()
+        base_col_layout = QVBoxLayout()
+        base_col_layout.setContentsMargins(10,10,10,10)
+        base_col_layout.setSpacing(6)
+        self.base_path_column.setLayout(base_col_layout)
+
+        self.base_path_title = QLabel("Output Folder Location")
+        base_col_layout.addWidget(self.base_path_title)
+        base_col_layout.addWidget(self.base_path_line)
+
+        self.template_path_column = QFrame()
+        template_col_layout = QVBoxLayout()
+        template_col_layout.setContentsMargins(10,10,10,10)
+        template_col_layout.setSpacing(6)
+        self.template_path_column.setLayout(template_col_layout)
+
+        self.template_path_title = QLabel("Template Save Location")
+        template_col_layout.addWidget(self.template_path_title)
+        template_col_layout.addWidget(self.template_path_line)
+
+        paths_layout.addWidget(self.base_path_column)
+        paths_layout.addWidget(self.template_path_column)
+
         frame_layout_output = QVBoxLayout()
         frame_layout_output.setContentsMargins(10,10,10,10)
         frame_layout_output.setSpacing(6)
+        frame_layout_output.addWidget(self.paths_frame)
         self.out_put_frame.setLayout(frame_layout_output)
 
         # ==========================================================
@@ -610,17 +660,7 @@ class MainWindow(QMainWindow):
         
         self.tree.setAlternatingRowColors(True)
         
-        # ----------------------------------------------------------
-        # Base Path Field (UNCHANGED)
-        # ----------------------------------------------------------
-        self.base_path_line = QLineEdit()
-        self.base_path_line.setPlaceholderText(
-            "Select base directory for output folder location"
-        )
-        self.base_path_line.setReadOnly(True)
-        self.base_path_line.setMinimumHeight(35)
 
-        frame_layout_output.addWidget(self.base_path_line)
 
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################
@@ -643,12 +683,12 @@ class MainWindow(QMainWindow):
         self.build_buttons_frame.setLayout(build_layout)
 
         self.default_to_desktop_btn = QPushButton("Default Desktop")
-        self.browse_btn = QPushButton("Output Location")
+        self.output_location_btn = QPushButton("Output Location")
         self.build_folders_btn = QPushButton("Build Folders")
 
         for btn in [
             self.default_to_desktop_btn,
-            self.browse_btn,
+            self.output_location_btn,
             self.build_folders_btn
         ]:
             btn.setMinimumHeight(35)
@@ -656,7 +696,7 @@ class MainWindow(QMainWindow):
         # btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         build_layout.addWidget(self.default_to_desktop_btn)
-        build_layout.addWidget(self.browse_btn)
+        build_layout.addWidget(self.output_location_btn)
         build_layout.addWidget(self.build_folders_btn)
         
         self.update_build_button_state()
@@ -719,33 +759,17 @@ class MainWindow(QMainWindow):
             frame.setMinimumWidth(170)
             frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
             
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         # ----------------------------------------------------------
         # Status frame
         # ----------------------------------------------------------
         
         self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.out_put_frame.setMinimumWidth(0)
         
-        self.base_path_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.base_path_line.setMinimumWidth(0)
+        self.base_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.base_path_line.setMinimumWidth(400)
+        
+        self.template_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.template_path_line.setMinimumWidth(400)
         
         
         # ---- Nested Status Panel ----
@@ -776,101 +800,6 @@ class MainWindow(QMainWindow):
         
         
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         # Signal Connections
         self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
         self.nested_date_toggle.toggled.connect(self.nested_on_date_stamp_toggled)
@@ -881,13 +810,14 @@ class MainWindow(QMainWindow):
         self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
         self.nested_date_config.currentIndexChanged.connect(self.nested_on_date_mode_changed)
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
-        self.browse_btn.clicked.connect(self.select_base_directory)
+        self.output_location_btn.clicked.connect(self.select_base_directory)
         self.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
         self.create_template_btn.clicked.connect(self.create_template)
         self.remove_all_btn.clicked.connect(self.remove_all_folders)
         self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
         self.find_btn.clicked.connect(self.find_folder_in_tree)
         self.find_output_line.returnPressed.connect(self.find_folder_in_tree)
+        self.create_template_btn.clicked.connect(self.select_template_directory)
         
         
         self.tree.itemExpanded.connect(self.update_expand_button_text)
@@ -930,10 +860,7 @@ class MainWindow(QMainWindow):
             lambda: (self.service.nested_manager.remove_selected_folders(), self.update_build_button_state())
         )
         
-    
-        
         self.tree.itemSelectionChanged.connect(self.update_build_button_state)
-        
         
         theme_index = state.get("theme_index", 0)
 
@@ -951,13 +878,7 @@ class MainWindow(QMainWindow):
         self.smart_status_timer.setSingleShot(True)
         self.smart_status_timer.timeout.connect(lambda: self.reset_status("nested"))
                         
-        
 
-
-
-
-
-        
         state = self.service.state
         self.current_mode = state.get("ui_mode", "desktop")
         
@@ -1054,8 +975,6 @@ class MainWindow(QMainWindow):
 
         combo.setCurrentIndex(index_map.get(mode, 0))
         
-   
-        
     def make_vline(self):
         line = QFrame()
         line.setFrameShape(QFrame.VLine)
@@ -1104,6 +1023,7 @@ class MainWindow(QMainWindow):
 
         # Search
         self.find_output_line.setEnabled(has_items)
+        
 
         # Build/remove
         self.build_folders_btn.setEnabled(has_items)
@@ -1111,6 +1031,7 @@ class MainWindow(QMainWindow):
 
         # Tree utilities
         self.find_btn.setEnabled(has_items)
+        self.create_template_btn.setEnabled(has_items)
         
         # ---------------------------------------------------------
         # Auto-number override
@@ -1247,13 +1168,15 @@ class MainWindow(QMainWindow):
         # ---- Section labels ----
         title_2 = [
             # self.smart_folder_creator,
-            self.desktop_section_title
+            self.desktop_section_title,
+            self.base_path_title,
+            self.template_path_title
         ]
 
         for lbl in title_2:
             lbl.setStyleSheet(f"""
                 QLabel {{
-                    font-size: 22px;
+                    font-size: 18px;
                     font-weight: 600;
                     color: {accent_color};
                 }}
@@ -1618,6 +1541,8 @@ class MainWindow(QMainWindow):
             "nested_date_stamp_enabled",
             checked
         )
+        
+    
 
     def default_to_desktop(self):
         desktop_path = self.service.desktop_manager.desktop_path
@@ -1675,6 +1600,37 @@ class MainWindow(QMainWindow):
                 target="nested",
                 status_type="error"
             )
+            
+    def user_template_save(self):
+
+        base_dir = self.template_path_line.text().strip()
+
+        if not base_dir:
+            self.set_status(
+                "No template save location selected.",
+                target="nested",
+                status_type="error"
+            )
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Template",
+            base_dir,
+            "JSON Files (*.json)"
+        )
+
+        if not file_path:
+            return
+
+        data = self.service.nested_manager.serialize_tree()
+
+        status, message = self.service.template_service.save_json(file_path, data)
+
+        if status == "success":
+            self.set_status(message, target="nested", status_type="success")
+        else:
+            self.set_status(message, target="nested", status_type="error")
 
     def create_template(self):
         status, message = self.service.save_template(self)
@@ -1686,6 +1642,28 @@ class MainWindow(QMainWindow):
         elif status != "cancelled":
             self.set_status(message, target="nested", status_type="error")
             
+            self.user_template_save()
+            
+    def select_template_directory(self):
+
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Select Template Save Directory"
+        )
+
+        if not directory:
+            return
+
+        normalized = str(Path(directory).resolve())
+
+        self.template_path_line.setText(normalized)
+
+        self.set_status(
+            f"Template directory set: {normalized}",
+            target="nested",
+            status_type="info"
+        )
+                
             
     def load_default_template(self):
 
@@ -1700,7 +1678,7 @@ class MainWindow(QMainWindow):
         # Convert dropdown text → filename
         filename = text.lower().replace(" ", "_") + ".txt"
 
-        # Build template path
+       
         template_path = Path(r"C:\Users\davey\Desktop\Folder Creator\templates") / filename
 
         if not template_path.exists():
