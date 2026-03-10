@@ -125,9 +125,10 @@ class MainWindow(QMainWindow):
         
         self.theme_selector_frame = QFrame()
         self.theme_selector_frame.setFrameShape(QFrame.StyledPanel)
+        self.theme_selector_frame.setMinimumWidth(2)
 
         theme_layout = QGridLayout()
-        theme_layout.setSpacing(6)
+        theme_layout.setSpacing(4)
         theme_layout.setContentsMargins(6,6,6,6)
 
         self.theme_selector_frame.setLayout(theme_layout)
@@ -1022,16 +1023,26 @@ class MainWindow(QMainWindow):
         self.default_to_desktop_btn.setEnabled(not is_desktop)
 
         # Search
-        self.find_output_line.setEnabled(has_items)
         
-        
+        # Search
+        visible_items = self.get_visible_tree_item_count()
+        total_items = self.get_total_tree_item_count()
+
+        can_find = visible_items > 8 or total_items > 8
+
+        self.find_btn.setEnabled(can_find)
+        self.find_output_line.setEnabled(can_find)
+
+        # Build/remove
+        self.build_folders_btn.setEnabled(has_items)
+        self.remove_all_btn.setEnabled(has_items)
+    
 
         # Build/remove
         self.build_folders_btn.setEnabled(has_items)
         self.remove_all_btn.setEnabled(has_items)
 
         # Tree utilities
-        self.find_btn.setEnabled(has_items)
         self.create_template_btn.setEnabled(has_items)
         # self.load_default_template_dropdown.setDisabled(has_items)
         
@@ -1101,8 +1112,35 @@ class MainWindow(QMainWindow):
             self.auto_enumerate_folders.setEnabled(False)
         else:
             self.auto_enumerate_folders.setEnabled(True)
+            
+            
+    def get_total_tree_item_count(self):
+        count = 0
+        iterator = QTreeWidgetItemIterator(self.tree)
+
+        while iterator.value():
+            count += 1
+            iterator += 1
+
+        return count
+
+    def get_visible_tree_item_count(self):
+        def count_visible(item):
+            total = 1
+
+            if item.isExpanded():
+                for i in range(item.childCount()):
+                    total += count_visible(item.child(i))
+
+            return total
+
+        total = 0
+
+        for i in range(self.tree.topLevelItemCount()):
+            total += count_visible(self.tree.topLevelItem(i))
+
+        return total
         
-    
     def tree_has_collapsed_nodes(self):
 
         for i in range(self.tree.topLevelItemCount()):
@@ -1436,6 +1474,11 @@ class MainWindow(QMainWindow):
             return
 
         self.service.nested_manager.sort_tree()
+        
+        # restore selection
+        if self.tree.topLevelItemCount() > 0:
+            root = self.tree.topLevelItem(0)
+            self.tree.setCurrentItem(root)
 
         self.set_status(
             "Folder tree sorted alphabetically.",
