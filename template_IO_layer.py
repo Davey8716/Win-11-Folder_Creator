@@ -34,7 +34,7 @@ class TemplateService:
             with open(file_path, "r", encoding="utf-8") as f:
                 return json.load(f)
 
-        elif file_path.lower().endswith(".txt"):
+        elif file_path.lower().endswith((".txt",".md")):
             with open(file_path, "r", encoding="utf-8") as f:
                 text = f.read()
             return text_parser(text)
