@@ -1279,6 +1279,14 @@ class MainWindow(QMainWindow):
             """)
 
         self.current_accent_color = accent_color
+        
+        
+        # ---- Status icons ----
+        for icon in [
+            self.desktop_status_icon,
+            self.smart_status_icon
+        ]:
+            icon.setStyleSheet(f"font-weight: 700; color: {accent_color};")
     
     # shared status out function hat Qline uses for both output lines
     def set_status(self, message: str, target: str = "desktop", status_type: str = "info"):
@@ -1287,7 +1295,7 @@ class MainWindow(QMainWindow):
         status_type: "info", "success", "error"
         """
 
-        accent = getattr(self, "current_accent_color", "#2196F3")
+        accent = self.service.theme_controller.current_accent
 
         if target == "nested":
             icon_label = self.smart_status_icon
@@ -1295,12 +1303,11 @@ class MainWindow(QMainWindow):
             frame = self.smart_status_frame
             self.smart_status_timer.start(10000)
         else:
-            icon_label = self.desktop_status_icon     # FIX
-            text_label = self.desktop_status_text     # FIX
+            icon_label = self.desktop_status_icon
+            text_label = self.desktop_status_text
             frame = self.desktop_status_frame
             self.desktop_status_timer.start(10000)
 
-        # Status styles
         if status_type == "success":
             icon_label.setText("✓")
             bg = "rgba(46, 204, 113, 0.15)"
@@ -1321,11 +1328,14 @@ class MainWindow(QMainWindow):
             }}
         """)
 
-        # Make the icon follow the slider accent color
         icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
         text_label.setText(message)
-        
+
+
     def reset_status(self, target: str):
+
+        accent = self.service.theme_controller.current_accent
+
         if target == "nested":
             icon_label = self.smart_status_icon
             text_label = self.smart_status_text
@@ -1336,6 +1346,7 @@ class MainWindow(QMainWindow):
             frame = self.desktop_status_frame
 
         icon_label.setText(">")
+        icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
         text_label.setText("")
 
         frame.setStyleSheet("""
@@ -1346,7 +1357,7 @@ class MainWindow(QMainWindow):
             QLabel {
                 font-size: 14px;
             }
-    """)
+        """)
         
         
     ####################### Desktop Folder Creator methods #################################

@@ -6,6 +6,7 @@ def get_available_qt_material_themes(preferred: list[str]) -> list[str]:
     existing = {p.name for p in themes_dir.glob("*.xml")}
     return [t for t in preferred if t in existing]
 
+
 ACCENT_MAP = {
     "red": "#D64545",        # softened red (less neon)
     "orange": "#E6892E",     # warmer, less bright
@@ -15,9 +16,12 @@ ACCENT_MAP = {
     "blue": "#3F6DF6",       # slightly softened blue
     "purple": "#8E44AD",     # richer but less bright purple
     "pink": "#D65C9E",       # muted rose pink
+ 
 }
 
 PREFERRED_THEMES = [
+    
+    
     # Light
     "light_red.xml",
     "light_pink.xml",
