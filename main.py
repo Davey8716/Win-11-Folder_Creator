@@ -1024,6 +1024,7 @@ class MainWindow(QMainWindow):
         # Search
         self.find_output_line.setEnabled(has_items)
         
+        
 
         # Build/remove
         self.build_folders_btn.setEnabled(has_items)
@@ -1032,6 +1033,7 @@ class MainWindow(QMainWindow):
         # Tree utilities
         self.find_btn.setEnabled(has_items)
         self.create_template_btn.setEnabled(has_items)
+        # self.load_default_template_dropdown.setDisabled(has_items)
         
         # ---------------------------------------------------------
         # Auto-number override
@@ -1701,6 +1703,10 @@ class MainWindow(QMainWindow):
         self.service.nested_manager.expand_all_animated()
         self.update_expand_button_text()
         
+        if self.tree.topLevelItemCount() > 0:
+            root = self.tree.topLevelItem(0)
+            self.tree.setCurrentItem(root)
+                
         
         self.update_build_button_state()
         
