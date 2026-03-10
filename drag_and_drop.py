@@ -79,17 +79,52 @@ class SmartTreeWidget(QTreeWidget):
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
-            for url in event.mimeData().urls():
-                file_path = url.toLocalFile()
-                low = file_path.lower()
 
+            window = self.window()
+
+            for url in event.mimeData().urls():
+                path = url.toLocalFile()
+                low = path.lower()
+
+                # ----------------------------
+                # Template files (.json/.txt)
+                # ----------------------------
                 if low.endswith(".json") or low.endswith(".txt"):
-                    self.fileDropped.emit(file_path)
+                    self.fileDropped.emit(path)
+
+                    # mimic template load behaviour
+                    if self.topLevelItemCount() > 0:
+                        root = self.topLevelItem(0)
+                        self.setCurrentItem(root)
+
+                    continue
+
+                # ----------------------------
+                # Folder import
+                # ----------------------------
+                try:
+                    from pathlib import Path
+                    p = Path(path)
+
+                    if p.is_dir():
+                        window.service.nested_manager.import_folder_tree(path)
+
+                        # select root node
+                        if self.topLevelItemCount() > 0:
+                            root = self.topLevelItem(0)
+                            self.setCurrentItem(root)
+
+                        if hasattr(window, "update_build_button_state"):
+                            window.update_build_button_state()
+
+                except Exception:
+                    pass
 
             event.acceptProposedAction()
+
         else:
             super().dropEvent(event)
-            
+                
 
     def keyPressEvent(self, event: QKeyEvent):
 

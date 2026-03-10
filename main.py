@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton, QSizePolicy
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QAbstractItemView
+from PySide6.QtWidgets import QTreeWidgetItemIterator
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -578,8 +579,12 @@ class MainWindow(QMainWindow):
 
         # Buttons
         self.expand_collapse_btn = QPushButton("Expand All")
+        self.sort_btn = QPushButton("Sort A/Z")
         self.find_btn = QPushButton("Find")
-        self.sort_btn = QPushButton("Sort")
+        self.find_output_line = QLineEdit()
+        self.find_output_line.setPlaceholderText("Input For Finding Folders.")
+        self.find_output_line.setEnabled(False)
+      
 
         for btn in [
             self.expand_collapse_btn,
@@ -590,8 +595,10 @@ class MainWindow(QMainWindow):
             btn.setMinimumWidth(120)
 
         tree_controls_layout.addWidget(self.expand_collapse_btn)
-        tree_controls_layout.addWidget(self.find_btn)
+        
         tree_controls_layout.addWidget(self.sort_btn)
+        tree_controls_layout.addWidget(self.find_btn)
+        tree_controls_layout.addWidget(self.find_output_line)
         tree_controls_layout.addStretch()
         
         self.expand_collapse_btn.setEnabled(False)
@@ -689,16 +696,16 @@ class MainWindow(QMainWindow):
         main_controls_layout.addWidget(self.sep2,                   0, 3)
 
         # group 2
-        main_controls_layout.addWidget(self.template_controls_frame, 0, 4)
-        main_controls_layout.addWidget(self.out_put_frame,           0, 5)
-        main_controls_layout.addWidget(self.build_buttons_frame,     0, 6)
+        main_controls_layout.addWidget(self.template_controls_frame, 0, 6)
+        main_controls_layout.addWidget(self.out_put_frame,           0, 4)
+        main_controls_layout.addWidget(self.build_buttons_frame,     0, 9)
 
         # separators AFTER build frame
         main_controls_layout.addWidget(self.sep3,                   0, 7)
         main_controls_layout.addWidget(self.sep4,                   0, 8)
 
         # final frame
-        main_controls_layout.addWidget(self.post_build_frame,       0, 9)
+        main_controls_layout.addWidget(self.post_build_frame,       0, 5)
 
 
         for frame in [
@@ -872,12 +879,15 @@ class MainWindow(QMainWindow):
         self.build_folders_btn.clicked.connect(self.build_folders_from_tree)
         self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
         self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
+        self.nested_date_config.currentIndexChanged.connect(self.nested_on_date_mode_changed)
         self.default_to_desktop_btn.clicked.connect(self.default_to_desktop)
         self.browse_btn.clicked.connect(self.select_base_directory)
         self.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
         self.create_template_btn.clicked.connect(self.create_template)
         self.remove_all_btn.clicked.connect(self.remove_all_folders)
         self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
+        self.find_btn.clicked.connect(self.find_folder_in_tree)
+        self.find_output_line.returnPressed.connect(self.find_folder_in_tree)
         
         
         self.tree.itemExpanded.connect(self.update_expand_button_text)
@@ -886,6 +896,8 @@ class MainWindow(QMainWindow):
         self.tree.addSubfolderShortcut.connect(self.add_subfolder_btn.click)
         self.tree.saveTemplateShortcut.connect(self.create_template_btn.click)
         self.tree.loadTemplateShortcut.connect(self.load_template)
+        self.sort_btn.clicked.connect(self.service.nested_manager.sort_tree)
+        self.sort_btn.clicked.connect(self.on_sort_tree)
         
         
         
@@ -918,7 +930,7 @@ class MainWindow(QMainWindow):
             lambda: (self.service.nested_manager.remove_selected_folders(), self.update_build_button_state())
         )
         
-       
+    
         
         self.tree.itemSelectionChanged.connect(self.update_build_button_state)
         
@@ -983,40 +995,8 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
         last_base = state.get("last_base_dir", "")
         self.base_path_line.setText(last_base)
+        self.update_build_button_state()
 
-        # # ---------------------------------------------------------
-        # # Desktop Timestamp
-        # # ---------------------------------------------------------
-        # desktop_enabled = state.get("desktop_date_stamp_enabled", False)
-        # self.date_time_toggle.setChecked(desktop_enabled)
-        # self.date_time_config.setEnabled(desktop_enabled)
-
-        # desktop_mode = state.get("desktop_date_stamp_mode", "ISO")
-
-        # if desktop_mode == "UK":
-        #     self.date_time_config.setCurrentIndex(1)
-        # elif desktop_mode == "US":
-        #     self.date_time_config.setCurrentIndex(2)
-        # else:
-        #     self.date_time_config.setCurrentIndex(0)
-
-
-        # # ---------------------------------------------------------
-        # # Nested Timestamp
-        # # ---------------------------------------------------------
-        # nested_enabled = state.get("nested_date_stamp_enabled", False)
-        # self.nested_date_toggle.setChecked(nested_enabled)
-        # self.nested_date_config.setEnabled(nested_enabled)
-
-        # nested_mode = state.get("nested_date_stamp_mode", "ISO")
-
-        # if nested_mode == "UK":
-        #     self.nested_date_config.setCurrentIndex(1)
-        # elif nested_mode == "US":
-        #     self.nested_date_config.setCurrentIndex(2)
-        # else:
-        #     self.nested_date_config.setCurrentIndex(0)
-        
         
         # Desktop Timestamp
         self.restore_timestamp_state(
@@ -1074,6 +1054,7 @@ class MainWindow(QMainWindow):
 
         combo.setCurrentIndex(index_map.get(mode, 0))
         
+   
         
     def make_vline(self):
         line = QFrame()
@@ -1097,51 +1078,108 @@ class MainWindow(QMainWindow):
     def update_desktop_build_state(self):
         text = self.desktop_folder_line.text().strip()
         self.folder_to_desktop.setEnabled(bool(text))
-    
-    
+        
     def update_build_button_state(self):
+        
+        default_template_loaded = (
+            self.load_default_template_dropdown.currentIndex() != 0
+        )
+
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
-            
-        # Detect if tree actually has nested folders
-        has_children = False
-        for i in range(self.tree.topLevelItemCount()):
-            item = self.tree.topLevelItem(i)
-            if item.childCount() > 0:
-                has_children = True
-                break
-            
+
+        # Detect if nesting exists
+        has_children = any(
+            self.tree.topLevelItem(i).childCount() > 0
+            for i in range(self.tree.topLevelItemCount())
+        )
+
+        # Detect desktop path
+        desktop_path = str(self.service.desktop_manager.desktop_path)
+        current_path = self.base_path_line.text().strip()
+        is_desktop = current_path == desktop_path
+
+        # Desktop button
+        self.default_to_desktop_btn.setEnabled(not is_desktop)
+
+        # Search
+        self.find_output_line.setEnabled(has_items)
+
+        # Build/remove
         self.build_folders_btn.setEnabled(has_items)
         self.remove_all_btn.setEnabled(has_items)
-            
-        # Tree control buttons
-        self.expand_collapse_btn.setEnabled(has_items)
+
+        # Tree utilities
         self.find_btn.setEnabled(has_items)
-        self.sort_btn.setEnabled(has_items)
         
-            
-        # Expand/Collapse only useful if nesting exists
+        # ---------------------------------------------------------
+        # Auto-number override
+        # ---------------------------------------------------------
+        if self.auto_enumerate_folders.isChecked():
+            self.sort_btn.setEnabled(False)
+        else:
+            # Detect if sorting is actually meaningful
+            can_sort = self.tree.topLevelItemCount() > 1
+
+            if not can_sort:
+                for i in range(self.tree.topLevelItemCount()):
+                    item = self.tree.topLevelItem(i)
+                    if item.childCount() > 1:
+                        can_sort = True
+                        break
+
+            self.sort_btn.setEnabled(can_sort)
+
+        # ---------------------------------------------------------
+        # Detect if sorting is actually meaningful
+        # ---------------------------------------------------------
+        def names_would_change(names):
+            normalized = [n.strip().lower() for n in names]
+            return normalized != sorted(normalized)
+
+        can_sort = False
+
+        # ---- Check top level ----
+        root_names = [
+            self.tree.topLevelItem(i).text(0)
+            for i in range(self.tree.topLevelItemCount())
+        ]
+
+        if len(root_names) > 1 and names_would_change(root_names):
+            can_sort = True
+
+        # ---- Check child groups ----
+        if not can_sort:
+            for i in range(self.tree.topLevelItemCount()):
+                parent = self.tree.topLevelItem(i)
+
+                child_names = [
+                    parent.child(j).text(0)
+                    for j in range(parent.childCount())
+                ]
+
+                if len(child_names) > 1 and names_would_change(child_names):
+                    can_sort = True
+                    break
+
+
+        # Expand/collapse only useful if nesting exists
         self.expand_collapse_btn.setEnabled(has_children)
 
-        # Requires a selected item
+        # Selection-dependent buttons
         self.remove_btn.setEnabled(has_selection)
         self.add_subfolder_btn.setEnabled(has_selection)
-            
-        # tree utilities safety checks
-        if hasattr(self, "expand_collapse_btn"):
-            self.expand_collapse_btn.setEnabled(has_items)
-
-        if hasattr(self, "find_btn"):
-            self.find_btn.setEnabled(has_items)
-
-        if hasattr(self, "sort_btn"):
-            self.sort_btn.setEnabled(has_items)
-
-        # reapply nesting rule so it is not overridden
-        if hasattr(self, "expand_collapse_btn"):
-            self.expand_collapse_btn.setEnabled(has_children) 
-   
-
+        
+        # ---------------------------------------------------------
+        # Auto-number rule
+        # ---------------------------------------------------------
+        if default_template_loaded:
+            self.auto_enumerate_folders.setChecked(False)
+            self.auto_enumerate_folders.setEnabled(False)
+        else:
+            self.auto_enumerate_folders.setEnabled(True)
+        
+    
     def tree_has_collapsed_nodes(self):
 
         for i in range(self.tree.topLevelItemCount()):
@@ -1250,6 +1288,9 @@ class MainWindow(QMainWindow):
                     font-size: 15px;
                     font-weight: 600;
                     color: {accent_color};
+                }}
+                QCheckBox:disabled {{
+                    color: rgba(140,140,140,0.6);
                 }}
             """)
 
@@ -1459,6 +1500,77 @@ class MainWindow(QMainWindow):
 
     ###################### Nested Folder Creator methods #################################
     
+    def on_sort_tree(self):
+
+        if self.tree.topLevelItemCount() == 0:
+            self.set_status(
+                "Nothing to sort.",
+                target="nested",
+                status_type="error"
+            )
+            return
+
+        self.service.nested_manager.sort_tree()
+
+        self.set_status(
+            "Folder tree sorted alphabetically.",
+            target="nested",
+            status_type="success"
+        )
+    
+    def find_folder_in_tree(self):
+
+        text = self.find_output_line.text().strip().lower()
+        if not text:
+            return
+
+        iterator = QTreeWidgetItemIterator(self.tree)
+
+        while iterator.value():
+
+            item = iterator.value()
+
+            if item.text(0).strip().lower() == text:
+                # select the item
+                self.tree.setCurrentItem(item)
+
+                # Expand parents
+                parent = item.parent()
+                while parent:
+                    parent.setExpanded(True)
+                    parent = parent.parent()
+
+                # Select item
+                self.tree.setCurrentItem(item)
+
+                # Vertical positioning
+                self.tree.scrollToItem(item, QAbstractItemView.PositionAtCenter)
+
+                # Horizontal correction
+                rect = self.tree.visualItemRect(item)
+                viewport_width = self.tree.viewport().width()
+                hbar = self.tree.horizontalScrollBar()
+
+                if rect.left() < 0:
+                    hbar.setValue(hbar.value() + rect.left())
+                elif rect.right() > viewport_width:
+                    hbar.setValue(hbar.value() + (rect.right() - viewport_width))
+
+                self.set_status(
+                    f'Folder "{item.text(0)}" found.',
+                    target="nested",
+                    status_type="success"
+                )
+                return
+
+            iterator += 1
+
+        self.set_status(
+            "No matching folder found.",
+            target="nested",
+            status_type="error"
+        )
+    
     def update_expand_button_text(self):
 
         if self.tree_has_collapsed_nodes():
@@ -1481,8 +1593,6 @@ class MainWindow(QMainWindow):
     
     def open_output_folder(self, path: str):
         
-       
-
         p = Path(path)
 
         if not p.exists():
@@ -1500,8 +1610,7 @@ class MainWindow(QMainWindow):
             "nested_auto_number_enabled",
             checked
         )
-
-
+    
     def nested_on_date_stamp_toggled(self, checked: bool):
         self.nested_date_config.setEnabled(checked)
 
@@ -1510,19 +1619,19 @@ class MainWindow(QMainWindow):
             checked
         )
 
-
     def default_to_desktop(self):
         desktop_path = self.service.desktop_manager.desktop_path
         self.base_path_line.setText(str(desktop_path))
 
         self.service.set_state("last_base_dir", str(desktop_path))
+        self.update_build_button_state()
 
         self.set_status(
             "Base directory set to Desktop.",
             target="nested",
             status_type="info"
         )
-        
+   
     def select_base_directory(self):
         directory = QFileDialog.getExistingDirectory(
             self,
@@ -1530,22 +1639,42 @@ class MainWindow(QMainWindow):
         )
 
         if directory:
-            self.base_path_line.setText(directory)
 
-            self.service.set_state("last_base_dir", directory)
+            desktop_path = Path(self.service.desktop_manager.desktop_path).resolve()
+            current_path = Path(self.base_path_line.text().strip()).resolve()
+            selected_path = Path(directory).resolve()
+
+            # Only block if Desktop is already the active path
+            if selected_path == desktop_path and current_path == desktop_path:
+                self.update_build_button_state()
+                self.set_status(
+                    "Desktop is already the active output location.",
+                    target="nested",
+                    status_type="info"
+                )
+                return
+
+            # store normalized path
+            normalized = str(selected_path)
+
+            self.base_path_line.setText(normalized)
+
+            self.service.set_state("last_base_dir", normalized)
+            
+            self.update_build_button_state()
 
             self.set_status(
-                f"Base directory set: {directory}",
+                f"Base directory set: {normalized}",
                 target="nested",
                 status_type="info"
             )
+
         else:
             self.set_status(
                 "No directory selected.",
                 target="nested",
                 status_type="error"
             )
-
 
     def create_template(self):
         status, message = self.service.save_template(self)
@@ -1606,7 +1735,6 @@ class MainWindow(QMainWindow):
         elif status != "cancelled":
             self.set_status(message, target="nested", status_type="error")
 
-
     # Drag and drop load
     def load_template_from_path(self, file_path):
         try:
@@ -1626,6 +1754,25 @@ class MainWindow(QMainWindow):
 
         except Exception:
             self.smart_status_text.setText("Error loading dropped file")
+            
+
+    def nested_on_date_mode_changed(self, index: int):
+
+        text = self.nested_date_config.currentText()
+
+        if "ISO" in text:
+            mode = "ISO"
+        elif "UK" in text:
+            mode = "UK"
+        elif "US" in text:
+            mode = "US"
+        else:
+            mode = "ISO"
+
+        self.service.set_state(
+            "nested_date_stamp_mode",
+            mode
+        )
 
     def build_folders_from_tree(self):
         base_path = self.base_path_line.text().strip()

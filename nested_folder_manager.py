@@ -6,9 +6,10 @@ from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QTreeWidgetItemIterator
 import re
+from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-Node = Dict[str, Any]  # {"name": str, "children": list[Node]}
+Node = Dict[str, Any]
 
 class NestedFolderManager:
     def __init__(self, tree_widget):
@@ -20,16 +21,7 @@ class NestedFolderManager:
         for i in range(self.tree.topLevelItemCount()):
             data.append(self._serialize_item(self.tree.topLevelItem(i)))
         return data
-
-    def _serialize_item(self, item):
-        return {
-            "name": item.text(0),
-            "children": [
-                self._serialize_item(item.child(i))
-                for i in range(item.childCount())
-            ]
-        }
-
+    
     def deserialize_tree(self, data):
         self.tree.clear()
         if isinstance(data, dict):
@@ -40,6 +32,15 @@ class NestedFolderManager:
                 
         # ---- Auto expand all nodes after loading ----
         self.expand_all_animated()
+
+    def _serialize_item(self, item):
+        return {
+            "name": item.text(0),
+            "children": [
+                self._serialize_item(item.child(i))
+                for i in range(item.childCount())
+            ]
+        }
 
     def _deserialize_item(self, data, parent):
         item = QTreeWidgetItem([data.get("name", "Unnamed")])
@@ -52,8 +53,6 @@ class NestedFolderManager:
 
         for child in data.get("children", []):
             self._deserialize_item(child, item)
-            
-    
 
     def expand_all_animated(self, step_ms: int = 25, max_items: int = 2000):
         """
@@ -210,8 +209,6 @@ class NestedFolderManager:
         except Exception:
             return "error", "Error creating folder structure."
                         
-
-        
     def _mk_dirs(self, parent_dir, item):
         name = item.text(0).strip()
         if not name:
@@ -306,6 +303,8 @@ class NestedFolderManager:
         selected.addChild(child)
         selected.setExpanded(True)
         self.tree.editItem(child, 0)
+        
+    
 
     def remove_all_folders(self):
         self.tree.clear()
@@ -321,3 +320,65 @@ class NestedFolderManager:
         else:
             index = self.tree.indexOfTopLevelItem(selected)
             self.tree.takeTopLevelItem(index)
+            
+
+    # ---------------------------------------------------------
+    # Import folder tree from filesystem
+    # ---------------------------------------------------------
+    def import_folder_tree(self, folder_path: str):
+        """
+        Reads a real folder structure from disk and recreates it in the tree.
+        Files are ignored.
+        """
+
+        root = Path(folder_path)
+
+        if not root.exists() or not root.is_dir():
+            return
+
+        def walk(path: Path):
+            node = {
+                "name": path.name,
+                "children": []
+            }
+
+            for child in sorted(path.iterdir()):
+                if child.is_dir():
+                    node["children"].append(walk(child))
+
+            return node
+
+        data = walk(root)
+
+        self.deserialize_tree([data])
+        
+    def sort_tree(self):
+        """
+        Alphabetically sorts the entire tree recursively.
+        """
+
+        def sort_item(parent):
+            children = []
+            for i in range(parent.childCount()):
+                children.append(parent.takeChild(0))
+
+            children.sort(key=lambda x: x.text(0).lower())
+
+            for child in children:
+                parent.addChild(child)
+                sort_item(child)
+
+        # ---- Sort top level items ----
+        roots = []
+        for i in range(self.tree.topLevelItemCount()):
+            roots.append(self.tree.takeTopLevelItem(0))
+
+        roots.sort(key=lambda x: x.text(0).lower())
+
+        for root in roots:
+            self.tree.addTopLevelItem(root)
+            sort_item(root)
+            
+        self.expand_all_animated()
+        
+        
