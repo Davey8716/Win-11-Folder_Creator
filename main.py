@@ -824,7 +824,7 @@ class MainWindow(QMainWindow):
         self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
         self.find_btn.clicked.connect(self.find_folder_in_tree)
         self.find_output_line.returnPressed.connect(self.find_folder_in_tree)
-        self.create_template_btn.clicked.connect(self.select_template_directory)
+    
         
         
         self.tree.itemExpanded.connect(self.update_expand_button_text)
@@ -1678,31 +1678,56 @@ class MainWindow(QMainWindow):
                 status_type="error"
             )
             
+    def tree_to_outline(self, data, depth=0):
+
+        lines = []
+
+        for node in data:
+            lines.append("    " * depth + node["name"])
+
+            if node["children"]:
+                lines.append(self.tree_to_outline(node["children"], depth + 1))
+
+        return "\n".join(lines)
+            
     def user_template_save(self):
 
-        base_dir = self.template_path_line.text().strip()
-
-        if not base_dir:
-            self.set_status(
-                "No template save location selected.",
-                target="nested",
-                status_type="error"
-            )
-            return
+        start_dir = self.template_path_line.text().strip()
 
         file_path, _ = QFileDialog.getSaveFileName(
             self,
             "Save Template",
-            base_dir,
-            "JSON Files (*.json)"
+            start_dir,
+            "Templates (*.json *.txt *.md);;JSON (*.json);;Text (*.txt);;Markdown (*.md)"
         )
 
         if not file_path:
             return
 
+        # remember directory
+        directory = str(Path(file_path).parent.resolve())
+        self.template_path_line.setText(directory)
+
         data = self.service.nested_manager.serialize_tree()
 
-        status, message = self.service.template_service.save_json(file_path, data)
+        suffix = Path(file_path).suffix.lower()
+
+        if suffix == ".json":
+            status, message = self.service.template_service.save_json(file_path, data)
+
+        else:
+            text = self.tree_to_outline(data)
+
+            try:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(text)
+
+                status = "success"
+                message = "Template exported"
+
+            except Exception:
+                status = "error"
+                message = "Error saving template"
 
         if status == "success":
             self.set_status(message, target="nested", status_type="success")
@@ -1710,38 +1735,17 @@ class MainWindow(QMainWindow):
             self.set_status(message, target="nested", status_type="error")
 
     def create_template(self):
-        status, message = self.service.save_template(self)
 
-        if status == "success":
-            self.set_status(message, target="nested", status_type="success")
-        elif status == "empty":
-            self.set_status(message, target="nested", status_type="error")
-        elif status != "cancelled":
-            self.set_status(message, target="nested", status_type="error")
-            
-            self.user_template_save()
-            
-    def select_template_directory(self):
-
-        directory = QFileDialog.getExistingDirectory(
-            self,
-            "Select Template Save Directory"
-        )
-
-        if not directory:
+        if self.tree.topLevelItemCount() == 0:
+            self.set_status(
+                "Tree is empty.",
+                target="nested",
+                status_type="error"
+            )
             return
 
-        normalized = str(Path(directory).resolve())
+        self.user_template_save()
 
-        self.template_path_line.setText(normalized)
-
-        self.set_status(
-            f"Template directory set: {normalized}",
-            target="nested",
-            status_type="info"
-        )
-                
-            
     def load_default_template(self):
 
         text = self.load_default_template_dropdown.currentText()
