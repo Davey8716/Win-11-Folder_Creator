@@ -5,9 +5,6 @@ from PySide6.QtCore import QDir
 from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QTreeWidgetItemIterator
-
-
-
 import re
 from typing import List, Dict, Any, Tuple
 
@@ -56,8 +53,7 @@ class NestedFolderManager:
         for child in data.get("children", []):
             self._deserialize_item(child, item)
             
-    from PySide6.QtCore import QTimer
-    from PySide6.QtWidgets import QTreeWidgetItemIterator
+    
 
     def expand_all_animated(self, step_ms: int = 25, max_items: int = 2000):
         """
@@ -230,7 +226,7 @@ class NestedFolderManager:
     def add_root_folder(self):
         default_base = "New Folder"
         
-         # ---- If auto numbering OFF → just create base name ----
+        # ---- If auto numbering OFF → just create base name ----
         if not self.auto_number_enabled:
             item = QTreeWidgetItem([default_base])
             item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
@@ -263,6 +259,7 @@ class NestedFolderManager:
         item.setFlags(item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled)
 
         self.tree.addTopLevelItem(item)
+        self.tree.setCurrentItem(item)
         self.tree.editItem(item, 0)
 
 
