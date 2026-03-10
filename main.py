@@ -696,16 +696,16 @@ class MainWindow(QMainWindow):
         main_controls_layout.addWidget(self.sep2,                   0, 3)
 
         # group 2
-        main_controls_layout.addWidget(self.template_controls_frame, 0, 4)
-        main_controls_layout.addWidget(self.out_put_frame,           0, 5)
-        main_controls_layout.addWidget(self.build_buttons_frame,     0, 6)
+        main_controls_layout.addWidget(self.template_controls_frame, 0, 6)
+        main_controls_layout.addWidget(self.out_put_frame,           0, 4)
+        main_controls_layout.addWidget(self.build_buttons_frame,     0, 9)
 
         # separators AFTER build frame
         main_controls_layout.addWidget(self.sep3,                   0, 7)
         main_controls_layout.addWidget(self.sep4,                   0, 8)
 
         # final frame
-        main_controls_layout.addWidget(self.post_build_frame,       0, 9)
+        main_controls_layout.addWidget(self.post_build_frame,       0, 5)
 
 
         for frame in [
