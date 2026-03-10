@@ -583,6 +583,7 @@ class MainWindow(QMainWindow):
         self.find_btn = QPushButton("Find")
         self.find_output_line = QLineEdit()
         self.find_output_line.setPlaceholderText("Input For Finding Folders.")
+        self.find_output_line.setEnabled(False)
       
 
         for btn in [
@@ -1077,6 +1078,7 @@ class MainWindow(QMainWindow):
     def update_build_button_state(self):
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
+        
             
         # Detect if tree actually has nested folders
         has_children = False
@@ -1085,6 +1087,8 @@ class MainWindow(QMainWindow):
             if item.childCount() > 0:
                 has_children = True
                 break
+            
+        self.find_output_line.setEnabled(has_items)
             
         self.build_folders_btn.setEnabled(has_items)
         self.remove_all_btn.setEnabled(has_items)
