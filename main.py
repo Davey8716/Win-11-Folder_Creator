@@ -3,7 +3,6 @@ import sys
 from app_service import AppService
 from smart_tree_widget import SmartTreeWidget
 from nested_ui_controller import NestedUIController
-from PySide6.QtGui import QKeyEvent
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton, QSizePolicy
@@ -28,8 +27,6 @@ from PySide6.QtWidgets import (
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QShortcut, QKeySequence
-
-
 
 
 
@@ -61,8 +58,8 @@ class MainWindow(QMainWindow):
         self.desktop_mode_height = 340
         self.nested_mode_height = 1000
         
-        self.desktop_mode_width = 650
-        self.nested_mode_width = 1075
+        self.desktop_mode_width = 700
+        self.nested_mode_width = 1020
         
         self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
         
@@ -72,7 +69,7 @@ class MainWindow(QMainWindow):
 
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
-        main_layout.setContentsMargins(10,10,10,10)
+        main_layout.setContentsMargins(8,8,8,8)
         main_layout.setSpacing(5)
         central_widget.setLayout(main_layout)
         
@@ -82,23 +79,20 @@ class MainWindow(QMainWindow):
         # ==========================================================
 
         header_grid = QGridLayout()
-        header_grid.setContentsMargins(5, 5, 5, 5)
+        header_grid.setContentsMargins(8,8,8,8)
         header_grid.setHorizontalSpacing(12)
-        header_grid.setVerticalSpacing(0)
-        
-        # ------------------------------
-        # Title Frame (LEFT)
-        # ------------------------------
-        self.desktop_title_frame = QFrame()
+    
+        # Title Frame (LEFT) NO
+        self.desktop_title_frame = QFrame() #NO
         self.desktop_title_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 4px solid 4D4D4DFF;"
         )
     
         self.desktop_title_frame.setFrameShape(QFrame.StyledPanel)
         self.desktop_title_frame.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
 
         desktop_title_layout = QVBoxLayout()
-        desktop_title_layout.setContentsMargins(10,10,10,10)
+        desktop_title_layout.setContentsMargins(8,8,8,8)
         desktop_title_layout.setSpacing(0)
         self.desktop_title_frame.setLayout(desktop_title_layout)
 
@@ -117,21 +111,22 @@ class MainWindow(QMainWindow):
             text-align: left;
         }
         """)
+        
 
         self.desktop_section_title.clicked.connect(self.toggle_mode)
 
         desktop_title_layout.addWidget(self.desktop_section_title)
         
-        self.theme_selector_frame = QFrame()
+        self.theme_selector_frame = QFrame() #NO
         self.theme_selector_frame.setFrameShape(QFrame.StyledPanel)
-        # self.theme_selector_frame.setMinimumWidth(2)
+       
         self.theme_selector_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 4px solid 4D4D4DFF;"
         )
 
         theme_layout = QGridLayout()
         theme_layout.setSpacing(4)
-        theme_layout.setContentsMargins(6,6,6,6)
+        theme_layout.setContentsMargins(8,8,8,8)
 
         self.theme_selector_frame.setLayout(theme_layout)
 
@@ -161,7 +156,7 @@ class MainWindow(QMainWindow):
         for btn in self.theme_buttons:
             btn.setStyleSheet("""
             QPushButton {
-                border-radius: 10px;
+                border-radius: 2px;
                 border: 2px solid rgba(120,120,120,0.4);
             }
             QPushButton:checked {
@@ -170,8 +165,9 @@ class MainWindow(QMainWindow):
             """)
 
         # ------------------------------
-        # Grid placement
+        # GRID FOR GUI CHANGER AND THEME SELECTOR
         # ------------------------------
+        
         header_grid.addWidget(self.desktop_title_frame, 0, 0, Qt.AlignLeft | Qt.AlignBottom)
         header_grid.addWidget(self.theme_selector_frame, 0, 1, Qt.AlignRight | Qt.AlignBottom)
         header_grid.setColumnStretch(0, 1)
@@ -179,45 +175,55 @@ class MainWindow(QMainWindow):
                 
         main_layout.addLayout(header_grid)
         main_layout.addSpacing(5)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
                 
         # ==========================================================
-        # FRAME 1 — Desktop Folder Creator
+        # FRAME 1 — FULL OUTER FRAME INCLUDES 3 INNER FRAMES + STATUS FRAMES
         # ==========================================================
 
         self.desktop_folder_frame = QFrame()
+        self.desktop_folder_frame.setMinimumHeight(200)
+        
         self.desktop_folder_frame.setFrameShape(QFrame.StyledPanel)
         self.desktop_folder_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 5px solid 4D4D4DFF;"
         )
 
         self.desktop_layout = QVBoxLayout()
-        self.desktop_layout.setSpacing(6)
-        self.desktop_layout.setContentsMargins(12, 12, 12, 12)
+        self.desktop_layout.setSpacing(10)
+        self.desktop_layout.setContentsMargins(4,4,4,4)
         self.desktop_folder_frame.setLayout(self.desktop_layout)
-
-        # ==========================================================
-        # Parent controls frame
-        # ==========================================================
-        self.desktop_controls_frame = QFrame()
-        self.desktop_controls_frame.setFrameShape(QFrame.StyledPanel)
-        self.desktop_controls_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
-        )
         
-
         desktop_controls_layout = QGridLayout()
-        desktop_controls_layout.setContentsMargins(10,10,10,10)
-        desktop_controls_layout.setHorizontalSpacing(8)
-        desktop_controls_layout.setVerticalSpacing(0)
-        self.desktop_controls_frame.setLayout(desktop_controls_layout)
+        desktop_controls_layout.setContentsMargins(4,4,4,4)
+        desktop_controls_layout.setHorizontalSpacing(10)
 
         # ==========================================================
         # Create widgets
         # ==========================================================
         self.desktop_folder_line = QLineEdit()
         self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
-        self.desktop_folder_line.setFixedWidth(180)
-        self.desktop_folder_line.setMinimumHeight(35)
+        self.desktop_folder_line.setFixedWidth(170)
+        self.desktop_folder_line.setFixedHeight(40)
         
         self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self)
         self.rename_desktop_line_shortcut.activated.connect(self.rename_desktop_input)
@@ -226,28 +232,28 @@ class MainWindow(QMainWindow):
         self.clear_desktop_line_shortcut.activated.connect(self.clear_desktop_input)
 
         self.folder_to_desktop = QPushButton("Folder To Desktop")
-        self.folder_to_desktop.setFixedWidth(180)
-        self.folder_to_desktop.setMinimumHeight(35)
+        self.folder_to_desktop.setFixedWidth(170)
+        self.folder_to_desktop.setFixedHeight(35)
 
         # ---- Enumeration controls ----
-        self.enumerate_toggle = QCheckBox("Create Multiple\nNumbered Folders")
-        self.enumerate_toggle.setMinimumHeight(35)
-        self.enumerate_toggle.setFixedWidth(155)
+        self.enumerate_toggle = QCheckBox("CREATE MULTIPLE\nNUMBERED FOLDERS")
+        self.enumerate_toggle.setFixedHeight(40)
+        self.enumerate_toggle.setFixedWidth(180)
 
         self.desktop_folder_number_enumerator = QSpinBox()
-        self.desktop_folder_number_enumerator.setMinimumHeight(35)
-        self.desktop_folder_number_enumerator.setFixedWidth(155)
+        self.desktop_folder_number_enumerator.setFixedHeight(35)
+        self.desktop_folder_number_enumerator.setFixedWidth(170)
         self.desktop_folder_number_enumerator.setRange(1, 100)
         self.desktop_folder_number_enumerator.setEnabled(False)
 
         # ---- Timestamp controls ----
-        self.date_time_toggle = QCheckBox("Add Date Stamp")
-        self.date_time_toggle.setMinimumHeight(35)
-        self.date_time_toggle.setFixedWidth(155)
+        self.date_time_toggle = QCheckBox("ADD DATE STAMP")
+        self.date_time_toggle.setFixedHeight(35)
+        self.date_time_toggle.setFixedWidth(170)
 
         self.date_time_config = QComboBox()
-        self.date_time_config.setFixedWidth(155)
-        self.date_time_config.setMinimumHeight(35)
+        self.date_time_config.setFixedWidth(170)
+        self.date_time_config.setFixedHeight(35)
         self.date_time_config.addItems([
             "ISO (YYYY-MM-DD)",
             "UK (DD-MM-YYYY)",
@@ -268,14 +274,17 @@ class MainWindow(QMainWindow):
 
 
         # ==========================================================
-        # Column 1 — Input frame (Create Folder)
+        # Column 1 — Input frame  FOLDER TO DESKTOP 
         # ==========================================================
-        self.desktop_input_frame = QFrame()
+        self.desktop_input_frame = QFrame() #NO
         self.desktop_input_frame.setFrameShape(QFrame.StyledPanel)
+        self.desktop_input_frame.setStyleSheet(
+            "border: 3px solid 4D4D4DFF;"
+        )
 
         desktop_input_layout = QVBoxLayout()
-        desktop_input_layout.setContentsMargins(10,10,10,10)
-        desktop_input_layout.setSpacing(8)
+        desktop_input_layout.setContentsMargins(4,4,4,4)
+        desktop_input_layout.setSpacing(10)
         self.desktop_input_frame.setLayout(desktop_input_layout)
 
         desktop_input_layout.addWidget(self.desktop_folder_line)
@@ -285,12 +294,15 @@ class MainWindow(QMainWindow):
         # ==========================================================
         # Column 2 — Enumeration frame
         # ==========================================================
-        self.desktop_enumerator_frame = QFrame()
+        self.desktop_enumerator_frame = QFrame() #NO
         self.desktop_enumerator_frame.setFrameShape(QFrame.StyledPanel)
+        self.desktop_enumerator_frame.setStyleSheet(
+            "border: 3px solid 4D4D4DFF;"
+        )
 
         enumerator_layout = QVBoxLayout()
-        enumerator_layout.setContentsMargins(10,10,10,10)
-        enumerator_layout.setSpacing(8)
+        enumerator_layout.setContentsMargins(4,4,4,4)
+        enumerator_layout.setSpacing(10)
         self.desktop_enumerator_frame.setLayout(enumerator_layout)
 
         enumerator_layout.addWidget(self.enumerate_toggle, 0, Qt.AlignCenter)
@@ -300,15 +312,17 @@ class MainWindow(QMainWindow):
         # ==========================================================
         # Column 3 — Date controls frame
         # ==========================================================
-        self.desktop_date_frame = QFrame()
+        self.desktop_date_frame = QFrame() #NO
         self.desktop_date_frame.setFrameShape(QFrame.StyledPanel)
+        
+
 
         desktop_date_layout = QVBoxLayout()
-        desktop_date_layout.setContentsMargins(10,10,10,10)
-        desktop_date_layout.setSpacing(8)
+        desktop_date_layout.setContentsMargins(4,4,4,4)
+        desktop_date_layout.setSpacing(10)
         self.desktop_date_frame.setLayout(desktop_date_layout)
         self.desktop_date_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 3px solid 4D4D4DFF;"
         )
 
         desktop_date_layout.addWidget(self.date_time_toggle, 0, Qt.AlignCenter)
@@ -324,22 +338,20 @@ class MainWindow(QMainWindow):
         desktop_controls_layout.setColumnStretch(0, 1)
         desktop_controls_layout.setColumnStretch(1, 1)
         desktop_controls_layout.setColumnStretch(2, 1)
-
-
-        # Add controls frame to desktop section
-        self.desktop_layout.addWidget(self.desktop_controls_frame)
         
-        # ---- Status Label (NOW INSIDE FRAME, BELOW CONTROLS) ----
+        self.desktop_layout.addLayout(desktop_controls_layout)
+        
+        # ---- STATUS LABEL FRAME +  OUT PUT ----
     
-        self.desktop_status_frame = QFrame()
+        self.desktop_status_frame = QFrame() #NO
         self.desktop_status_frame.setObjectName("statusFrame")
 
         desktop_status_layout = QHBoxLayout()
-        desktop_status_layout.setContentsMargins(10, 6, 10, 6)
-        desktop_status_layout.setSpacing(8)
+        desktop_status_layout.setContentsMargins(4,4,4,4)
+        desktop_status_layout.setSpacing(10)
         self.desktop_status_frame.setLayout(desktop_status_layout)
         self.desktop_status_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 3px solid 4D4D4DFF;"
         )
 
         self.desktop_status_icon = QLabel(">")
@@ -368,17 +380,94 @@ class MainWindow(QMainWindow):
 
 
 
-        # ---- Smart Frame ----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # ---- Smart Frame ---- NO
         self.smart_folder_creator_frame = QFrame()
         self.smart_folder_creator_frame.setFrameShape(QFrame.StyledPanel)
         self.smart_folder_creator_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 3px solid 4D4D4DFF;"
         )
 
 
         self.smart_layout = QVBoxLayout()
-        self.smart_layout.setSpacing(6)
-        self.smart_layout.setContentsMargins(6,6,6,6)
+        self.smart_layout.setSpacing(8)
+        self.smart_layout.setContentsMargins(8,8,8,8)
         self.smart_folder_creator_frame.setLayout(self.smart_layout)
         
         self.controls_frame = QFrame()
@@ -388,12 +477,11 @@ class MainWindow(QMainWindow):
         # Parent layout inside controls_frame
         # ==========================================================
         main_controls_layout = QGridLayout()
-        main_controls_layout.setContentsMargins(10,10,10,10)
+        main_controls_layout.setContentsMargins(8,8,8,8)
         main_controls_layout.setHorizontalSpacing(8)
-        main_controls_layout.setVerticalSpacing(0)
         self.controls_frame.setLayout(main_controls_layout)
         self.controls_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 2px solid #000000;"
         )
 
         # ==========================================================
@@ -437,7 +525,7 @@ class MainWindow(QMainWindow):
             "Video Editing"
         ])
 
-        self.load_default_template_dropdown.setMinimumWidth(160)
+        self.load_default_template_dropdown.setMinimumWidth(150)
         self.load_default_template_dropdown.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.load_default_template_dropdown.setEnabled(True)
 
@@ -448,8 +536,8 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        self.nested_date_toggle = QCheckBox("Add Date Stamp\n To Parent Folder")
-        self.auto_enumerate_folders = QCheckBox("Auto Number + Name\n Folders Sub Folders")
+        self.nested_date_toggle = QCheckBox("ADD DATE STAMP\nTO PARENT FOLDER")
+        self.auto_enumerate_folders = QCheckBox("AUTO NUMBER + NAME\n FOLDERS\n AND SUBFOLDERS")
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -458,7 +546,7 @@ class MainWindow(QMainWindow):
             "US (MM-DD-YYYY)"
         ])
         self.nested_date_config.setEnabled(False)
-        self.nested_date_config.setMaximumWidth(155)
+        self.nested_date_config.setMaximumWidth(160)
         self.nested_date_config.setMaximumHeight(35)
         # self.nested_date_config.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
@@ -482,21 +570,21 @@ class MainWindow(QMainWindow):
             self.remove_all_btn,
             self.create_template_btn
         ]:
-            btn.setMinimumWidth(100)
-            btn.setMinimumHeight(35)
+            btn.setMaximumWidth(160)
+            btn.setMaximumHeight(35)
 
         # ==========================================================
-        # Column 1 — Template frame
+        # Column 1 — Template frame NO
         # ==========================================================
         self.template_controls_frame = QFrame()
         self.template_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         template_layout = QVBoxLayout()
-        template_layout.setContentsMargins(10,10,10,10)
-        template_layout.setSpacing(6)
+        template_layout.setContentsMargins(8,8,8,8)
+        template_layout.setSpacing(8)
         self.template_controls_frame.setLayout(template_layout)
         self.template_controls_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 2px solid #000000;"
         )
 
         template_layout.addWidget(self.create_template_btn)
@@ -505,17 +593,17 @@ class MainWindow(QMainWindow):
         
 
         # ==========================================================
-        # Column 2 — Folder buttons frame
+        # Column 2 — Folder buttons frame NO
         # ==========================================================
         self.folder_buttons_frame = QFrame()
         self.folder_buttons_frame.setFrameShape(QFrame.StyledPanel)
 
         folder_buttons_layout = QVBoxLayout()
-        folder_buttons_layout.setContentsMargins(10,10,10,10)
+        folder_buttons_layout.setContentsMargins(8,8,8,8)
         folder_buttons_layout.setSpacing(8)
         self.folder_buttons_frame.setLayout(folder_buttons_layout)
         self.folder_buttons_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 2px solid #000000;"
         )
 
         folder_buttons_layout.addWidget(self.add_folder_btn)
@@ -525,17 +613,17 @@ class MainWindow(QMainWindow):
         
 
         # ==========================================================
-        # Column 3 — Date / auto-number frame
+        # Column 3 — Date / auto-number frame NO
         # ==========================================================
         self.date_controls_frame = QFrame()
         self.date_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         date_layout = QVBoxLayout()
-        date_layout.setContentsMargins(10,10,10,10)
+        date_layout.setContentsMargins(8,8,8,8)
         date_layout.setSpacing(15)
         self.date_controls_frame.setLayout(date_layout)
         self.date_controls_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 2px solid #000000;"
         )
         
         
@@ -543,9 +631,7 @@ class MainWindow(QMainWindow):
         date_layout.addWidget(self.nested_date_toggle,)
         date_layout.addWidget(self.nested_date_config,)
         
-        # ---- Output Frame ----
-        self.out_put_frame = QFrame()
-        self.out_put_frame.setFrameShape(QFrame.StyledPanel)
+        
 
         # ----------------------------------------------------------
         # Create path fields FIRST
@@ -555,44 +641,45 @@ class MainWindow(QMainWindow):
             "Select base directory for output folder location"
         )
         self.base_path_line.setReadOnly(True)
-        self.base_path_line.setMinimumHeight(35)
+        self.base_path_line.setMaximumHeight(35)
 
         self.template_path_line = QLineEdit()
         self.template_path_line.setPlaceholderText(
             "Output Location For User Made Templates"
         )
         self.template_path_line.setReadOnly(True)
-        self.template_path_line.setMinimumHeight(35)
+        self.template_path_line.setMaximumHeight(35)
 
         # ----------------------------------------------------------
         # Paths row
         # ----------------------------------------------------------
-        self.paths_frame = QFrame()
+        self.paths_frame = QFrame() # NO
         paths_layout = QHBoxLayout()
-        paths_layout.setContentsMargins(10,10,10,10)
+        paths_layout.setContentsMargins(8,8,8,8)
         paths_layout.setSpacing(8)
         self.paths_frame.setLayout(paths_layout)
         self.paths_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 2px solid #000000;"
         )
 
-        self.template_path_column = QFrame()
+        self.template_path_column = QFrame() # NO
         self.template_path_column.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         template_col_layout = QVBoxLayout()
-        template_col_layout.setContentsMargins(10,10,10,10)
-        template_col_layout.setSpacing(6)
+        template_col_layout.setContentsMargins(8,8,8,8)
+        template_col_layout.setSpacing(8)
         self.template_path_column.setLayout(template_col_layout)
 
         self.template_path_title = QLabel("Template Save Location")
+        
         template_col_layout.addWidget(self.template_path_title)
         template_col_layout.addWidget(self.template_path_line)
         
-        self.base_path_column = QFrame()
+        self.base_path_column = QFrame() # NO
         self.base_path_column.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
         
         base_col_layout = QVBoxLayout()
-        base_col_layout.setContentsMargins(10,10,10,10)
-        base_col_layout.setSpacing(6)
+        base_col_layout.setContentsMargins(8,8,8,8)
+        base_col_layout.setSpacing(8)
         self.base_path_column.setLayout(base_col_layout)
         
 
@@ -604,10 +691,10 @@ class MainWindow(QMainWindow):
         paths_layout.addStretch()
         paths_layout.addWidget(self.base_path_column)
         
-        # ----------------------------------------------------------
-        # Status frame
-        # ----------------------------------------------------------
-        
+        # ---- Output Frame ----
+        self.out_put_frame = QFrame()
+        self.out_put_frame.setFrameShape(QFrame.StyledPanel)
+
         self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         
         self.base_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -618,12 +705,12 @@ class MainWindow(QMainWindow):
         
 
         frame_layout_output = QVBoxLayout()
-        frame_layout_output.setContentsMargins(10,10,10,10)
-        frame_layout_output.setSpacing(6)
+        frame_layout_output.setContentsMargins(8,8,8,8)
+        frame_layout_output.setSpacing(8)
         frame_layout_output.addWidget(self.paths_frame)
         self.out_put_frame.setLayout(frame_layout_output)
         self.out_put_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 2px solid #000000;"
         )
 
         # ==========================================================
@@ -640,18 +727,18 @@ class MainWindow(QMainWindow):
 ################################################################################################################################################################################################################################################################################################################################################################################################
 
 
-        # # # # # # # # # # # # # # # # # # # # # # # Ouput Folder Creator # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # # # # # # # # # # # # # # # # # # # # # # # Ouput Folder Creator # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # NO
         self.tree_frame = QFrame()
         self.tree_frame.setFrameShape(QFrame.StyledPanel)
         self.tree_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 2px solid #000000;"
         )
         
         
         
         tree_layout = QVBoxLayout()
-        tree_layout.setContentsMargins(10,10,10,10)
-        tree_layout.setSpacing(0)
+        tree_layout.setContentsMargins(8,8,8,8)
+        tree_layout.setSpacing(20)
         self.tree_frame.setLayout(tree_layout)
         
         
@@ -694,13 +781,13 @@ class MainWindow(QMainWindow):
         self.smart_layout.addWidget(self.tree_frame)
         
         # ==========================================================
-        # Tree Controls Frame (Expand / Find / Sort)
+        # FRAME 6 NO
         # ==========================================================
         self.tree_controls_frame = QFrame()
         self.tree_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         tree_controls_layout = QHBoxLayout()
-        tree_controls_layout.setContentsMargins(10,10,10,10)
+        tree_controls_layout.setContentsMargins(8,8,8,8)
         tree_controls_layout.setSpacing(8)
         self.tree_controls_frame.setLayout(tree_controls_layout)
         self.tree_controls_frame.setStyleSheet(
@@ -714,22 +801,24 @@ class MainWindow(QMainWindow):
         self.find_output_line = QLineEdit()
         self.find_output_line.setPlaceholderText("Input For Finding Folders.")
         self.find_output_line.setEnabled(False)
-      
+
 
         for btn in [
             self.expand_collapse_btn,
             self.find_btn,
             self.sort_btn
         ]:
-            btn.setMinimumHeight(35)
-            btn.setMinimumWidth(120)
+            btn.setMaximumHeight(35)
+            btn.setMaximumWidth(120)
 
         tree_controls_layout.addWidget(self.expand_collapse_btn)
         
         tree_controls_layout.addWidget(self.sort_btn)
-        tree_controls_layout.addWidget(self.find_btn)
-        tree_controls_layout.addWidget(self.find_output_line)
         tree_controls_layout.addStretch()
+        tree_controls_layout.addWidget(self.find_btn)
+      
+        tree_controls_layout.addWidget(self.find_output_line)
+        
         
         self.expand_collapse_btn.setEnabled(False)
         self.find_btn.setEnabled(False)
@@ -742,17 +831,10 @@ class MainWindow(QMainWindow):
         
 
 
-################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################################################################################################################################################
-################################################################################################################################################################################################################################################################
+
 
         # ==========================================================
-        # Full Frame
+        # FRAME 5 NO
         # ==========================================================
         self.build_buttons_frame = QFrame()
         self.build_buttons_frame.setFrameShape(QFrame.StyledPanel)
@@ -761,12 +843,12 @@ class MainWindow(QMainWindow):
         )
 
         build_layout = QVBoxLayout()
-        build_layout.setContentsMargins(10,10,10,10)
+        build_layout.setContentsMargins(8,8,8,8)
         build_layout.setSpacing(2)
         self.build_buttons_frame.setLayout(build_layout)
 
         self.default_to_desktop_btn = QPushButton("Default Desktop")
-        self.output_location_btn = QPushButton("Output Location")
+        self.output_location_btn = QPushButton("Output Dir")
         self.build_folders_btn = QPushButton("Build Folders")
 
         for btn in [
@@ -774,9 +856,8 @@ class MainWindow(QMainWindow):
             self.output_location_btn,
             self.build_folders_btn
         ]:
-            btn.setMinimumHeight(35)
+            btn.setMaximumHeight(35)
             
-        # btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         build_layout.addWidget(self.default_to_desktop_btn)
         build_layout.addWidget(self.output_location_btn)
@@ -792,13 +873,14 @@ class MainWindow(QMainWindow):
     
 
         post_build_layout = QVBoxLayout()
-        post_build_layout.setContentsMargins(10,10,10,10)
+        post_build_layout.setContentsMargins(8,8,8,8)
         post_build_layout.setSpacing(8)
         self.post_build_frame.setLayout(post_build_layout)
 
-        self.open_folder_build_toggle = QCheckBox("Open Folder Location\n After Build")
+        self.open_folder_build_toggle = QCheckBox("OPEN FOLDER\nLOCATION\n AFTER BUILD")
+        self.open_folder_build_toggle.setMaximumHeight(200)
 
-        self.minimize_after_build_toggle = QCheckBox("Minimize App\n After Build")
+        self.minimize_after_build_toggle = QCheckBox("MINIMIZE APP\nAFTER BUILD")
         
         
         min_after = state.get("minimize_after_build", False)
@@ -810,8 +892,8 @@ class MainWindow(QMainWindow):
         self.nested_ui = NestedUIController(self)
         self.nested_ui.connect_signals()
 
-        main_controls_layout.setHorizontalSpacing(6)
-        main_controls_layout.setVerticalSpacing(5)
+        main_controls_layout.setHorizontalSpacing(8)
+        main_controls_layout.setVerticalSpacing(8)
 
         # group 1
         main_controls_layout.addWidget(self.folder_buttons_frame,   0, 0)
@@ -842,16 +924,16 @@ class MainWindow(QMainWindow):
             self.build_buttons_frame,
             self.post_build_frame
         ]:
-            frame.setMinimumWidth(170)
+            frame.setMinimumWidth(160)
             frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
-        # ---- Nested Status Panel ----
+        # ---- Nested Status Panel ---- NOT THIS
         self.smart_status_frame = QFrame()
         self.smart_status_frame.setObjectName("statusFrame")
         
 
         smart_status_layout = QHBoxLayout()
-        smart_status_layout.setContentsMargins(10, 6, 10, 6)
+        smart_status_layout.setContentsMargins(8,8,8,8)
         smart_status_layout.setSpacing(8)
 
         self.smart_status_frame.setLayout(smart_status_layout)
@@ -862,12 +944,12 @@ class MainWindow(QMainWindow):
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
         self.smart_status_text.setWordWrap(True)
+        
+        # NOT THIS
 
         smart_status_layout.addWidget(self.smart_status_icon)
         smart_status_layout.addWidget(self.smart_status_text)
         smart_status_layout.addStretch()
-
-
 
         frame_layout_output.addWidget(self.smart_status_frame)
         # Add entire section to smart layout
@@ -875,19 +957,13 @@ class MainWindow(QMainWindow):
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
         
-        
 
         # Signal Connections
         self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
         self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
-        
         self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
         self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
-        
-        
         self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
-        
-    
         self.tree.itemExpanded.connect(self.update_expand_button_text)
         self.tree.itemCollapsed.connect(self.update_expand_button_text)
         self.tree.addFolderShortcut.connect(self.add_folder_btn.click)
@@ -904,7 +980,6 @@ class MainWindow(QMainWindow):
         self.remove_all_btn.clicked.connect(
             lambda: (self.service.nested_manager.remove_all_folders(), self.update_build_button_state())
         )
-       
         
         self.desktop_folder_number_enumerator.valueChanged.connect(
             lambda v: self.service.set_state("desktop_enumeration_count", v)
@@ -1308,7 +1383,7 @@ class MainWindow(QMainWindow):
         for lbl in title_2:
             lbl.setStyleSheet(f"""
                 QLabel {{
-                    font-size: 15px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: {accent_color};
                 }}
@@ -1323,7 +1398,7 @@ class MainWindow(QMainWindow):
         for cb in default_checks:
             cb.setStyleSheet(f"""
                 QCheckBox {{
-                    font-size: 15px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: {accent_color};
                 }}
@@ -1340,7 +1415,7 @@ class MainWindow(QMainWindow):
         for cb in large_checks:
             cb.setStyleSheet(f"""
                 QCheckBox {{
-                    font-size: 15px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: {accent_color};
                 }}
@@ -1395,7 +1470,7 @@ class MainWindow(QMainWindow):
                 background-color: {bg};
             }}
             QLabel {{
-                font-size: 15px;
+                font-size: 12px;
             }}
         """)
 
@@ -1426,7 +1501,7 @@ class MainWindow(QMainWindow):
                 background-color: rgba(52, 152, 219, 0.10);
             }
             QLabel {
-                font-size: 15px;
+                font-size: 12px;
             }
         """)
         

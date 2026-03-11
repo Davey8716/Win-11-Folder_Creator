@@ -19,7 +19,7 @@ class ThemeController:
 
     def theme_count(self) -> int:
         return len(self.themes)
-
+    
     def apply_theme(self, index: int) -> str:
         """
         Applies theme and returns accent color.
@@ -27,7 +27,31 @@ class ThemeController:
         self.current_index = index
         theme = self.themes[index]
 
-        apply_stylesheet(QApplication.instance(), theme=theme)
+        app = QApplication.instance()
+
+        apply_stylesheet(app, theme=theme)
+
+        # ------------------------------------------------
+        # Disabled button contrast fix (light vs dark)
+        # ------------------------------------------------
+        if "light" in theme.lower():
+            disabled_style = """
+            QPushButton:disabled {
+                background-color: #d6d6d6;
+                color: #8a8a8a;
+                border: 1px solid #bdbdbd;
+            }
+            """
+        else:
+            disabled_style = """
+            QPushButton:disabled {
+                background-color: #474747;
+                color: #9a9a9a;
+                border: 1px solid #5a5a5a;
+            }
+            """
+
+        app.setStyleSheet(app.styleSheet() + disabled_style)
 
         accent_key = self._extract_accent_key(theme)
         accent_color = ACCENT_MAP.get(accent_key, "#2196F3")
