@@ -3,6 +3,7 @@ import sys
 from app_service import AppService
 from smart_tree_widget import SmartTreeWidget
 from nested_ui_controller import NestedUIController
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton, QSizePolicy
@@ -849,6 +850,7 @@ class MainWindow(QMainWindow):
         self.tree.addSubfolderShortcut.connect(self.add_subfolder_btn.click)
         self.tree.saveTemplateShortcut.connect(self.create_template_btn.click)
         self.sort_btn.clicked.connect(self.service.nested_manager.sort_tree)
+        self.desktop_folder_line.returnPressed.connect(self.folder_to_desktop.click)
         
         
         
@@ -1517,6 +1519,31 @@ class MainWindow(QMainWindow):
             self.expand_collapse_btn.setText("Expand All")
         else:
             self.expand_collapse_btn.setText("Collapse All")
+            
+    def keyPressEvent(self, event: QKeyEvent):
+
+        window = self.window()
+        # ---------------------------------------------------------
+        # Delete key support
+        # ---------------------------------------------------------
+        if event.key() == Qt.Key_Delete:
+            item = self.currentItem()
+
+            if item:
+                parent = item.parent()
+
+                if parent:
+                    parent.removeChild(item)
+                else:
+                    index = self.indexOfTopLevelItem(item)
+                    self.takeTopLevelItem(index)
+
+                # refresh UI state
+                if hasattr(window, "update_build_button_state"):
+                    window.update_build_button_state()
+
+            return
+
             
 
 def main():
