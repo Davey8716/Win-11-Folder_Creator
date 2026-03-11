@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         # Title Frame (LEFT) NO
         self.desktop_title_frame = QFrame() #NO
         self.desktop_title_frame.setStyleSheet(
-            "border: 4px solid 4D4D4DFF;"
+            "border: 5px solid 4D4D4DFF;"
         )
     
         self.desktop_title_frame.setFrameShape(QFrame.StyledPanel)
@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         for btn in self.theme_buttons:
             btn.setStyleSheet("""
             QPushButton {
-                border-radius: 2px;
+                border-radius: 6px;
                 border: 2px solid rgba(120,120,120,0.4);
             }
             QPushButton:checked {
@@ -205,7 +205,7 @@ class MainWindow(QMainWindow):
         
         self.desktop_folder_frame.setFrameShape(QFrame.StyledPanel)
         self.desktop_folder_frame.setStyleSheet(
-            "border: 5px solid 4D4D4DFF;"
+            "border: 4px solid 4D4D4DFF;"
         )
 
         self.desktop_layout = QVBoxLayout()
@@ -216,13 +216,14 @@ class MainWindow(QMainWindow):
         desktop_controls_layout = QGridLayout()
         desktop_controls_layout.setContentsMargins(4,4,4,4)
         desktop_controls_layout.setHorizontalSpacing(10)
+   
 
         # ==========================================================
         # Create widgets
         # ==========================================================
         self.desktop_folder_line = QLineEdit()
         self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
-        self.desktop_folder_line.setFixedWidth(170)
+        self.desktop_folder_line.setFixedWidth(175)
         self.desktop_folder_line.setFixedHeight(40)
         
         self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self)
@@ -232,27 +233,30 @@ class MainWindow(QMainWindow):
         self.clear_desktop_line_shortcut.activated.connect(self.clear_desktop_input)
 
         self.folder_to_desktop = QPushButton("Folder To Desktop")
-        self.folder_to_desktop.setFixedWidth(170)
-        self.folder_to_desktop.setFixedHeight(35)
+        self.folder_to_desktop.setFixedWidth(175)
+        self.folder_to_desktop.setFixedHeight(40)
 
         # ---- Enumeration controls ----
         self.enumerate_toggle = QCheckBox("CREATE MULTIPLE\nNUMBERED FOLDERS")
         self.enumerate_toggle.setFixedHeight(40)
-        self.enumerate_toggle.setFixedWidth(180)
+        self.enumerate_toggle.setFixedWidth(175)
 
         self.desktop_folder_number_enumerator = QSpinBox()
         self.desktop_folder_number_enumerator.setFixedHeight(35)
-        self.desktop_folder_number_enumerator.setFixedWidth(170)
+        self.desktop_folder_number_enumerator.setFixedWidth(175)
         self.desktop_folder_number_enumerator.setRange(1, 100)
         self.desktop_folder_number_enumerator.setEnabled(False)
 
         # ---- Timestamp controls ----
         self.date_time_toggle = QCheckBox("ADD DATE STAMP")
         self.date_time_toggle.setFixedHeight(35)
-        self.date_time_toggle.setFixedWidth(170)
+        self.date_time_toggle.setFixedWidth(175)
+        
+        
+        
 
         self.date_time_config = QComboBox()
-        self.date_time_config.setFixedWidth(170)
+        self.date_time_config.setFixedWidth(175)
         self.date_time_config.setFixedHeight(35)
         self.date_time_config.addItems([
             "ISO (YYYY-MM-DD)",
@@ -284,11 +288,12 @@ class MainWindow(QMainWindow):
 
         desktop_input_layout = QVBoxLayout()
         desktop_input_layout.setContentsMargins(4,4,4,4)
-        desktop_input_layout.setSpacing(10)
+        desktop_input_layout.setSpacing(5)
         self.desktop_input_frame.setLayout(desktop_input_layout)
 
         desktop_input_layout.addWidget(self.desktop_folder_line)
         desktop_input_layout.addWidget(self.folder_to_desktop)
+        desktop_input_layout.setAlignment(Qt.AlignCenter)
 
 
         # ==========================================================
@@ -302,11 +307,12 @@ class MainWindow(QMainWindow):
 
         enumerator_layout = QVBoxLayout()
         enumerator_layout.setContentsMargins(4,4,4,4)
-        enumerator_layout.setSpacing(10)
+        enumerator_layout.setSpacing(5)
         self.desktop_enumerator_frame.setLayout(enumerator_layout)
 
-        enumerator_layout.addWidget(self.enumerate_toggle, 0, Qt.AlignCenter)
-        enumerator_layout.addWidget(self.desktop_folder_number_enumerator, 0, Qt.AlignCenter)
+        enumerator_layout.addWidget(self.enumerate_toggle)
+        enumerator_layout.addWidget(self.desktop_folder_number_enumerator)
+        enumerator_layout.setAlignment(Qt.AlignCenter)
 
 
         # ==========================================================
@@ -319,14 +325,15 @@ class MainWindow(QMainWindow):
 
         desktop_date_layout = QVBoxLayout()
         desktop_date_layout.setContentsMargins(4,4,4,4)
-        desktop_date_layout.setSpacing(10)
+        desktop_date_layout.setSpacing(5)
         self.desktop_date_frame.setLayout(desktop_date_layout)
         self.desktop_date_frame.setStyleSheet(
             "border: 3px solid 4D4D4DFF;"
         )
 
-        desktop_date_layout.addWidget(self.date_time_toggle, 0, Qt.AlignCenter)
-        desktop_date_layout.addWidget(self.date_time_config, 0, Qt.AlignCenter)
+        desktop_date_layout.addWidget(self.date_time_toggle)
+        desktop_date_layout.addWidget(self.date_time_config)
+        desktop_date_layout.setAlignment(Qt.AlignCenter)
 
         # ==========================================================
         # Add subframes into parent controls frame
@@ -345,10 +352,12 @@ class MainWindow(QMainWindow):
     
         self.desktop_status_frame = QFrame() #NO
         self.desktop_status_frame.setObjectName("statusFrame")
+        self.desktop_status_frame.setMinimumHeight(20)
+
 
         desktop_status_layout = QHBoxLayout()
         desktop_status_layout.setContentsMargins(4,4,4,4)
-        desktop_status_layout.setSpacing(10)
+        desktop_status_layout.setSpacing(5)
         self.desktop_status_frame.setLayout(desktop_status_layout)
         self.desktop_status_frame.setStyleSheet(
             "border: 3px solid 4D4D4DFF;"
@@ -361,107 +370,57 @@ class MainWindow(QMainWindow):
         desktop_status_layout.addWidget(self.desktop_status_icon)
         desktop_status_layout.addWidget(self.desktop_status_text)
         desktop_status_layout.addStretch()
+        
 
         self.desktop_layout.addWidget(self.desktop_status_frame)
         
+        
         # Add entire frame to main layout
         main_layout.addWidget(self.desktop_folder_frame)
-        main_layout.addSpacing(10)   # BIG separation between sections
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # ---- Smart Frame ---- NO
+        main_layout.addSpacing(5)# BIG separation between sections
+
+
+
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+# END OF DESKTOP FOLDER CREATOR GUI
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+################################################################################################################################################################################################################################################
+
+
+        # ====== Parent Frame to EVerything on Nested folder creator
         self.smart_folder_creator_frame = QFrame()
         self.smart_folder_creator_frame.setFrameShape(QFrame.StyledPanel)
         self.smart_folder_creator_frame.setStyleSheet(
-            "border: 3px solid 4D4D4DFF;"
+            "border: 5px solid 4D4D4DFF;"
         )
 
 
@@ -481,7 +440,7 @@ class MainWindow(QMainWindow):
         main_controls_layout.setHorizontalSpacing(8)
         self.controls_frame.setLayout(main_controls_layout)
         self.controls_frame.setStyleSheet(
-            "border: 2px solid #000000;"
+            "border: 4px solid #000000;"
         )
 
         # ==========================================================
@@ -536,8 +495,21 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        self.nested_date_toggle = QCheckBox("ADD DATE STAMP\nTO PARENT FOLDER")
+        
+        
         self.auto_enumerate_folders = QCheckBox("AUTO NUMBER + NAME\n FOLDERS\n AND SUBFOLDERS")
+        self.auto_enumerate_folders.setFixedHeight(60)
+        
+
+        self.nested_date_toggle = QCheckBox("ADD DATE STAMP TO\n PARENT FOLDER")
+        self.nested_date_toggle.setFixedHeight(40)
+        
+        for toggle in [
+            self.auto_enumerate_folders,
+            self.nested_date_toggle
+            
+        ]:
+            toggle.setFixedWidth(175)
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -546,8 +518,8 @@ class MainWindow(QMainWindow):
             "US (MM-DD-YYYY)"
         ])
         self.nested_date_config.setEnabled(False)
-        self.nested_date_config.setMaximumWidth(160)
-        self.nested_date_config.setMaximumHeight(35)
+        self.nested_date_config.setMaximumWidth(175)
+        self.nested_date_config.setFixedHeight(35)
         # self.nested_date_config.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         for i in range(self.nested_date_config.count()):
@@ -571,7 +543,9 @@ class MainWindow(QMainWindow):
             self.create_template_btn
         ]:
             btn.setMaximumWidth(160)
-            btn.setMaximumHeight(35)
+            btn.setFixedHeight(35)
+            
+        
 
         # ==========================================================
         # Column 1 — Template frame NO
@@ -584,12 +558,15 @@ class MainWindow(QMainWindow):
         template_layout.setSpacing(8)
         self.template_controls_frame.setLayout(template_layout)
         self.template_controls_frame.setStyleSheet(
-            "border: 2px solid #000000;"
+            "border: 3px solid #000000;"
         )
+        
+        
 
         template_layout.addWidget(self.create_template_btn)
         template_layout.addWidget(self.load_user_template_dropdown)
         template_layout.addWidget(self.load_default_template_dropdown)
+        template_layout.setAlignment(Qt.AlignTop) 
         
 
         # ==========================================================
@@ -603,7 +580,7 @@ class MainWindow(QMainWindow):
         folder_buttons_layout.setSpacing(8)
         self.folder_buttons_frame.setLayout(folder_buttons_layout)
         self.folder_buttons_frame.setStyleSheet(
-            "border: 2px solid #000000;"
+            "border: 3px solid #000000;"
         )
 
         folder_buttons_layout.addWidget(self.add_folder_btn)
@@ -623,7 +600,7 @@ class MainWindow(QMainWindow):
         date_layout.setSpacing(15)
         self.date_controls_frame.setLayout(date_layout)
         self.date_controls_frame.setStyleSheet(
-            "border: 2px solid #000000;"
+            "border: 3px solid #000000;"
         )
         
         
@@ -659,7 +636,7 @@ class MainWindow(QMainWindow):
         paths_layout.setSpacing(8)
         self.paths_frame.setLayout(paths_layout)
         self.paths_frame.setStyleSheet(
-            "border: 2px solid #000000;"
+            "border: 3px solid #000000;"
         )
 
         self.template_path_column = QFrame() # NO
@@ -669,21 +646,29 @@ class MainWindow(QMainWindow):
         template_col_layout.setSpacing(8)
         self.template_path_column.setLayout(template_col_layout)
 
-        self.template_path_title = QLabel("Template Save Location")
-        
-        template_col_layout.addWidget(self.template_path_title)
-        template_col_layout.addWidget(self.template_path_line)
-        
         self.base_path_column = QFrame() # NO
         self.base_path_column.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
-        
         base_col_layout = QVBoxLayout()
         base_col_layout.setContentsMargins(8,8,8,8)
         base_col_layout.setSpacing(8)
         self.base_path_column.setLayout(base_col_layout)
         
 
-        self.base_path_title = QLabel("Output Folder Location")
+        self.template_path_title = QLabel("TEMPLATE SAVE LOCATION")
+        self.base_path_title = QLabel("OUTPUT FOLDER LOCATION")
+        
+        template_col_layout.addWidget(self.template_path_title)
+        template_col_layout.addWidget(self.template_path_line)
+
+        for title in [
+            self.template_path_title,
+            self.base_path_title
+        ]:
+            title.setFixedWidth(180)
+            title.setFixedHeight(30)
+            title.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        
         base_col_layout.addWidget(self.base_path_title)
         base_col_layout.addWidget(self.base_path_line)
         
@@ -697,11 +682,14 @@ class MainWindow(QMainWindow):
 
         self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         
-        self.base_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.base_path_line.setMinimumWidth(400)
-        
-        self.template_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.template_path_line.setMinimumWidth(400)
+        for output_line in [
+            self.base_path_line,
+            self.template_path_line
+            
+        ]:
+            output_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            output_line.setMinimumWidth(400)
+    
         
 
         frame_layout_output = QVBoxLayout()
@@ -710,7 +698,7 @@ class MainWindow(QMainWindow):
         frame_layout_output.addWidget(self.paths_frame)
         self.out_put_frame.setLayout(frame_layout_output)
         self.out_put_frame.setStyleSheet(
-            "border: 2px solid #000000;"
+            "border: 4px solid #000000;"
         )
 
         # ==========================================================
@@ -731,7 +719,7 @@ class MainWindow(QMainWindow):
         self.tree_frame = QFrame()
         self.tree_frame.setFrameShape(QFrame.StyledPanel)
         self.tree_frame.setStyleSheet(
-            "border: 2px solid #000000;"
+            "border: 4px solid #000000;"
         )
         
         
@@ -781,7 +769,7 @@ class MainWindow(QMainWindow):
         self.smart_layout.addWidget(self.tree_frame)
         
         # ==========================================================
-        # FRAME 6 NO
+        # FRAME 6 NO tree controls Expand find etc
         # ==========================================================
         self.tree_controls_frame = QFrame()
         self.tree_controls_frame.setFrameShape(QFrame.StyledPanel)
@@ -791,7 +779,7 @@ class MainWindow(QMainWindow):
         tree_controls_layout.setSpacing(8)
         self.tree_controls_frame.setLayout(tree_controls_layout)
         self.tree_controls_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 4px solid 4D4D4DFF;"
         )
 
         # Buttons
@@ -839,12 +827,12 @@ class MainWindow(QMainWindow):
         self.build_buttons_frame = QFrame()
         self.build_buttons_frame.setFrameShape(QFrame.StyledPanel)
         self.build_buttons_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 3px solid 4D4D4DFF;"
         )
 
         build_layout = QVBoxLayout()
         build_layout.setContentsMargins(8,8,8,8)
-        build_layout.setSpacing(2)
+        build_layout.setSpacing(8)
         self.build_buttons_frame.setLayout(build_layout)
 
         self.default_to_desktop_btn = QPushButton("Default Desktop")
@@ -862,58 +850,60 @@ class MainWindow(QMainWindow):
         build_layout.addWidget(self.default_to_desktop_btn)
         build_layout.addWidget(self.output_location_btn)
         build_layout.addWidget(self.build_folders_btn)
+        build_layout.setAlignment(Qt.AlignTop)
+           
         
         self.update_build_button_state()
 
         self.post_build_frame = QFrame()
         self.post_build_frame.setFrameShape(QFrame.StyledPanel)
+        self.post_build_frame.setStyleSheet(
+            "border: 3px solid 4D4D4DFF;"
+        )
+    
         
         self.sep1 = self.make_vline()
-        self.sep4 = self.make_vline()
-    
-
-        post_build_layout = QVBoxLayout()
-        post_build_layout.setContentsMargins(8,8,8,8)
-        post_build_layout.setSpacing(8)
-        self.post_build_frame.setLayout(post_build_layout)
-
-        self.open_folder_build_toggle = QCheckBox("OPEN FOLDER\nLOCATION\n AFTER BUILD")
-        self.open_folder_build_toggle.setMaximumHeight(200)
+        self.sep2 = self.make_vline()
+        
+        self.open_folder_build_toggle = QCheckBox("OPEN FOLDER\nLOCATION AFTER\n BUILD")
+        self.open_folder_build_toggle.setFixedHeight(55)
 
         self.minimize_after_build_toggle = QCheckBox("MINIMIZE APP\nAFTER BUILD")
-        
-        
+        self.minimize_after_build_toggle.setFixedHeight(40)
+    
+        self.post_build_layout = QVBoxLayout()
+        self.post_build_layout.setContentsMargins(8,8,8,8)
+        self.post_build_layout.setSpacing(10)
+        self.post_build_layout.setAlignment(Qt.AlignTop)
+
+        self.post_build_frame.setLayout(self.post_build_layout)
+
+        self.post_build_layout.addWidget(self.open_folder_build_toggle)
+        self.post_build_layout.addWidget(self.minimize_after_build_toggle)
+                
         min_after = state.get("minimize_after_build", False)
         self.minimize_after_build_toggle.setChecked(min_after)
-        
-        post_build_layout.addWidget(self.open_folder_build_toggle, alignment=Qt.AlignTop)
-        post_build_layout.addWidget(self.minimize_after_build_toggle, alignment=Qt.AlignTop)
-        
+
         self.nested_ui = NestedUIController(self)
         self.nested_ui.connect_signals()
 
         main_controls_layout.setHorizontalSpacing(8)
         main_controls_layout.setVerticalSpacing(8)
 
-        # group 1
-        main_controls_layout.addWidget(self.folder_buttons_frame,   0, 0)
-        main_controls_layout.addWidget(self.date_controls_frame,    0, 1)
-
-        # separators after frame 2
-        main_controls_layout.addWidget(self.sep1,                   0, 2)
         
+        widgets = [
+            self.folder_buttons_frame,
+            self.date_controls_frame,
+            self.out_put_frame,
+            self.post_build_frame,
+            self.sep1,
+            self.template_controls_frame,
+            self.sep2,
+            self.build_buttons_frame
+        ]
 
-        # group 2
-        main_controls_layout.addWidget(self.template_controls_frame, 0, 6)
-        main_controls_layout.addWidget(self.out_put_frame,           0, 4)
-        main_controls_layout.addWidget(self.build_buttons_frame,     0, 9)
-
-        # separators AFTER build frame
-    
-        main_controls_layout.addWidget(self.sep4,                   0, 8)
-
-        # final frame
-        main_controls_layout.addWidget(self.post_build_frame,       0, 5)
+        for col, widget in enumerate(widgets):
+            main_controls_layout.addWidget(widget, 0, col)
 
 
         for frame in [
@@ -926,8 +916,9 @@ class MainWindow(QMainWindow):
         ]:
             frame.setMinimumWidth(160)
             frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            
 
-        # ---- Nested Status Panel ---- NOT THIS
+        # ---- Nested Status Panel ---- 
         self.smart_status_frame = QFrame()
         self.smart_status_frame.setObjectName("statusFrame")
         
@@ -938,14 +929,13 @@ class MainWindow(QMainWindow):
 
         self.smart_status_frame.setLayout(smart_status_layout)
         self.smart_status_frame.setStyleSheet(
-            "border: 2px solid 4D4D4DFF;"
+            "border: 3px solid 4D4D4DFF;"
         )
 
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
         self.smart_status_text.setWordWrap(True)
         
-        # NOT THIS
 
         smart_status_layout.addWidget(self.smart_status_icon)
         smart_status_layout.addWidget(self.smart_status_text)
@@ -958,20 +948,38 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.smart_folder_creator_frame)
         
 
-        # Signal Connections
-        self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
-        self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
-        self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
-        self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
-        self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
-        self.tree.itemExpanded.connect(self.update_expand_button_text)
-        self.tree.itemCollapsed.connect(self.update_expand_button_text)
-        self.tree.addFolderShortcut.connect(self.add_folder_btn.click)
-        self.tree.addSubfolderShortcut.connect(self.add_subfolder_btn.click)
-        self.tree.saveTemplateShortcut.connect(self.create_template_btn.click)
-        self.sort_btn.clicked.connect(self.service.nested_manager.sort_tree)
-        self.desktop_folder_line.returnPressed.connect(self.folder_to_desktop.click)
+        # # Signal Connections
+        # self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
+        # self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
+        # self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
+        # self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
+        # self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
+        # self.tree.itemExpanded.connect(self.update_expand_button_text)
+        # self.tree.itemCollapsed.connect(self.update_expand_button_text)
+        # self.tree.addFolderShortcut.connect(self.add_folder_btn.click)
+        # self.tree.addSubfolderShortcut.connect(self.add_subfolder_btn.click)
+        # self.tree.saveTemplateShortcut.connect(self.create_template_btn.click)
+        # self.sort_btn.clicked.connect(self.service.nested_manager.sort_tree)
+        # self.desktop_folder_line.returnPressed.connect(self.folder_to_desktop.click)
         
+        connections = [
+            (self.date_time_toggle.toggled, self.desktop_on_date_stamp_toggled),
+            (self.folder_to_desktop.clicked, self.create_desktop_folder),
+            (self.enumerate_toggle.toggled, self.on_enumerate_toggle),
+            (self.date_time_config.currentIndexChanged, self.desktop_on_date_mode_changed),
+            (self.expand_collapse_btn.clicked, self.toggle_tree_expand),
+            (self.tree.itemExpanded, self.update_expand_button_text),
+            (self.tree.itemCollapsed, self.update_expand_button_text),
+            (self.tree.addFolderShortcut, self.add_folder_btn.click),
+            (self.tree.addSubfolderShortcut, self.add_subfolder_btn.click),
+            (self.tree.saveTemplateShortcut, self.create_template_btn.click),
+            (self.sort_btn.clicked, self.service.nested_manager.sort_tree),
+            (self.desktop_folder_line.returnPressed, self.folder_to_desktop.click),
+        ]
+
+        for signal, handler in connections:
+            signal.connect(handler)
+                
         
         self.open_folder_build_toggle.toggled.connect(
             lambda v: self.service.state_manager.update("open_folder_after_build", v)
@@ -1004,17 +1012,15 @@ class MainWindow(QMainWindow):
         self.select_theme(theme_index)
         self.state = self.service.state
                 
+        for attr, target in [
+            ("desktop_status_timer", "desktop"),
+            ("smart_status_timer", "nested"),
+        ]:
+            timer = QTimer(self)
+            timer.setSingleShot(True)
+            timer.timeout.connect(lambda t=target: self.reset_status(t))
+            setattr(self, attr, timer)
 
-       
-        
-        self.desktop_status_timer = QTimer(self)
-        self.desktop_status_timer.setSingleShot(True)
-        self.desktop_status_timer.timeout.connect(lambda: self.reset_status("desktop"))
-
-        self.smart_status_timer = QTimer(self)
-        self.smart_status_timer.setSingleShot(True)
-        self.smart_status_timer.timeout.connect(lambda: self.reset_status("nested"))
-                        
 
         state = self.service.state
         self.current_mode = state.get("ui_mode", "desktop")
@@ -1132,8 +1138,8 @@ class MainWindow(QMainWindow):
         
     def make_vline(self):
         line = QFrame()
-        line.setFixedWidth(10)  # thickness
-        line.setStyleSheet("border: 2px solid 4D4D4DFF;"
+        line.setFixedWidth(6)  # thickness
+        line.setStyleSheet("border: 6px solid 4D4D4DFF;"
         )
         return line
         
@@ -1466,7 +1472,7 @@ class MainWindow(QMainWindow):
 
         frame.setStyleSheet(f"""
             QFrame#statusFrame {{
-                border-radius: 1px;
+                border-radius: 6px;
                 background-color: {bg};
             }}
             QLabel {{

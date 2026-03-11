@@ -405,6 +405,9 @@ class NestedUIController:
             os.startfile(str(p))
         except Exception:
             pass
+
+    
+    
         
     def connect_signals(self):
 
