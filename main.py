@@ -198,7 +198,7 @@ class MainWindow(QMainWindow):
         self.desktop_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         desktop_controls_layout = QGridLayout()
-        desktop_controls_layout.setContentsMargins(6, 6, 6, 6)
+        desktop_controls_layout.setContentsMargins(10,10,10,10)
         desktop_controls_layout.setHorizontalSpacing(8)
         desktop_controls_layout.setVerticalSpacing(0)
         self.desktop_controls_frame.setLayout(desktop_controls_layout)
@@ -266,7 +266,7 @@ class MainWindow(QMainWindow):
         self.desktop_input_frame.setFrameShape(QFrame.StyledPanel)
 
         desktop_input_layout = QVBoxLayout()
-        desktop_input_layout.setContentsMargins(6, 6, 6, 6)
+        desktop_input_layout.setContentsMargins(10,10,10,10)
         desktop_input_layout.setSpacing(8)
         self.desktop_input_frame.setLayout(desktop_input_layout)
 
@@ -281,7 +281,7 @@ class MainWindow(QMainWindow):
         self.desktop_enumerator_frame.setFrameShape(QFrame.StyledPanel)
 
         enumerator_layout = QVBoxLayout()
-        enumerator_layout.setContentsMargins(6, 6, 6, 6)
+        enumerator_layout.setContentsMargins(10,10,10,10)
         enumerator_layout.setSpacing(8)
         self.desktop_enumerator_frame.setLayout(enumerator_layout)
 
@@ -296,7 +296,7 @@ class MainWindow(QMainWindow):
         self.desktop_date_frame.setFrameShape(QFrame.StyledPanel)
 
         desktop_date_layout = QVBoxLayout()
-        desktop_date_layout.setContentsMargins(6, 6, 6, 6)
+        desktop_date_layout.setContentsMargins(10,10,10,10)
         desktop_date_layout.setSpacing(8)
         self.desktop_date_frame.setLayout(desktop_date_layout)
 
@@ -371,7 +371,7 @@ class MainWindow(QMainWindow):
         # Parent layout inside controls_frame
         # ==========================================================
         main_controls_layout = QGridLayout()
-        main_controls_layout.setContentsMargins(6, 6, 6, 6)
+        main_controls_layout.setContentsMargins(10,10,10,10)
         main_controls_layout.setHorizontalSpacing(8)
         main_controls_layout.setVerticalSpacing(0)
         self.controls_frame.setLayout(main_controls_layout)
@@ -544,9 +544,8 @@ class MainWindow(QMainWindow):
         paths_layout.setSpacing(8)
         self.paths_frame.setLayout(paths_layout)
 
-        
-
         self.template_path_column = QFrame()
+        self.template_path_column.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         template_col_layout = QVBoxLayout()
         template_col_layout.setContentsMargins(10,10,10,10)
         template_col_layout.setSpacing(6)
@@ -557,6 +556,8 @@ class MainWindow(QMainWindow):
         template_col_layout.addWidget(self.template_path_line)
         
         self.base_path_column = QFrame()
+        self.base_path_column.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
+        
         base_col_layout = QVBoxLayout()
         base_col_layout.setContentsMargins(10,10,10,10)
         base_col_layout.setSpacing(6)
@@ -567,7 +568,20 @@ class MainWindow(QMainWindow):
         base_col_layout.addWidget(self.base_path_line)
         
         paths_layout.addWidget(self.template_path_column)
+        paths_layout.addStretch()
         paths_layout.addWidget(self.base_path_column)
+        
+        # ----------------------------------------------------------
+        # Status frame
+        # ----------------------------------------------------------
+        
+        self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        
+        self.base_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.base_path_line.setMinimumWidth(400)
+        
+        self.template_path_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.template_path_line.setMinimumWidth(400)
         
 
         frame_layout_output = QVBoxLayout()
@@ -645,7 +659,7 @@ class MainWindow(QMainWindow):
         self.tree_controls_frame.setFrameShape(QFrame.StyledPanel)
 
         tree_controls_layout = QHBoxLayout()
-        tree_controls_layout.setContentsMargins(6, 6, 6, 6)
+        tree_controls_layout.setContentsMargins(10,10,10,10)
         tree_controls_layout.setSpacing(8)
         self.tree_controls_frame.setLayout(tree_controls_layout)
 
@@ -795,19 +809,9 @@ class MainWindow(QMainWindow):
             self.post_build_frame
         ]:
             frame.setMinimumWidth(170)
-            frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+            frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             
-        # ----------------------------------------------------------
-        # Status frame
-        # ----------------------------------------------------------
         
-        self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        
-        self.base_path_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.base_path_line.setMinimumWidth(450)
-        
-        self.template_path_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.template_path_line.setMinimumWidth(450)
         
         
         # ---- Nested Status Panel ----
