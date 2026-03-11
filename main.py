@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QShortcut, QKeySequence
 
 
 
@@ -82,7 +83,7 @@ class MainWindow(QMainWindow):
         
 
         # ==========================================================
-        # Slider
+        # Theme Selector
         # ==========================================================
 
         header_grid = QGridLayout()
@@ -90,9 +91,7 @@ class MainWindow(QMainWindow):
         header_grid.setHorizontalSpacing(12)
         header_grid.setVerticalSpacing(0)
         
-        
-        
-
+    
         # ------------------------------
         # Title Frame (LEFT)
         # ------------------------------
@@ -211,6 +210,12 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
         self.desktop_folder_line.setFixedWidth(180)
         self.desktop_folder_line.setMinimumHeight(35)
+        
+        self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self)
+        self.rename_desktop_line_shortcut.activated.connect(self.rename_desktop_input)
+
+        self.clear_desktop_line_shortcut = QShortcut(QKeySequence(Qt.Key_Delete), self)
+        self.clear_desktop_line_shortcut.activated.connect(self.clear_desktop_input)
 
         self.folder_to_desktop = QPushButton("Folder To Desktop")
         self.folder_to_desktop.setFixedWidth(180)
@@ -853,14 +858,6 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.returnPressed.connect(self.folder_to_desktop.click)
         
         
-        
-        
-        
-        # Placeholders to connect to the user and default template drops to their respective methods.
-        
-        # self.load_user_template_dropdown.clicked.connect(self.load_template)
-        
-        
         self.open_folder_build_toggle.toggled.connect(
             lambda v: self.service.state_manager.update("open_folder_after_build", v)
         )
@@ -985,6 +982,23 @@ class MainWindow(QMainWindow):
         
         self.desktop_folder_line.textChanged.connect(self.update_desktop_build_state)
         
+        
+        self.update_desktop_build_state()
+        
+    def rename_desktop_input(self):
+        if self.current_mode != "desktop":
+            return
+
+        self.desktop_folder_line.setFocus()
+        self.desktop_folder_line.selectAll()
+
+
+    def clear_desktop_input(self):
+        if self.current_mode != "desktop":
+            return
+        
+        self.desktop_folder_line.setFocus()
+        self.desktop_folder_line.clear()
         
         self.update_desktop_build_state()
         
@@ -1520,29 +1534,29 @@ class MainWindow(QMainWindow):
         else:
             self.expand_collapse_btn.setText("Collapse All")
             
-    def keyPressEvent(self, event: QKeyEvent):
+    # def keyPressEvent(self, event: QKeyEvent):
 
-        window = self.window()
-        # ---------------------------------------------------------
-        # Delete key support
-        # ---------------------------------------------------------
-        if event.key() == Qt.Key_Delete:
-            item = self.currentItem()
+    #     window = self.window()
+    #     # ---------------------------------------------------------
+    #     # Delete key support
+    #     # ---------------------------------------------------------
+    #     if event.key() == Qt.Key_Delete:
+    #         item = self.currentItem()
 
-            if item:
-                parent = item.parent()
+    #         if item:
+    #             parent = item.parent()
 
-                if parent:
-                    parent.removeChild(item)
-                else:
-                    index = self.indexOfTopLevelItem(item)
-                    self.takeTopLevelItem(index)
+    #             if parent:
+    #                 parent.removeChild(item)
+    #             else:
+    #                 index = self.indexOfTopLevelItem(item)
+    #                 self.takeTopLevelItem(index)
 
-                # refresh UI state
-                if hasattr(window, "update_build_button_state"):
-                    window.update_build_button_state()
+    #             # refresh UI state
+    #             if hasattr(window, "update_build_button_state"):
+    #                 window.update_build_button_state()
 
-            return
+    #         return
 
             
 
