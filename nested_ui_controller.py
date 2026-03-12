@@ -198,11 +198,27 @@ class NestedUIController:
         status, message = self.service.load_template_dialog(self.window)
 
         if status == "success":
+
+            # Ensure something is selected (needed for some UI logic)
+            if self.tree.topLevelItemCount() > 0:
+                root = self.tree.topLevelItem(0)
+                self.tree.setCurrentItem(root)
+
+            # Recalculate UI state (duplicates, build button, sort etc.)
             self.window.update_build_button_state()
-            self.window.set_status(message, target="nested", status_type="success")
+
+            self.window.set_status(
+                message,
+                target="nested",
+                status_type="success"
+            )
 
         elif status != "cancelled":
-            self.window.set_status(message, target="nested", status_type="error")
+            self.window.set_status(
+                message,
+                target="nested",
+                status_type="error"
+            )
 
 
     def load_template_from_path(self, file_path):
@@ -437,7 +453,7 @@ class NestedUIController:
 
         w.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
 
-        w.create_template_btn.clicked.connect(self.create_template)
+        w.save_template_btn.clicked.connect(self.create_template)
 
         w.remove_all_btn.clicked.connect(self.remove_all_folders)
 
