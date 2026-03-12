@@ -27,7 +27,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QShortcut, QKeySequence
 
-
+INVALID_FOLDER_CHARS = '<>:"/\\|?*'
+MAX_NESTED_FOLDER_NAME_LENGTH = 64
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -224,6 +225,9 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.setPlaceholderText("ENTER FOLDER NAME...")
         self.desktop_folder_line.setFixedWidth(175)
         self.desktop_folder_line.setFixedHeight(40)
+        self.desktop_folder_line.setMaxLength(64)
+        
+        
         
         self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self.desktop_folder_line)
         self.rename_desktop_line_shortcut.activated.connect(self.rename_desktop_input)
@@ -365,7 +369,8 @@ class MainWindow(QMainWindow):
 
         self.desktop_status_icon = QLabel(">")
         self.desktop_status_text = QLabel("")
-        self.desktop_status_text.setWordWrap(True)
+        self.desktop_status_text.setMaximumWidth(500)
+        # self.desktop_status_text.setWordWrap(True)
 
         desktop_status_layout.addWidget(self.desktop_status_icon)
         desktop_status_layout.addWidget(self.desktop_status_text)
@@ -805,6 +810,7 @@ class MainWindow(QMainWindow):
         self.find_btn = QPushButton("FIND")
         self.find_output_line = QLineEdit()
         self.find_output_line.setPlaceholderText("INPUT FOR FINDING FOLDERS.")
+        self.find_output_line.setMinimumWidth(250)
         self.find_output_line.setStyleSheet(
             "font: 15px solid #FFFFFF;"
         )
@@ -818,13 +824,14 @@ class MainWindow(QMainWindow):
             self.sort_btn
         ]:
             btn.setMaximumHeight(40)
-            btn.setMaximumWidth(190)
+            btn.setMaximumWidth(250)
             
         tree_controls_layout.addWidget(self.expand_tree_btn)
         # tree_controls_layout.addStretch()
         tree_controls_layout.addWidget(self.expand_folders_collapse_btn)
-        tree_controls_layout.addWidget(self.sort_btn)
         tree_controls_layout.addStretch()
+        tree_controls_layout.addWidget(self.sort_btn)
+        
         tree_controls_layout.addWidget(self.find_btn)
       
         tree_controls_layout.addWidget(self.find_output_line)
@@ -959,7 +966,8 @@ class MainWindow(QMainWindow):
 
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
-        self.smart_status_text.setWordWrap(True)
+        self.smart_status_text.setMaximumWidth(500)
+        # self.smart_status_text.setWordWrap(True)
         
 
         smart_status_layout.addWidget(self.smart_status_icon)
@@ -988,7 +996,8 @@ class MainWindow(QMainWindow):
             (self.desktop_folder_line.returnPressed, self.folder_to_desktop.click),
             (self.tree.itemChanged, self.update_build_button_state),
             (self.load_template_btn.clicked, self.nested_ui.load_template),
-            (self.expand_tree_btn.clicked,self.tree_gui_stretch)
+            (self.expand_tree_btn.clicked,self.tree_gui_stretch),
+            (self.tree.itemChanged, self.enforce_tree_name_limit),
             
         ]
 
@@ -1116,7 +1125,21 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.textChanged.connect(self.update_desktop_build_state)
         
         self.update_desktop_build_state()
+        self.update_build_button_state()
         
+    def enforce_tree_name_limit(self, item, column):
+
+        name = item.text(0)
+
+        if len(name) > MAX_NESTED_FOLDER_NAME_LENGTH:
+            trimmed = name[:MAX_NESTED_FOLDER_NAME_LENGTH]
+            item.setText(0, trimmed)
+
+            self.smart_status_icon.setText("⚠")
+            self.smart_status_text.setText(
+                f"Folder names limited to {MAX_NESTED_FOLDER_NAME_LENGTH} characters."
+            )
+            
     def rename_desktop_input(self):
         if self.current_mode != "desktop":
             return
@@ -1164,13 +1187,42 @@ class MainWindow(QMainWindow):
             self.tree.collapseAll()
 
         self.update_expand_button_text()
-        
-    
+
     def update_desktop_build_state(self):
+
         text = self.desktop_folder_line.text().strip()
-        self.folder_to_desktop.setEnabled(bool(text))
-        
+
+        if not text:
+            self.folder_to_desktop.setEnabled(False)
+            self.desktop_status_icon.setText(">")
+            self.desktop_status_text.clear()
+            return
+
+        # check for invalid characters
+        has_invalid = any(c in text for c in INVALID_FOLDER_CHARS)
+
+        self.folder_to_desktop.setEnabled(not has_invalid)
+
+        # ---- validation priority ----
+        if has_invalid:
+            self.desktop_status_icon.setText("⚠")
+            self.desktop_status_text.setText(
+                "Invalid characters detected. Remove <>:\"/\\|?* from folder name."
+            )
+
+        elif len(text) >= MAX_NESTED_FOLDER_NAME_LENGTH:
+            self.desktop_status_icon.setText("⚠")
+            self.desktop_status_text.setText(
+                f"Folder name limit is {MAX_NESTED_FOLDER_NAME_LENGTH} characters."
+            )
+
+        else:
+            self.desktop_status_icon.setText(">")
+            self.desktop_status_text.clear()
+            
     def update_build_button_state(self):
+        
+        has_invalid_chars = self.tree_contains_invalid_chars()
         
         default_template_loaded = (
             self.load_default_template_dropdown.currentIndex() != 0
@@ -1265,7 +1317,7 @@ class MainWindow(QMainWindow):
         if has_duplicates:
             self.smart_status_icon.setText("⚠")
             self.smart_status_text.setText(
-                "Duplicate folder names detected under the same parent. "
+                "Duplicate folder names detected under the same parent.\n "
                 "Rename folders before building."
             )
         else:
@@ -1273,8 +1325,15 @@ class MainWindow(QMainWindow):
                 self.smart_status_text.setText("")
                 self.smart_status_icon.setText(">")
                 
+        if has_invalid_chars:
+            self.smart_status_icon.setText("⚠")
+            self.smart_status_text.setText(
+                "Invalid characters detected in folder names.\n "
+                "Remove <>:\"/\\|?* before building."
+            )
+                
         # Build/remove
-        self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents)
+        self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents and not has_invalid_chars)
         self.remove_all_btn.setEnabled(has_items)
     
 
@@ -1604,6 +1663,25 @@ class MainWindow(QMainWindow):
         
     ####################### Desktop Folder Creator methods #################################
     
+    def tree_contains_invalid_chars(self):
+
+        invalid = '<>:"/\\|?*'
+
+        iterator = QTreeWidgetItemIterator(self.tree)
+
+        while iterator.value():
+            item = iterator.value()
+
+            name = item.text(0)
+
+            for c in invalid:
+                if c in name:
+                    return True
+
+            iterator += 1
+
+        return False
+    
     def select_theme(self, index):
 
         accent = self.service.apply_theme(index)
@@ -1655,7 +1733,8 @@ class MainWindow(QMainWindow):
         )
                     
     def create_desktop_folder(self):
-
+        
+        raw_name = self.desktop_folder_line.text().strip()
         base_name = self.desktop_folder_line.text().strip()
 
         if not base_name:
@@ -1665,6 +1744,9 @@ class MainWindow(QMainWindow):
                 status_type="error"
             )
             return
+        # push cleaned name back into the UI
+        if base_name != raw_name:
+            self.desktop_folder_line.setText(base_name)
 
         # ----------------------------------
         # Timestamp mode
