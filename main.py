@@ -1,10 +1,10 @@
 import sys
-
 from app_service import AppService
 from smart_tree_widget import SmartTreeWidget
 from nested_ui_controller import NestedUIController
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QShortcut, QKeySequence
 from PySide6.QtWidgets import QPushButton, QSizePolicy
 from PySide6.QtWidgets import QAbstractItemView
 from PySide6.QtWidgets import QTreeWidgetItemIterator
@@ -24,8 +24,7 @@ from PySide6.QtWidgets import (
 
 )
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QShortcut, QKeySequence
+
 
 INVALID_FOLDER_CHARS = '<>:"/\\|?*'
 MAX_NESTED_FOLDER_NAME_LENGTH = 64

@@ -1,7 +1,6 @@
 from typing import List
 from PySide6.QtWidgets import QApplication
 from qt_material import apply_stylesheet
-
 from styles import THEMES, ACCENT_MAP
 
 class ThemeController:

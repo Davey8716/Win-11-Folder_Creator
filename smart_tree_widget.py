@@ -5,6 +5,7 @@ from PySide6.QtGui import QPainter,QColor
 from PySide6.QtWidgets import QTreeWidget,QApplication,QAbstractItemView
 from PySide6.QtGui import QKeySequence
 from PySide6.QtCore import Qt, Signal
+from pathlib import Path
 
 
 class SmartTreeWidget(QTreeWidget):
@@ -103,7 +104,7 @@ class SmartTreeWidget(QTreeWidget):
                 # Folder import
                 # ----------------------------
                 try:
-                    from pathlib import Path
+                    
                     p = Path(path)
 
                     if p.is_dir():
