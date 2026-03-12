@@ -37,6 +37,11 @@ class NestedUIController:
 
         text = self.window.find_output_line.text().strip().lower()
         if not text:
+            self.window.set_status(
+                "Enter a folder name to search for.",
+                target="nested",
+                status_type="error"
+            )
             return
 
         iterator = QTreeWidgetItemIterator(self.tree)
