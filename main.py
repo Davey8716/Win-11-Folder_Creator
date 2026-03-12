@@ -222,9 +222,9 @@ class MainWindow(QMainWindow):
         # Create widgets
         # ==========================================================
         self.desktop_folder_line = QLineEdit()
-        self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
+        self.desktop_folder_line.setPlaceholderText("ENTER FOLDER NAME...")
         self.desktop_folder_line.setFixedWidth(175)
-        self.desktop_folder_line.setFixedHeight(35)
+        self.desktop_folder_line.setFixedHeight(40)
         
         self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self)
         self.rename_desktop_line_shortcut.activated.connect(self.rename_desktop_input)
@@ -234,16 +234,16 @@ class MainWindow(QMainWindow):
 
         self.folder_to_desktop = QPushButton("Folder To Desktop")
         self.folder_to_desktop.setFixedWidth(175)
-        self.folder_to_desktop.setFixedHeight(35)
+        self.folder_to_desktop.setFixedHeight(40)
 
         # ---- Enumeration controls ----
         self.enumerate_toggle = QPushButton("CREATE MULTIPLE\nNUMBERED FOLDERS")
         self.enumerate_toggle.setCheckable(True)
-        self.enumerate_toggle.setFixedHeight(40)
+        self.enumerate_toggle.setFixedHeight(45)
         self.enumerate_toggle.setFixedWidth(175)
 
         self.desktop_folder_number_enumerator = QSpinBox()
-        self.desktop_folder_number_enumerator.setFixedHeight(35)
+        self.desktop_folder_number_enumerator.setFixedHeight(40)
         self.desktop_folder_number_enumerator.setFixedWidth(175)
         self.desktop_folder_number_enumerator.setRange(1, 100)
         self.desktop_folder_number_enumerator.setEnabled(False)
@@ -251,14 +251,14 @@ class MainWindow(QMainWindow):
         # ---- Timestamp controls ----
         self.date_time_toggle = QPushButton("ADD DATE STAMP")
         self.date_time_toggle.setCheckable(True)
-        self.date_time_toggle.setFixedHeight(35)
+        self.date_time_toggle.setFixedHeight(40)
         self.date_time_toggle.setFixedWidth(175)
         
         
 
         self.date_time_config = QComboBox()
         self.date_time_config.setFixedWidth(175)
-        self.date_time_config.setFixedHeight(35)
+        self.date_time_config.setFixedHeight(40)
         self.date_time_config.addItems([
             "ISO (YYYY-MM-DD)",
             "UK (DD-MM-YYYY)",
@@ -288,8 +288,8 @@ class MainWindow(QMainWindow):
         )
 
         desktop_input_layout = QVBoxLayout()
-        desktop_input_layout.setContentsMargins(4,4,4,4)
-        desktop_input_layout.setSpacing(5)
+        desktop_input_layout.setContentsMargins(8,8,8,8)
+        desktop_input_layout.setSpacing(15)
         self.desktop_input_frame.setLayout(desktop_input_layout)
 
         desktop_input_layout.addWidget(self.desktop_folder_line)
@@ -307,8 +307,8 @@ class MainWindow(QMainWindow):
         )
 
         enumerator_layout = QVBoxLayout()
-        enumerator_layout.setContentsMargins(4,4,4,4)
-        enumerator_layout.setSpacing(5)
+        enumerator_layout.setContentsMargins(8,8,8,8)
+        enumerator_layout.setSpacing(10)
         self.desktop_enumerator_frame.setLayout(enumerator_layout)
 
         enumerator_layout.addWidget(self.enumerate_toggle)
@@ -325,8 +325,8 @@ class MainWindow(QMainWindow):
 
 
         desktop_date_layout = QVBoxLayout()
-        desktop_date_layout.setContentsMargins(4,4,4,4)
-        desktop_date_layout.setSpacing(5)
+        desktop_date_layout.setContentsMargins(8,8,8,8)
+        desktop_date_layout.setSpacing(15)
         self.desktop_date_frame.setLayout(desktop_date_layout)
         self.desktop_date_frame.setStyleSheet(
             "border: 3px solid 4D4D4DFF;"
@@ -353,12 +353,12 @@ class MainWindow(QMainWindow):
     
         self.desktop_status_frame = QFrame() #NO
         self.desktop_status_frame.setObjectName("statusFrame")
-        self.desktop_status_frame.setMinimumHeight(20)
+        self.desktop_status_frame.setMaximumHeight(50)
 
 
         desktop_status_layout = QHBoxLayout()
         desktop_status_layout.setContentsMargins(4,4,4,4)
-        desktop_status_layout.setSpacing(5)
+        desktop_status_layout.setSpacing(10)
         self.desktop_status_frame.setLayout(desktop_status_layout)
         self.desktop_status_frame.setStyleSheet(
             "border: 3px solid 4D4D4DFF;"
@@ -486,10 +486,13 @@ class MainWindow(QMainWindow):
         ])
 
         self.load_default_template_dropdown.setMinimumWidth(150)
-        self.load_default_template_dropdown.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.load_default_template_dropdown.setSizeAdjustPolicy(QComboBox.AdjustToContentsOnFirstShow)
         self.load_default_template_dropdown.setEnabled(True)
 
         for i in range(self.load_default_template_dropdown.count()):
+            if self.load_default_template_dropdown.itemText(i) == "":
+                continue
+
             self.load_default_template_dropdown.setItemData(
                 i,
                 Qt.AlignLeft | Qt.AlignVCenter,
@@ -498,19 +501,22 @@ class MainWindow(QMainWindow):
 
         
         
-        self.auto_enumerate_folders = QCheckBox("AUTO NUMBER + NAME\n FOLDERS\n AND SUBFOLDERS")
+        self.auto_enumerate_folders = QPushButton("AUTO NUMBER + NAME\n FOLDERS AND\n SUBFOLDERS")
+        self.auto_enumerate_folders.setCheckable(True)
         self.auto_enumerate_folders.setFixedHeight(60)
         
 
-        self.nested_date_toggle = QCheckBox("ADD DATE STAMP TO\n PARENT FOLDER")
-        self.nested_date_toggle.setFixedHeight(40)
+        self.nested_date_toggle = QPushButton("ADD DATE STAMP TO\n PARENT FOLDER")
+        self.nested_date_toggle.setCheckable(True)
+        self.nested_date_toggle.setFixedHeight(50)
         
-        for toggle in [
+        for button in [
             self.auto_enumerate_folders,
             self.nested_date_toggle
             
         ]:
-            toggle.setFixedWidth(175)
+            button.setFixedWidth(175)
+     
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -520,7 +526,7 @@ class MainWindow(QMainWindow):
         ])
         self.nested_date_config.setEnabled(False)
         self.nested_date_config.setMaximumWidth(175)
-        self.nested_date_config.setFixedHeight(35)
+        self.nested_date_config.setFixedHeight(40)
         # self.nested_date_config.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         for i in range(self.nested_date_config.count()):
@@ -532,7 +538,6 @@ class MainWindow(QMainWindow):
 
         self.nested_date_config.setEditable(True)
         self.nested_date_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        
         self.nested_date_config.lineEdit().setReadOnly(True)
     
 
@@ -544,7 +549,7 @@ class MainWindow(QMainWindow):
             self.create_template_btn
         ]:
             btn.setMaximumWidth(160)
-            btn.setFixedHeight(35)
+            btn.setFixedHeight(40)
             
         
 
@@ -598,7 +603,7 @@ class MainWindow(QMainWindow):
 
         date_layout = QVBoxLayout()
         date_layout.setContentsMargins(8,8,8,8)
-        date_layout.setSpacing(15)
+        date_layout.setSpacing(20)
         self.date_controls_frame.setLayout(date_layout)
         self.date_controls_frame.setStyleSheet(
             "border: 3px solid #000000;"
@@ -618,15 +623,25 @@ class MainWindow(QMainWindow):
         self.base_path_line.setPlaceholderText(
             "Select base directory for output folder location"
         )
+        
+        self.base_path_line.setStyleSheet(
+            "font: 15px solid #FFFFFF;"
+        )
+        
         self.base_path_line.setReadOnly(True)
-        self.base_path_line.setMaximumHeight(35)
+        self.base_path_line.setMaximumHeight(40)
 
         self.template_path_line = QLineEdit()
         self.template_path_line.setPlaceholderText(
-            "Output Location For User Made Templates"
+            "OUTPUT LOCATION FOR USER MADE TEMPLATES"
         )
+        self.template_path_line.setStyleSheet(
+            "font: 15px solid #FFFFFF;"
+        )
+        
+        
         self.template_path_line.setReadOnly(True)
-        self.template_path_line.setMaximumHeight(35)
+        self.template_path_line.setMaximumHeight(40)
 
         # ----------------------------------------------------------
         # Paths row
@@ -666,9 +681,9 @@ class MainWindow(QMainWindow):
             self.base_path_title
         ]:
             title.setFixedWidth(180)
-            title.setFixedHeight(30)
+            title.setFixedHeight(35)
             title.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-            title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            title.setAlignment(Qt.AlignCenter)
         
         base_col_layout.addWidget(self.base_path_title)
         base_col_layout.addWidget(self.base_path_line)
@@ -784,12 +799,16 @@ class MainWindow(QMainWindow):
         )
 
         # Buttons
-        self.expand_collapse_btn = QPushButton("Expand All")
-        self.sort_btn = QPushButton("Sort A/Z")
-        self.find_btn = QPushButton("Find")
+        self.expand_collapse_btn = QPushButton("EXPAND ALL")
+        self.sort_btn = QPushButton("SORT A/Z")
+        self.find_btn = QPushButton("FIND")
         self.find_output_line = QLineEdit()
-        self.find_output_line.setPlaceholderText("Input For Finding Folders.")
-        self.find_output_line.setEnabled(False)
+        self.find_output_line.setPlaceholderText("INPUT FOR FINDING FOLDERS.")
+        self.find_output_line.setStyleSheet(
+            "font: 15px solid #FFFFFF;"
+        )
+        self.find_output_line.setEnabled(True)
+        self.template_path_line.setReadOnly(True)
 
 
         for btn in [
@@ -797,8 +816,8 @@ class MainWindow(QMainWindow):
             self.find_btn,
             self.sort_btn
         ]:
-            btn.setMaximumHeight(35)
-            btn.setMaximumWidth(120)
+            btn.setMaximumHeight(40)
+            btn.setMaximumWidth(130)
 
         tree_controls_layout.addWidget(self.expand_collapse_btn)
         
@@ -845,7 +864,8 @@ class MainWindow(QMainWindow):
             self.output_location_btn,
             self.build_folders_btn
         ]:
-            btn.setMaximumHeight(35)
+            btn.setFixedHeight(40)
+            btn.setFixedWidth(160)
             
 
         build_layout.addWidget(self.default_to_desktop_btn)
@@ -866,11 +886,14 @@ class MainWindow(QMainWindow):
         self.sep1 = self.make_vline()
         self.sep2 = self.make_vline()
         
-        self.open_folder_build_toggle = QCheckBox("OPEN FOLDER\nLOCATION AFTER\n BUILD")
-        self.open_folder_build_toggle.setFixedHeight(55)
+        self.open_folder_build_toggle = QPushButton("OPEN FOLDER\nLOCATION AFTER\n BUILD")
+        self.open_folder_build_toggle.setCheckable(True)
+        self.open_folder_build_toggle.setFixedHeight(60)
+        self.open_folder_build_toggle.setMaximumWidth(150)
 
-        self.minimize_after_build_toggle = QCheckBox("MINIMIZE APP\nAFTER BUILD")
-        self.minimize_after_build_toggle.setFixedHeight(40)
+        self.minimize_after_build_toggle = QPushButton("MINIMIZE APP\nAFTER BUILD")
+        self.minimize_after_build_toggle.setCheckable(True)
+        self.minimize_after_build_toggle.setFixedHeight(50)
     
         self.post_build_layout = QVBoxLayout()
         self.post_build_layout.setContentsMargins(8,8,8,8)
@@ -922,11 +945,12 @@ class MainWindow(QMainWindow):
         # ---- Nested Status Panel ---- 
         self.smart_status_frame = QFrame()
         self.smart_status_frame.setObjectName("statusFrame")
+        self.smart_status_frame.setFixedHeight(60)
         
 
         smart_status_layout = QHBoxLayout()
-        smart_status_layout.setContentsMargins(8,8,8,8)
-        smart_status_layout.setSpacing(8)
+        smart_status_layout.setContentsMargins(4,4,4,4)
+        smart_status_layout.setSpacing(10)
 
         self.smart_status_frame.setLayout(smart_status_layout)
         self.smart_status_frame.setStyleSheet(
@@ -1452,12 +1476,12 @@ class MainWindow(QMainWindow):
             icon_label = self.smart_status_icon
             text_label = self.smart_status_text
             frame = self.smart_status_frame
-            self.smart_status_timer.start(10000)
+            self.smart_status_timer.start(5000)
         else:
             icon_label = self.desktop_status_icon
             text_label = self.desktop_status_text
             frame = self.desktop_status_frame
-            self.desktop_status_timer.start(10000)
+            self.desktop_status_timer.start(5000)
 
         if status_type == "success":
             icon_label.setText("✓")
@@ -1647,9 +1671,9 @@ class MainWindow(QMainWindow):
     def update_expand_button_text(self):
 
         if self.tree_has_collapsed_nodes():
-            self.expand_collapse_btn.setText("Expand All")
+            self.expand_collapse_btn.setText("EXPAND All")
         else:
-            self.expand_collapse_btn.setText("Collapse All")
+            self.expand_collapse_btn.setText("COLLAPSE All")
 
 def main():
     app = QApplication(sys.argv)
