@@ -453,12 +453,13 @@ class MainWindow(QMainWindow):
         self.remove_btn = QPushButton("Remove Selected")
         self.remove_all_btn = QPushButton("Remove All")
 
-        self.create_template_btn = QPushButton("Create Template")
+        self.load_template_btn = QPushButton("Load Templates")
+        self.save_template_btn= QPushButton("Save Templates")
         
 
         self.load_user_template_dropdown = QComboBox()
         self.load_user_template_dropdown.addItems([
-            "User Template"
+            "User Templates"
         ])
         self.load_user_template_dropdown.insertSeparator(
             self.load_user_template_dropdown.count()
@@ -546,7 +547,7 @@ class MainWindow(QMainWindow):
             self.add_subfolder_btn,
             self.remove_btn,
             self.remove_all_btn,
-            self.create_template_btn
+            self.save_template_btn
         ]:
             btn.setMaximumWidth(160)
             btn.setFixedHeight(40)
@@ -568,8 +569,8 @@ class MainWindow(QMainWindow):
         )
         
         
-
-        template_layout.addWidget(self.create_template_btn)
+        template_layout.addWidget(self.load_template_btn)
+        template_layout.addWidget(self.save_template_btn)
         template_layout.addWidget(self.load_user_template_dropdown)
         template_layout.addWidget(self.load_default_template_dropdown)
         template_layout.setAlignment(Qt.AlignTop) 
@@ -971,22 +972,8 @@ class MainWindow(QMainWindow):
         self.smart_layout.addWidget(self.out_put_frame)
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
-        
+    
 
-        # # Signal Connections
-        # self.date_time_toggle.toggled.connect(self.desktop_on_date_stamp_toggled)
-        # self.folder_to_desktop.clicked.connect(self.create_desktop_folder)
-        # self.enumerate_toggle.toggled.connect(self.on_enumerate_toggle)
-        # self.date_time_config.currentIndexChanged.connect(self.desktop_on_date_mode_changed)
-        # self.expand_collapse_btn.clicked.connect(self.toggle_tree_expand)
-        # self.tree.itemExpanded.connect(self.update_expand_button_text)
-        # self.tree.itemCollapsed.connect(self.update_expand_button_text)
-        # self.tree.addFolderShortcut.connect(self.add_folder_btn.click)
-        # self.tree.addSubfolderShortcut.connect(self.add_subfolder_btn.click)
-        # self.tree.saveTemplateShortcut.connect(self.create_template_btn.click)
-        # self.sort_btn.clicked.connect(self.service.nested_manager.sort_tree)
-        # self.desktop_folder_line.returnPressed.connect(self.folder_to_desktop.click)
-        
         connections = [
             (self.date_time_toggle.clicked,self.desktop_on_date_stamp_toggled),
             (self.folder_to_desktop.clicked, self.create_desktop_folder),
@@ -997,10 +984,12 @@ class MainWindow(QMainWindow):
             (self.tree.itemCollapsed, self.update_expand_button_text),
             (self.tree.addFolderShortcut, self.add_folder_btn.click),
             (self.tree.addSubfolderShortcut, self.add_subfolder_btn.click),
-            (self.tree.saveTemplateShortcut, self.create_template_btn.click),
+            (self.tree.saveTemplateShortcut, self.save_template_btn.click),
             (self.sort_btn.clicked, self.service.nested_manager.sort_tree),
             (self.desktop_folder_line.returnPressed, self.folder_to_desktop.click),
-            (self.tree.itemChanged, self.update_build_button_state)
+            (self.tree.itemChanged, self.update_build_button_state),
+            (self.load_template_btn.clicked, self.nested_ui.load_template),
+            
         ]
 
         for signal, handler in connections:
@@ -1239,7 +1228,7 @@ class MainWindow(QMainWindow):
     
 
         # Tree utilities
-        self.create_template_btn.setEnabled(has_items and not has_duplicate_parents)
+        self.save_template_btn.setEnabled(has_items and not has_duplicate_parents)
         # self.load_default_template_dropdown.setDisabled(has_items)
         
         # ---------------------------------------------------------
