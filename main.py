@@ -224,7 +224,7 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line = QLineEdit()
         self.desktop_folder_line.setPlaceholderText("Enter Folder Name...")
         self.desktop_folder_line.setFixedWidth(175)
-        self.desktop_folder_line.setFixedHeight(40)
+        self.desktop_folder_line.setFixedHeight(35)
         
         self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self)
         self.rename_desktop_line_shortcut.activated.connect(self.rename_desktop_input)
@@ -234,10 +234,11 @@ class MainWindow(QMainWindow):
 
         self.folder_to_desktop = QPushButton("Folder To Desktop")
         self.folder_to_desktop.setFixedWidth(175)
-        self.folder_to_desktop.setFixedHeight(40)
+        self.folder_to_desktop.setFixedHeight(35)
 
         # ---- Enumeration controls ----
-        self.enumerate_toggle = QCheckBox("CREATE MULTIPLE\nNUMBERED FOLDERS")
+        self.enumerate_toggle = QPushButton("CREATE MULTIPLE\nNUMBERED FOLDERS")
+        self.enumerate_toggle.setCheckable(True)
         self.enumerate_toggle.setFixedHeight(40)
         self.enumerate_toggle.setFixedWidth(175)
 
@@ -248,10 +249,10 @@ class MainWindow(QMainWindow):
         self.desktop_folder_number_enumerator.setEnabled(False)
 
         # ---- Timestamp controls ----
-        self.date_time_toggle = QCheckBox("ADD DATE STAMP")
+        self.date_time_toggle = QPushButton("ADD DATE STAMP")
+        self.date_time_toggle.setCheckable(True)
         self.date_time_toggle.setFixedHeight(35)
         self.date_time_toggle.setFixedWidth(175)
-        
         
         
 
@@ -330,7 +331,7 @@ class MainWindow(QMainWindow):
         self.desktop_date_frame.setStyleSheet(
             "border: 3px solid 4D4D4DFF;"
         )
-
+        
         desktop_date_layout.addWidget(self.date_time_toggle)
         desktop_date_layout.addWidget(self.date_time_config)
         desktop_date_layout.setAlignment(Qt.AlignCenter)
@@ -963,7 +964,7 @@ class MainWindow(QMainWindow):
         # self.desktop_folder_line.returnPressed.connect(self.folder_to_desktop.click)
         
         connections = [
-            (self.date_time_toggle.toggled, self.desktop_on_date_stamp_toggled),
+            (self.date_time_toggle.clicked,self.desktop_on_date_stamp_toggled),
             (self.folder_to_desktop.clicked, self.create_desktop_folder),
             (self.enumerate_toggle.toggled, self.on_enumerate_toggle),
             (self.date_time_config.currentIndexChanged, self.desktop_on_date_mode_changed),
@@ -1091,7 +1092,6 @@ class MainWindow(QMainWindow):
         min_after = state.get("minimize_after_build", False)
         self.minimize_after_build_toggle.setChecked(min_after)
 
-        
         enum_count = state.get("desktop_enumeration_count", 2)
         self.desktop_folder_number_enumerator.setValue(enum_count)
 
@@ -1100,7 +1100,6 @@ class MainWindow(QMainWindow):
         self.desktop_folder_number_enumerator.setEnabled(enum_enabled)
         
         self.desktop_folder_line.textChanged.connect(self.update_desktop_build_state)
-        
         
         self.update_desktop_build_state()
         
@@ -1525,13 +1524,14 @@ class MainWindow(QMainWindow):
         for i, btn in enumerate(self.theme_buttons):
             btn.setChecked(i == index)
     
-    def desktop_on_date_stamp_toggled(self, checked: bool):
+    def desktop_on_date_stamp_toggled(self, checked):
         self.date_time_config.setEnabled(checked)
 
         self.service.set_state(
             "desktop_date_stamp_enabled",
             checked
         )
+        
     
     def on_enumerate_toggle(self, checked: bool):
 
