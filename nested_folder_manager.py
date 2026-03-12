@@ -187,6 +187,7 @@ class NestedFolderManager:
                 item = self.tree.topLevelItem(i)
 
                 name = item.text(0).strip()
+           
 
                 if timestamp_mode:
                     
@@ -212,6 +213,7 @@ class NestedFolderManager:
                         
     def _mk_dirs(self, parent_dir, item):
         name = item.text(0).strip()
+        
         if not name:
             return
 

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QFileDialog,QTreeWidgetItemIterator,QAbstractItemView
-from PySide6.QtGui import Qt
+
 
 from pathlib import Path
 import os
