@@ -367,6 +367,8 @@ class NestedFolderManager:
             for child in children:
                 parent.addChild(child)
                 sort_item(child)
+                
+        
 
         # ---- Sort top level items ----
         roots = []
@@ -380,5 +382,16 @@ class NestedFolderManager:
             sort_item(root)
             
         self.expand_all_animated()
+        
+        # ensure something is selected
+        if self.tree.topLevelItemCount() > 0:
+            self.tree.setCurrentItem(self.tree.topLevelItem(0))
+
+        # refresh UI state
+        window = self.tree.window()
+        if hasattr(window, "update_build_button_state"):
+            window.update_build_button_state()
+        
+
         
         
