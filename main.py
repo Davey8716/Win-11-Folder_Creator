@@ -998,6 +998,7 @@ class MainWindow(QMainWindow):
             (self.load_template_btn.clicked, self.nested_ui.load_template),
             (self.expand_tree_btn.clicked,self.tree_gui_stretch),
             (self.tree.itemChanged, self.enforce_tree_name_limit),
+            (self.tree.itemChanged, self.update_nested_build_state)
             
         ]
 
@@ -1009,9 +1010,8 @@ class MainWindow(QMainWindow):
             lambda v: self.service.state_manager.update("open_folder_after_build", v)
         )
 
-        self.remove_all_btn.clicked.connect(
-            lambda: (self.service.nested_manager.remove_all_folders(), self.update_build_button_state())
-        )
+      
+    
         
         self.desktop_folder_number_enumerator.valueChanged.connect(
             lambda v: self.service.set_state("desktop_enumeration_count", v)
@@ -1024,10 +1024,23 @@ class MainWindow(QMainWindow):
         self.add_subfolder_btn.clicked.connect(
             lambda: (self.service.nested_manager.add_subfolder(), self.update_build_button_state())
         )
-                
-        self.remove_btn.clicked.connect(
-            lambda: (self.service.nested_manager.remove_selected_folders(), self.update_build_button_state())
+        
+        self.remove_all_btn.clicked.connect(
+            lambda: (
+                self.service.nested_manager.remove_all_folders(),
+                self.update_build_button_state(),
+                QTimer.singleShot(0, self.update_nested_build_state)
+            )
         )
+
+        self.remove_btn.clicked.connect(
+            lambda: (
+                self.service.nested_manager.remove_selected_folders(),
+                self.update_build_button_state(),
+                QTimer.singleShot(0, self.update_nested_build_state)
+            )
+        )
+        
         
         self.tree.itemSelectionChanged.connect(self.update_build_button_state)
         
@@ -1187,6 +1200,41 @@ class MainWindow(QMainWindow):
             self.tree.collapseAll()
 
         self.update_expand_button_text()
+        
+    
+    def update_nested_build_state(self):
+
+        item = self.tree.currentItem()
+
+        if not item:
+            self.smart_status_icon.setText(">")
+            self.smart_status_text.clear()
+            return
+
+        text = item.text(0).strip()
+
+        if not text:
+            self.smart_status_icon.setText("⚠")
+            self.smart_status_text.setText("Folder name cannot be empty.")
+            return
+
+        has_invalid = any(c in text for c in INVALID_FOLDER_CHARS or "")
+
+        if has_invalid:
+            self.smart_status_icon.setText("⚠")
+            self.smart_status_text.setText(
+                "Invalid characters detected. Remove <>:\"/\\|?* from folder name."
+            )
+
+        elif len(text) >= MAX_NESTED_FOLDER_NAME_LENGTH:
+            self.smart_status_icon.setText("⚠")
+            self.smart_status_text.setText(
+                f"Folder name limit is {MAX_NESTED_FOLDER_NAME_LENGTH} characters."
+            )
+
+        else:
+            self.smart_status_icon.setText(">")
+            self.smart_status_text.clear()
 
     def update_desktop_build_state(self):
 
@@ -1221,6 +1269,8 @@ class MainWindow(QMainWindow):
             self.desktop_status_text.clear()
             
     def update_build_button_state(self):
+        
+        
         
         has_invalid_chars = self.tree_contains_invalid_chars()
         
@@ -1331,9 +1381,26 @@ class MainWindow(QMainWindow):
                 "Invalid characters detected in folder names.\n "
                 "Remove <>:\"/\\|?* before building."
             )
+
+        # ---------------------------------------------------------
+        # Detect invalid folder names
+        # ---------------------------------------------------------
+        invalid_name_exists = False
+
+        iterator = QTreeWidgetItemIterator(self.tree)
+
+        while iterator.value():
+            name = iterator.value().text(0).strip()
+
+            if not name or any(c in name for c in INVALID_FOLDER_CHARS):
+                invalid_name_exists = True
+                break
+
+            iterator += 1
                 
+        
         # Build/remove
-        self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents and not has_invalid_chars)
+        self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents and not has_invalid_chars and not invalid_name_exists)
         self.remove_all_btn.setEnabled(has_items)
     
 

@@ -186,6 +186,8 @@ class SmartTreeWidget(QTreeWidget):
 
                 if hasattr(window, "update_build_button_state"):
                     window.update_build_button_state()
+                if hasattr(window, "update_nested_build_state"):
+                    window.update_nested_build_state()
 
             return
 
