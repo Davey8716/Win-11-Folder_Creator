@@ -129,7 +129,7 @@ class SmartTreeWidget(QTreeWidget):
     def keyPressEvent(self, event: QKeyEvent):
 
         window = self.window()
-
+        
         # ---------------------------------------------------------
         # Paste indented text
         # ---------------------------------------------------------
@@ -137,18 +137,25 @@ class SmartTreeWidget(QTreeWidget):
             clipboard = QApplication.clipboard()
             text = clipboard.text().strip()
 
-            if text:
-                try:
-                    data = window.service.nested_manager.parse_indented_text(text)
+            if not text:
+                return
 
-                    self.clear()
-                    window.service.nested_manager.deserialize_tree(data)
+            # ---- Block JSON pastes ----
+            stripped = text.lstrip()
+            if stripped.startswith("{") or stripped.startswith("["):
+                return
 
-                    if hasattr(window, "update_build_button_state"):
-                        window.update_build_button_state()
+            try:
+                data = window.service.nested_manager.parse_indented_text(text)
 
-                except Exception:
-                    pass
+                self.clear()
+                window.service.nested_manager.deserialize_tree(data)
+
+                if hasattr(window, "update_build_button_state"):
+                    window.update_build_button_state()
+
+            except Exception:
+                pass
 
             return
 
