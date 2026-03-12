@@ -1000,6 +1000,7 @@ class MainWindow(QMainWindow):
             (self.tree.saveTemplateShortcut, self.create_template_btn.click),
             (self.sort_btn.clicked, self.service.nested_manager.sort_tree),
             (self.desktop_folder_line.returnPressed, self.folder_to_desktop.click),
+            (self.tree.itemChanged, self.update_build_button_state)
         ]
 
         for signal, handler in connections:
