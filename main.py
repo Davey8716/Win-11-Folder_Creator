@@ -226,10 +226,10 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.setFixedWidth(175)
         self.desktop_folder_line.setFixedHeight(40)
         
-        self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self)
+        self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self.desktop_folder_line)
         self.rename_desktop_line_shortcut.activated.connect(self.rename_desktop_input)
-
-        self.clear_desktop_line_shortcut = QShortcut(QKeySequence(Qt.Key_Delete), self)
+        
+        self.clear_desktop_line_shortcut = QShortcut(QKeySequence(Qt.Key_Delete), self.desktop_folder_line)
         self.clear_desktop_line_shortcut.activated.connect(self.clear_desktop_input)
 
         self.folder_to_desktop = QPushButton("Folder To Desktop")
