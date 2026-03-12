@@ -1221,18 +1221,24 @@ class MainWindow(QMainWindow):
 
         self.find_btn.setEnabled(can_find)
         self.find_output_line.setEnabled(can_find)
+        
+        # ---------------------------------------------------------
+        # Detect duplicate parent folders
+        # ---------------------------------------------------------
+        parent_names = [
+            self.tree.topLevelItem(i).text(0).strip().lower()
+            for i in range(self.tree.topLevelItemCount())
+        ]
+
+        has_duplicate_parents = len(parent_names) != len(set(parent_names))
 
         # Build/remove
-        self.build_folders_btn.setEnabled(has_items)
+        self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents)
         self.remove_all_btn.setEnabled(has_items)
     
 
-        # Build/remove
-        self.build_folders_btn.setEnabled(has_items)
-        self.remove_all_btn.setEnabled(has_items)
-
         # Tree utilities
-        self.create_template_btn.setEnabled(has_items)
+        self.create_template_btn.setEnabled(has_items and not has_duplicate_parents)
         # self.load_default_template_dropdown.setDisabled(has_items)
         
         # ---------------------------------------------------------
