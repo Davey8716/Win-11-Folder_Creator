@@ -1203,14 +1203,22 @@ class MainWindow(QMainWindow):
 
         # Desktop button
         self.default_to_desktop_btn.setEnabled(not is_desktop)
-
-        # Search
         
-        # Search
-        visible_items = self.get_visible_tree_item_count()
+
+        # ---------------------------------------------------------
+        # Find button logic (adaptive to tree size)
+        # ---------------------------------------------------------
+
+        viewport_height = self.tree.viewport().height()
+        row_height = self.tree.sizeHintForRow(0)
+
+        visible_capacity = 0
+        if row_height > 0:
+            visible_capacity = max(1, viewport_height // row_height)
+
         total_items = self.get_total_tree_item_count()
 
-        can_find = visible_items > 8 or total_items > 8
+        can_find = total_items > visible_capacity
 
         self.find_btn.setEnabled(can_find)
         self.find_output_line.setEnabled(can_find)
@@ -1360,7 +1368,7 @@ class MainWindow(QMainWindow):
         return False
     
     def tree_gui_stretch(self):
-        
+
         if self.out_put_frame.isVisible():
 
             # hide output + status section
@@ -1375,6 +1383,9 @@ class MainWindow(QMainWindow):
             self.out_put_frame.show()
 
             self.expand_tree_btn.setText("EXPAND TREE")
+
+        # Recalculate UI state AFTER Qt finishes resizing
+        QTimer.singleShot(0, self.update_build_button_state)
     
         
     def toggle_mode(self):
