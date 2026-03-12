@@ -800,7 +800,8 @@ class MainWindow(QMainWindow):
         )
 
         # Buttons
-        self.expand_collapse_btn = QPushButton("EXPAND ALL")
+        self.expand_tree_btn = QPushButton("EXPAND TREE")
+        self.expand_folders_collapse_btn = QPushButton("EXPAND FOLDERS")
         self.sort_btn = QPushButton("SORT A/Z")
         self.find_btn = QPushButton("FIND")
         self.find_output_line = QLineEdit()
@@ -813,15 +814,16 @@ class MainWindow(QMainWindow):
 
 
         for btn in [
-            self.expand_collapse_btn,
+            self.expand_folders_collapse_btn,
             self.find_btn,
             self.sort_btn
         ]:
             btn.setMaximumHeight(40)
-            btn.setMaximumWidth(130)
-
-        tree_controls_layout.addWidget(self.expand_collapse_btn)
-        
+            btn.setMaximumWidth(190)
+            
+        tree_controls_layout.addWidget(self.expand_tree_btn)
+        # tree_controls_layout.addStretch()
+        tree_controls_layout.addWidget(self.expand_folders_collapse_btn)
         tree_controls_layout.addWidget(self.sort_btn)
         tree_controls_layout.addStretch()
         tree_controls_layout.addWidget(self.find_btn)
@@ -829,7 +831,7 @@ class MainWindow(QMainWindow):
         tree_controls_layout.addWidget(self.find_output_line)
         
         
-        self.expand_collapse_btn.setEnabled(False)
+        self.expand_folders_collapse_btn.setEnabled(False)
         self.find_btn.setEnabled(False)
         self.sort_btn.setEnabled(False)
 
@@ -977,9 +979,9 @@ class MainWindow(QMainWindow):
         connections = [
             (self.date_time_toggle.clicked,self.desktop_on_date_stamp_toggled),
             (self.folder_to_desktop.clicked, self.create_desktop_folder),
-            (self.enumerate_toggle.toggled, self.on_enumerate_toggle),
+            (self.enumerate_toggle.clicked, self.on_enumerate_toggle),
             (self.date_time_config.currentIndexChanged, self.desktop_on_date_mode_changed),
-            (self.expand_collapse_btn.clicked, self.toggle_tree_expand),
+            (self.expand_folders_collapse_btn.clicked, self.toggle_tree_expand),
             (self.tree.itemExpanded, self.update_expand_button_text),
             (self.tree.itemCollapsed, self.update_expand_button_text),
             (self.tree.addFolderShortcut, self.add_folder_btn.click),
@@ -989,6 +991,7 @@ class MainWindow(QMainWindow):
             (self.desktop_folder_line.returnPressed, self.folder_to_desktop.click),
             (self.tree.itemChanged, self.update_build_button_state),
             (self.load_template_btn.clicked, self.nested_ui.load_template),
+            (self.expand_tree_btn.clicked,self.tree_gui_stretch)
             
         ]
 
@@ -1290,7 +1293,7 @@ class MainWindow(QMainWindow):
 
 
         # Expand/collapse only useful if nesting exists
-        self.expand_collapse_btn.setEnabled(has_children)
+        self.expand_folders_collapse_btn.setEnabled(has_children)
 
         # Selection-dependent buttons
         self.remove_btn.setEnabled(has_selection)
@@ -1355,6 +1358,24 @@ class MainWindow(QMainWindow):
                     stack.append(child)
 
         return False
+    
+    def tree_gui_stretch(self):
+        
+        if self.out_put_frame.isVisible():
+
+            # hide output + status section
+            self.out_put_frame.hide()
+
+            # expand tree area
+            self.expand_tree_btn.setText("COLLAPSE TREE")
+
+        else:
+
+            # restore output section
+            self.out_put_frame.show()
+
+            self.expand_tree_btn.setText("EXPAND TREE")
+    
         
     def toggle_mode(self):
 
@@ -1667,9 +1688,16 @@ class MainWindow(QMainWindow):
     def update_expand_button_text(self):
 
         if self.tree_has_collapsed_nodes():
-            self.expand_collapse_btn.setText("EXPAND All")
+            self.expand_folders_collapse_btn.setText("EXPAND FOLDERS")
         else:
-            self.expand_collapse_btn.setText("COLLAPSE All")
+            self.expand_folders_collapse_btn.setText("COLLAPSE FOLDERS")
+            
+    def update_expand_tree(self):
+
+        if self.tree_gui_stretch():
+            self.expand_tree_btn.setText("EXPAND TREE")
+        else:
+            self.expand_tree_btn.setText("COLLAPSE TREE")
 
 def main():
     app = QApplication(sys.argv)
