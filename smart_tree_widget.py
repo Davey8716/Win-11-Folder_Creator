@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QTreeWidget
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtGui import QPainter,QColor
-from PySide6.QtWidgets import QTreeWidget,QApplication
+from PySide6.QtWidgets import QTreeWidget,QApplication,QAbstractItemView
 from PySide6.QtGui import QKeySequence
 from PySide6.QtCore import Qt, Signal
 
@@ -150,6 +150,11 @@ class SmartTreeWidget(QTreeWidget):
 
                 self.clear()
                 window.service.nested_manager.deserialize_tree(data)
+                
+                # ---- Select root item like other import methods ----
+                if self.topLevelItemCount() > 0:
+                    root = self.topLevelItem(0)
+                    self.setCurrentItem(root)
 
                 if hasattr(window, "update_build_button_state"):
                     window.update_build_button_state()
@@ -158,12 +163,16 @@ class SmartTreeWidget(QTreeWidget):
                 pass
 
             return
-
-
         # ---------------------------------------------------------
         # Delete key support
         # ---------------------------------------------------------
         if event.key() == Qt.Key_Delete:
+
+            # Ignore delete if user is editing text
+            if self.state() == QAbstractItemView.EditingState:
+                super().keyPressEvent(event)
+                return
+
             item = self.currentItem()
 
             if item:
@@ -175,12 +184,10 @@ class SmartTreeWidget(QTreeWidget):
                     index = self.indexOfTopLevelItem(item)
                     self.takeTopLevelItem(index)
 
-                # refresh UI state
                 if hasattr(window, "update_build_button_state"):
                     window.update_build_button_state()
 
             return
-
 
         # ---------------------------------------------------------
         # Ctrl + N  → Add Folder
