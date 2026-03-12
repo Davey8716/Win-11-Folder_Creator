@@ -19,7 +19,6 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QLabel,
     QSizePolicy,
-    QCheckBox,
     QComboBox,
     QGridLayout,QSpinBox,QHeaderView
 
@@ -875,9 +874,7 @@ class MainWindow(QMainWindow):
         build_layout.addWidget(self.output_location_btn)
         build_layout.addWidget(self.build_folders_btn)
         build_layout.setAlignment(Qt.AlignTop)
-           
-        
-        self.update_build_button_state()
+
 
         self.post_build_frame = QFrame()
         self.post_build_frame.setFrameShape(QFrame.StyledPanel)
@@ -1077,7 +1074,7 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
         last_base = state.get("last_base_dir", "")
         self.base_path_line.setText(last_base)
-        self.update_build_button_state()
+
 
         
         # Desktop Timestamp
@@ -1226,6 +1223,7 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
         # Detect duplicate parent folders
         # ---------------------------------------------------------
+
         parent_names = [
             self.tree.topLevelItem(i).text(0).strip().lower()
             for i in range(self.tree.topLevelItemCount())
@@ -1233,6 +1231,48 @@ class MainWindow(QMainWindow):
 
         has_duplicate_parents = len(parent_names) != len(set(parent_names))
 
+
+        # ---------------------------------------------------------
+        # Detect duplicate subfolders under any parent
+        # ---------------------------------------------------------
+
+        has_duplicate_children = False
+
+        for i in range(self.tree.topLevelItemCount()):
+            parent = self.tree.topLevelItem(i)
+
+            child_names = [
+                parent.child(j).text(0).strip().lower()
+                for j in range(parent.childCount())
+            ]
+
+            if len(child_names) != len(set(child_names)):
+                has_duplicate_children = True
+                break
+
+
+        # ---------------------------------------------------------
+        # Combine duplicate states
+        # ---------------------------------------------------------
+
+        has_duplicates = has_duplicate_parents or has_duplicate_children
+
+
+        # ---------------------------------------------------------
+        # Persistent warning for duplicate names
+        # ---------------------------------------------------------
+
+        if has_duplicates:
+            self.smart_status_icon.setText("⚠")
+            self.smart_status_text.setText(
+                "Duplicate folder names detected under the same parent. "
+                "Rename folders before building."
+            )
+        else:
+            if self.smart_status_text.text().startswith("Duplicate folder"):
+                self.smart_status_text.setText("")
+                self.smart_status_icon.setText(">")
+                
         # Build/remove
         self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents)
         self.remove_all_btn.setEnabled(has_items)
@@ -1240,7 +1280,6 @@ class MainWindow(QMainWindow):
 
         # Tree utilities
         self.save_template_btn.setEnabled(has_items and not has_duplicate_parents)
-        # self.load_default_template_dropdown.setDisabled(has_items)
         
         # ---------------------------------------------------------
         # Auto-number override
