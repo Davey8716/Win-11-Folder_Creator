@@ -5,6 +5,7 @@ from PySide6.QtCore import QDir
 from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QTreeWidgetItemIterator
+from desktop_folder_manager import DesktopFolderManager
 import re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
@@ -188,7 +189,7 @@ class NestedFolderManager:
                 name = item.text(0).strip()
 
                 if timestamp_mode:
-                    from desktop_folder_manager import DesktopFolderManager
+                    
                     stamp = DesktopFolderManager().build_timestamp(timestamp_mode)
                     name = f"{name}_{stamp}"
 
