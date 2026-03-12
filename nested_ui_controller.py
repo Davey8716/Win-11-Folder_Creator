@@ -369,13 +369,19 @@ class NestedUIController:
                 target="nested",
                 status_type="info"
             )
-
+            
         else:
-            self.window.set_status(
-                "No directory selected.",
-                target="nested",
-                status_type="error"
-            )
+            desktop_path = Path(self.service.desktop_manager.desktop_path).resolve()
+            current_path = Path(self.window.base_path_line.text().strip()).resolve()
+
+            if current_path == desktop_path:
+                pass
+            else:
+                self.window.set_status(
+                    "No directory selected.",
+                    target="nested",
+                    status_type="error"
+                )
 
 
     def default_to_desktop(self):
