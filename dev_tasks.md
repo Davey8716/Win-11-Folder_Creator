@@ -89,3 +89,16 @@
 - [x] template loader accepts markdown
 - [x] drag and drop function accepts markdown aswell
 - [x] main logic for accepting markdown
+- [x] dev tasks. txt
+- [x] Gui Refactor
+- [x] Merge pull request #9 from Davey8716/ui-logic-split
+- [x] Remove blank files
+- [x] renamed file
+- [x] Changed import on main
+- [x] Removed green text from here and main
+- [x] Added enter key logic for desktop folder creator
+- [x] Added in f2 rename and delete for desktop folder creator
+- [x] Visually seperated Template Save Location and Output Folder Location
+- [x] Styling changes v1
+- [x] Gui Fiddling
+- [x] Moregui tweaking and some things rolled into for loops
