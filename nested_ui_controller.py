@@ -527,8 +527,31 @@ class NestedUIController:
         except Exception:
             pass
 
+    # Mutual exclusion logic for the dropdowns, if a template is chosen on either dropdown and another tempalte is chose on the other dropdown
+    # the former reverts to 0 on the index .e.g title.
+    
+    def on_user_template_selected(self, index):
+        if index == 0:
+            return
+
+        # reset default dropdown
+        self.window.load_default_template_dropdown.setCurrentIndex(0)
+
+        self.load_user_template_from_dropdown()
+
+    def on_default_template_selected(self, index):
+        if index == 0:
+            return
+
+        # reset user dropdown
+        self.window.load_user_template_dropdown.setCurrentIndex(0)
+
+        self.load_default_template()
+
     def connect_signals(self):
         w = self.window
+        w.load_user_template_dropdown.currentIndexChanged.connect(self.on_user_template_selected)
+        w.load_default_template_dropdown.currentIndexChanged.connect(self.on_default_template_selected)
         w.load_default_template_dropdown.currentIndexChanged.connect(self.load_default_template)
         w.minimize_after_build_toggle.toggled.connect(lambda v: self.service.state_manager.update("minimize_after_build", v))
         w.tree.fileDropped.connect(self.load_template_from_path)
