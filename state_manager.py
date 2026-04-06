@@ -1,13 +1,12 @@
-import json
+import json,os
 from pathlib import Path
-
 
 class StateManager:
     def __init__(self):
-        self.app_dir = Path(__file__).parent
-        self.app_dir.mkdir(exist_ok=True)
+        self.app_dir = Path(os.getenv("LOCALAPPDATA")) / "FolderCreator"
+        self.app_dir.mkdir(parents=True, exist_ok=True)
 
-        self.state_file = self.app_dir / "state.json"
+        self.state_file = self.app_dir / "folder_creator_user_state.json"
 
         self.default_state = {
             "theme_index": 0,
