@@ -11,11 +11,163 @@ class NestedUIController:
         self.service = window.service
         self.tree = window.tree
         self._loading_template = False
+        self._current_loaded_template = None
         self.watcher = QFileSystemWatcher()
 
         user_dir = str(self.service.template_paths.user_dir)
         self.watcher.addPath(user_dir)
         self.watcher.directoryChanged.connect(self.refresh_user_templates_dropdown)
+
+    def load_template_dialog(self, parent):
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            parent,
+            "Load Template",
+            "",
+            "Templates (*.json *.txt *.md);;JSON Files (*.json);;Text Outline (*.txt)"
+        )
+
+        if not file_path:
+            return "cancelled", ""
+
+        try:
+            self.load_template_from_path(file_path)
+            return "success", "Template loaded"
+
+        except Exception:
+            return "error", "Error loading template"
+        
+    def load_template(self):
+
+        status, message = self.load_template_dialog(self.window)
+
+        if status == "success":
+            self.window.set_status(
+                message,
+                target="nested",
+                status_type="success"
+            )
+
+        elif status != "cancelled":
+            self.window.set_status(
+                message,
+                target="nested",
+                status_type="error"
+            )
+
+    def load_template_from_path(self, file_path):
+
+        try:
+            self._loading_template = True
+
+            if self.window.auto_enumerate_folders.isChecked():
+                self.window.auto_enumerate_folders.setChecked(False)
+
+            data = self.service.load_template_data(file_path)
+            if data is None:
+                self._loading_template = False
+                return
+
+            self.service.nested_manager.deserialize_tree(data)
+
+            self.service.save_to_user_templates(file_path)
+
+            self._current_loaded_template = Path(file_path).stem.replace("_", " ").title()
+
+            self.refresh_user_templates_dropdown()
+
+            dropdown = self.window.load_user_template_dropdown
+            index = dropdown.findText(self._current_loaded_template)
+            if index != -1:
+                dropdown.setCurrentIndex(index)
+
+            from PySide6.QtCore import QTimer
+
+            def finalize():
+                if self.tree.topLevelItemCount() > 0:
+                    root = self.tree.topLevelItem(0)
+                    self.tree.setCurrentItem(root)
+
+                self.service.nested_manager.expand_all_animated()
+                self.window.update_build_button_state()
+                self._loading_template = False
+
+            QTimer.singleShot(0, finalize)
+
+            self.window.set_status(
+                "Template loaded",
+                target="nested",
+                status_type="success"
+            )
+
+        except Exception:
+            self._loading_template = False
+            self.window.smart_status_text.setText("Error loading template")
+
+    def load_user_template_from_dropdown(self):
+        if self._loading_template:
+            return
+
+        text = self.window.load_user_template_dropdown.currentText()
+
+        if text == "User Templates":
+            self.tree.clear()
+            self.window.update_build_button_state()
+            return
+
+        base = "_".join(text.lower().split())
+        folder = self.service.template_paths.user_dir
+
+        matches = list(folder.glob(base + ".*"))
+
+        # ---- THIS is the missing guard ----
+        if not matches:
+            self.tree.clear()
+            self.window.update_build_button_state()
+            return
+
+        path = matches[0]
+
+        self.load_template_from_path(str(path))
+
+    def refresh_user_templates_dropdown(self):
+        dropdown = self.window.load_user_template_dropdown
+
+        dropdown.blockSignals(True)
+        dropdown.clear()
+
+        dropdown.addItem("User Templates")
+        dropdown.insertSeparator(dropdown.count())
+
+        for file in sorted(self.service.template_paths.user_dir.glob("*.*")):
+            name = file.stem.replace("_", " ").title()
+            dropdown.addItem(name)
+
+        dropdown.blockSignals(False)
+
+        # ---- FORCE dropdown to match current loaded template ----
+        active = self._current_loaded_template
+
+        if active:
+            index = dropdown.findText(active)
+            if index != -1:
+                dropdown.setCurrentIndex(index)
+
+        # ---- deletion handling ----
+        current_loaded = self._current_loaded_template
+
+        if current_loaded:
+            names = [
+                f.stem.replace("_", " ").title()
+                for f in self.service.template_paths.user_dir.glob("*.*")
+            ]
+
+            if current_loaded not in names:
+                self._current_loaded_template = None
+                dropdown.setCurrentIndex(0)
+                self.tree.clear()
+                self.window.update_build_button_state()
+        
 
     def user_template_save(self):
 
@@ -70,58 +222,7 @@ class NestedUIController:
         else:
             self.window.set_status(message, target="nested", status_type="error")
 
-    def refresh_user_templates_dropdown(self):
-        dropdown = self.window.load_user_template_dropdown
 
-        dropdown.blockSignals(True)
-        dropdown.clear()
-
-        dropdown.addItem("User Templates")
-        dropdown.insertSeparator(dropdown.count())
-
-        names = []
-        for file in sorted(self.service.template_paths.user_dir.glob("*.*")):
-            name = file.stem.replace("_", " ").title()
-            names.append(name)
-            dropdown.addItem(name)
-
-        dropdown.blockSignals(False)
-
-        # ---- only clear if the ACTUAL loaded template was deleted ----
-        current_loaded = getattr(self, "_current_loaded_template", None)
-
-        if current_loaded and current_loaded not in names:
-            self._current_loaded_template = None
-            dropdown.setCurrentIndex(0)
-            self.tree.clear()
-            self.window.update_build_button_state()
-
-    def load_user_template_from_dropdown(self):
-        if self._loading_template:
-            return
-
-        text = self.window.load_user_template_dropdown.currentText()
-
-        if text == "User Templates":
-            self.tree.clear()
-            self.window.update_build_button_state()
-            return
-
-        base = "_".join(text.lower().split())
-        folder = self.service.template_paths.user_dir
-
-        matches = list(folder.glob(base + ".*"))
-
-        # ---- THIS is the missing guard ----
-        if not matches:
-            self.tree.clear()
-            self.window.update_build_button_state()
-            return
-
-        path = matches[0]
-
-        self.load_template_from_path(str(path))
-                
     def on_sort_tree(self):
 
         if self.tree.topLevelItemCount() == 0:
@@ -255,90 +356,7 @@ class NestedUIController:
 
         self.user_template_save()
 
-    def load_template_dialog(self, parent):
-
-        file_path, _ = QFileDialog.getOpenFileName(
-            parent,
-            "Load Template",
-            "",
-            "Templates (*.json *.txt *.md);;JSON Files (*.json);;Text Outline (*.txt)"
-        )
-
-        if not file_path:
-            return "cancelled", ""
-
-        try:
-            self.load_template_from_path(file_path)
-            return "success", "Template loaded"
-
-        except Exception:
-            return "error", "Error loading template"
-        
-    def load_template(self):
-
-        status, message = self.load_template_dialog(self.window)
-
-        if status == "success":
-            self.window.set_status(
-                message,
-                target="nested",
-                status_type="success"
-            )
-
-        elif status != "cancelled":
-            self.window.set_status(
-                message,
-                target="nested",
-                status_type="error"
-            )
-
-    def load_template_from_path(self, file_path):
-
-        try:
-            self._loading_template = True
-
-            if self.window.auto_enumerate_folders.isChecked():
-                self.window.auto_enumerate_folders.setChecked(False)
-
-            data = self.service.load_template_data(file_path)
-            if data is None:
-                self._loading_template = False
-                return
-
-            self.service.nested_manager.deserialize_tree(data)
-
-            self.service.save_to_user_templates(file_path)
-
-            loaded_name = Path(file_path).stem.replace("_", " ").title()
-
-            # ---- track currently loaded template ----
-            self._current_loaded_template = loaded_name
-
-            # rebuild dropdown and force it onto the loaded template
-            self.refresh_user_templates_dropdown(selected_name=loaded_name)
-
-            from PySide6.QtCore import QTimer
-
-            def finalize():
-                if self.tree.topLevelItemCount() > 0:
-                    root = self.tree.topLevelItem(0)
-                    self.tree.setCurrentItem(root)
-
-                self.service.nested_manager.expand_all_animated()
-                self.window.update_build_button_state()
-                self._loading_template = False
-
-            QTimer.singleShot(0, finalize)
-
-            self.window.set_status(
-                "Template loaded",
-                target="nested",
-                status_type="success"
-            )
-
-        except Exception:
-            self._loading_template = False
-            self.window.smart_status_text.setText("Error loading template")
+   
 
     def nested_on_date_stamp_toggled(self, checked: bool):
 

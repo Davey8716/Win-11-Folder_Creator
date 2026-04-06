@@ -24,8 +24,6 @@ from PySide6.QtWidgets import (
 
 )
 
-
-
 INVALID_FOLDER_CHARS = '<>:"/\\|?*'
 MAX_NESTED_FOLDER_NAME_LENGTH = 64
 
