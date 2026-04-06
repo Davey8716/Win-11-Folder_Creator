@@ -175,25 +175,6 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(header_grid)
         main_layout.addSpacing(5)
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
                 
         # ==========================================================
         # FRAME 1 — FULL OUTER FRAME INCLUDES 3 INNER FRAMES + STATUS FRAMES
@@ -216,7 +197,6 @@ class MainWindow(QMainWindow):
         desktop_controls_layout.setContentsMargins(4,4,4,4)
         desktop_controls_layout.setHorizontalSpacing(10)
    
-
         # ==========================================================
         # Create widgets
         # ==========================================================
@@ -225,7 +205,6 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.setFixedWidth(175)
         self.desktop_folder_line.setFixedHeight(40)
         self.desktop_folder_line.setMaxLength(64)
-        
         
         
         self.rename_desktop_line_shortcut = QShortcut(QKeySequence("F2"), self.desktop_folder_line)
@@ -255,8 +234,6 @@ class MainWindow(QMainWindow):
         self.date_time_toggle.setCheckable(True)
         self.date_time_toggle.setFixedHeight(40)
         self.date_time_toggle.setFixedWidth(175)
-        
-        
 
         self.date_time_config = QComboBox()
         self.date_time_config.setFixedWidth(175)
@@ -1009,9 +986,12 @@ class MainWindow(QMainWindow):
             lambda v: self.service.state_manager.update("open_folder_after_build", v)
         )
 
-      
-    
-        
+        self.load_user_template_dropdown.currentIndexChanged.connect(
+            self.nested_ui.load_user_template_from_dropdown
+        )
+
+        self.nested_ui.refresh_user_templates_dropdown()
+            
         self.desktop_folder_number_enumerator.valueChanged.connect(
             lambda v: self.service.set_state("desktop_enumeration_count", v)
         )
@@ -1040,7 +1020,6 @@ class MainWindow(QMainWindow):
             )
         )
         
-        
         self.tree.itemSelectionChanged.connect(self.update_build_button_state)
         
         theme_index = state.get("theme_index", 0)
@@ -1056,7 +1035,6 @@ class MainWindow(QMainWindow):
             timer.setSingleShot(True)
             timer.timeout.connect(lambda t=target: self.reset_status(t))
             setattr(self, attr, timer)
-
 
         state = self.service.state
         self.current_mode = state.get("ui_mode", "desktop")
@@ -1096,8 +1074,6 @@ class MainWindow(QMainWindow):
         last_base = state.get("last_base_dir", "")
         self.base_path_line.setText(last_base)
 
-
-        
         # Desktop Timestamp
         self.restore_timestamp_state(
             self.date_time_toggle,
@@ -1113,7 +1089,6 @@ class MainWindow(QMainWindow):
             "nested_date_stamp_enabled",
             "nested_date_stamp_mode"
         )
-
 
         # ---------------------------------------------------------
         # Auto Number Nested Folders
@@ -1159,7 +1134,6 @@ class MainWindow(QMainWindow):
         self.desktop_folder_line.setFocus()
         self.desktop_folder_line.selectAll()
 
-
     def clear_desktop_input(self):
         if self.current_mode != "desktop":
             return
@@ -1200,7 +1174,6 @@ class MainWindow(QMainWindow):
 
         self.update_expand_button_text()
         
-    
     def update_nested_build_state(self):
 
         item = self.tree.currentItem()
@@ -1269,8 +1242,6 @@ class MainWindow(QMainWindow):
             
     def update_build_button_state(self):
         
-        
-        
         has_invalid_chars = self.tree_contains_invalid_chars()
         
         default_template_loaded = (
@@ -1292,8 +1263,6 @@ class MainWindow(QMainWindow):
         if not has_children:
             self.sort_btn.setEnabled(False)
 
-        
-
         # Detect desktop path
         desktop_path = str(self.service.desktop_manager.desktop_path)
         current_path = self.base_path_line.text().strip()
@@ -1302,7 +1271,6 @@ class MainWindow(QMainWindow):
         # Desktop button
         self.default_to_desktop_btn.setEnabled(not is_desktop)
         
-
         # ---------------------------------------------------------
         # Find button logic (adaptive to tree size)
         # ---------------------------------------------------------
@@ -1332,7 +1300,6 @@ class MainWindow(QMainWindow):
 
         has_duplicate_parents = len(parent_names) != len(set(parent_names))
 
-
         # ---------------------------------------------------------
         # Detect duplicate subfolders under any parent
         # ---------------------------------------------------------
@@ -1351,13 +1318,11 @@ class MainWindow(QMainWindow):
                 has_duplicate_children = True
                 break
 
-
         # ---------------------------------------------------------
         # Combine duplicate states
         # ---------------------------------------------------------
 
         has_duplicates = has_duplicate_parents or has_duplicate_children
-
 
         # ---------------------------------------------------------
         # Persistent warning for duplicate names
@@ -1396,13 +1361,11 @@ class MainWindow(QMainWindow):
                 break
 
             iterator += 1
-                
-        
+            
         # Build/remove
         self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents and not has_invalid_chars and not invalid_name_exists)
         self.remove_all_btn.setEnabled(has_items)
     
-
         # Tree utilities
         self.save_template_btn.setEnabled(has_items and not has_duplicate_parents)
         
@@ -1463,7 +1426,6 @@ class MainWindow(QMainWindow):
 
         self.sort_btn.setEnabled(can_sort)
 
-
         # Expand/collapse only useful if nesting exists
         self.expand_folders_collapse_btn.setEnabled(has_children)
 
@@ -1479,7 +1441,6 @@ class MainWindow(QMainWindow):
             self.auto_enumerate_folders.setEnabled(False)
         else:
             self.auto_enumerate_folders.setEnabled(True)
-            
             
     def get_total_tree_item_count(self):
         count = 0
@@ -1551,7 +1512,6 @@ class MainWindow(QMainWindow):
         # Recalculate UI state AFTER Qt finishes resizing
         QTimer.singleShot(0, self.update_build_button_state)
     
-        
     def toggle_mode(self):
 
         if self.current_mode == "desktop":
@@ -1580,7 +1540,6 @@ class MainWindow(QMainWindow):
 
             self.setFixedSize(650, self.desktop_mode_height)
 
-    
     def change_accent_theme(self, index: int):
         accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
@@ -1589,9 +1548,7 @@ class MainWindow(QMainWindow):
         accent = self.service.apply_theme(index)
         self.apply_accent_styles(accent)
         
-
     def apply_accent_styles(self, accent_color: str):
-
 
         # ---- Section labels ----
         title_2 = [
@@ -1647,7 +1604,6 @@ class MainWindow(QMainWindow):
 
         self.current_accent_color = accent_color
         
-        
         # ---- Status icons ----
         for icon in [
             self.desktop_status_icon,
@@ -1698,7 +1654,6 @@ class MainWindow(QMainWindow):
         icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
         text_label.setText(message)
 
-
     def reset_status(self, target: str):
 
         accent = self.service.theme_controller.current_accent
@@ -1725,7 +1680,6 @@ class MainWindow(QMainWindow):
                 font-size: 12px;
             }
         """)
-        
         
     ####################### Desktop Folder Creator methods #################################
     
@@ -1767,7 +1721,6 @@ class MainWindow(QMainWindow):
             checked
         )
         
-    
     def on_enumerate_toggle(self, checked: bool):
 
         self.desktop_folder_number_enumerator.setEnabled(checked)

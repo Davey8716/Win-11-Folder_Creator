@@ -187,7 +187,6 @@ class NestedFolderManager:
                 item = self.tree.topLevelItem(i)
 
                 name = item.text(0).strip()
-           
 
                 if timestamp_mode:
                     
@@ -307,8 +306,6 @@ class NestedFolderManager:
         selected.setExpanded(True)
         self.tree.editItem(child, 0)
         
-    
-
     def remove_all_folders(self):
         self.tree.clear()
 

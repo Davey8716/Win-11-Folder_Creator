@@ -1,9 +1,10 @@
 from desktop_folder_manager import DesktopFolderManager
 from nested_folder_manager import NestedFolderManager
-from template_IO_layer import TemplateService
+from template_IO_layer import TemplateService, TemplatePaths
 from state_manager import StateManager
 from theme_controller import ThemeController
-
+from pathlib import Path
+from shutil import copy
 
 class AppService:
 
@@ -13,6 +14,7 @@ class AppService:
         self.template_service = TemplateService()
         self.state_manager = StateManager()
         self.theme_controller = ThemeController()
+        self.template_paths =  TemplatePaths()
 
         self.state = self.state_manager.load_state()
 
@@ -48,17 +50,20 @@ class AppService:
 
     def save_template(self, parent):
         return self.template_service.save_from_tree(parent, self.nested_manager)
-
-    def load_template_dialog(self, parent):
-        return self.template_service.load_into_tree(parent, self.nested_manager)
-
-    def load_template_from_path(self, path):
+    
+    def load_template_data(self, path):
         data = self.template_service.load_template(
             path,
             self.nested_manager.parse_indented_text
         )
+        return data if data is not None else None
 
-        self.nested_manager.deserialize_tree(data)
+    def save_to_user_templates(self, path):
+        src = Path(path)
+        dst = self.template_paths.user_dir / src.name
+
+        if src.resolve() != dst.resolve():
+            copy(src, dst)
 
     # ---------------------------------------------------------
     # State persistence

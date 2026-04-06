@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QFileDialog,QTreeWidgetItemIterator,QAbstractItemView
+from PySide6.QtCore import QFileSystemWatcher
 from pathlib import Path
+from shutil import copy
 import os
 
 class NestedUIController:
@@ -8,7 +10,118 @@ class NestedUIController:
         self.window = window
         self.service = window.service
         self.tree = window.tree
-        
+        self._loading_template = False
+        self.watcher = QFileSystemWatcher()
+
+        user_dir = str(self.service.template_paths.user_dir)
+        self.watcher.addPath(user_dir)
+        self.watcher.directoryChanged.connect(self.refresh_user_templates_dropdown)
+
+    def user_template_save(self):
+
+        start_dir = self.window.template_path_line.text().strip()
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self.window,
+            "Save Template",
+            start_dir,
+            "Templates (*.json *.txt *.md);;JSON (*.json);;Text (*.txt);;Markdown (*.md)"
+        )
+
+        if not file_path:
+            return
+
+        directory = str(Path(file_path).parent.resolve())
+        self.window.template_path_line.setText(directory)
+
+        data = self.service.nested_manager.serialize_tree()
+
+        suffix = Path(file_path).suffix.lower()
+
+        if suffix == ".json":
+            status, message = self.service.template_service.save_json(file_path, data)
+
+        else:
+            text = self.tree_to_outline(data)
+
+            try:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(text)
+
+                status = "success"
+                message = "Template exported"
+
+            except Exception:
+                status = "error"
+                message = "Error saving template"
+
+        if status == "success":
+            self.window.set_status(message, target="nested", status_type="success")
+
+            appdata_target = self.service.template_paths.user_dir / Path(file_path).name
+
+            copy(file_path, appdata_target)
+
+            print("Copied to:", appdata_target)
+            print("Exists:", appdata_target.exists())
+
+            self.refresh_user_templates_dropdown()
+
+        else:
+            self.window.set_status(message, target="nested", status_type="error")
+
+    def refresh_user_templates_dropdown(self):
+        dropdown = self.window.load_user_template_dropdown
+
+        dropdown.blockSignals(True)
+        dropdown.clear()
+
+        dropdown.addItem("User Templates")
+        dropdown.insertSeparator(dropdown.count())
+
+        names = []
+        for file in sorted(self.service.template_paths.user_dir.glob("*.*")):
+            name = file.stem.replace("_", " ").title()
+            names.append(name)
+            dropdown.addItem(name)
+
+        dropdown.blockSignals(False)
+
+        # ---- only clear if the ACTUAL loaded template was deleted ----
+        current_loaded = getattr(self, "_current_loaded_template", None)
+
+        if current_loaded and current_loaded not in names:
+            self._current_loaded_template = None
+            dropdown.setCurrentIndex(0)
+            self.tree.clear()
+            self.window.update_build_button_state()
+
+    def load_user_template_from_dropdown(self):
+        if self._loading_template:
+            return
+
+        text = self.window.load_user_template_dropdown.currentText()
+
+        if text == "User Templates":
+            self.tree.clear()
+            self.window.update_build_button_state()
+            return
+
+        base = "_".join(text.lower().split())
+        folder = self.service.template_paths.user_dir
+
+        matches = list(folder.glob(base + ".*"))
+
+        # ---- THIS is the missing guard ----
+        if not matches:
+            self.tree.clear()
+            self.window.update_build_button_state()
+            return
+
+        path = matches[0]
+
+        self.load_template_from_path(str(path))
+                
     def on_sort_tree(self):
 
         if self.tree.topLevelItemCount() == 0:
@@ -85,72 +198,19 @@ class NestedUIController:
             status_type="error"
         )
     
-    
     def remove_all_folders(self):
-
         self.service.nested_manager.remove_all_folders()
-
         self.window.load_default_template_dropdown.setCurrentIndex(0)
-
         self.window.update_build_button_state()
         
-    
     def toggle_auto_number_folders(self, checked: bool):
-
         self.service.nested_manager.auto_number_enabled = checked
-
         self.service.set_state(
             "nested_auto_number_enabled",
             checked
         )
 
-        
-    def user_template_save(self):
-
-        start_dir = self.window.template_path_line.text().strip()
-
-        file_path, _ = QFileDialog.getSaveFileName(
-            self.window,
-            "Save Template",
-            start_dir,
-            "Templates (*.json *.txt *.md);;JSON (*.json);;Text (*.txt);;Markdown (*.md)"
-        )
-
-        if not file_path:
-            return
-
-        directory = str(Path(file_path).parent.resolve())
-        self.window.template_path_line.setText(directory)
-
-        data = self.service.nested_manager.serialize_tree()
-
-        suffix = Path(file_path).suffix.lower()
-
-        if suffix == ".json":
-            status, message = self.service.template_service.save_json(file_path, data)
-
-        else:
-            text = self.tree_to_outline(data)
-
-            try:
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(text)
-
-                status = "success"
-                message = "Template exported"
-
-            except Exception:
-                status = "error"
-                message = "Error saving template"
-
-        if status == "success":
-            self.window.set_status(message, target="nested", status_type="success")
-        else:
-            self.window.set_status(message, target="nested", status_type="error")
-
-
     def load_default_template(self):
-
         text = self.window.load_default_template_dropdown.currentText()
 
         if text == "Default Templates":
@@ -160,7 +220,7 @@ class NestedUIController:
 
         filename = text.lower().replace(" ", "_") + ".txt"
 
-        template_path = Path(r"C:\Users\davey\Desktop\Folder Creator\templates") / filename
+        template_path = self.service.template_paths.default_dir / filename
 
         if not template_path.exists():
             return
@@ -183,7 +243,6 @@ class NestedUIController:
 
         self.window.update_build_button_state()
         
-
     def create_template(self):
 
         if self.tree.topLevelItemCount() == 0:
@@ -195,21 +254,31 @@ class NestedUIController:
             return
 
         self.user_template_save()
+
+    def load_template_dialog(self, parent):
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            parent,
+            "Load Template",
+            "",
+            "Templates (*.json *.txt *.md);;JSON Files (*.json);;Text Outline (*.txt)"
+        )
+
+        if not file_path:
+            return "cancelled", ""
+
+        try:
+            self.load_template_from_path(file_path)
+            return "success", "Template loaded"
+
+        except Exception:
+            return "error", "Error loading template"
         
     def load_template(self):
 
-        status, message = self.service.load_template_dialog(self.window)
+        status, message = self.load_template_dialog(self.window)
 
         if status == "success":
-
-            # Ensure something is selected (needed for some UI logic)
-            if self.tree.topLevelItemCount() > 0:
-                root = self.tree.topLevelItem(0)
-                self.tree.setCurrentItem(root)
-
-            # Recalculate UI state (duplicates, build button, sort etc.)
-            self.window.update_build_button_state()
-
             self.window.set_status(
                 message,
                 target="nested",
@@ -223,37 +292,61 @@ class NestedUIController:
                 status_type="error"
             )
 
-
     def load_template_from_path(self, file_path):
 
         try:
+            self._loading_template = True
 
             if self.window.auto_enumerate_folders.isChecked():
                 self.window.auto_enumerate_folders.setChecked(False)
 
-            self.service.load_template_from_path(file_path)
+            data = self.service.load_template_data(file_path)
+            if data is None:
+                self._loading_template = False
+                return
 
-            self.window.update_build_button_state()
+            self.service.nested_manager.deserialize_tree(data)
+
+            self.service.save_to_user_templates(file_path)
+
+            loaded_name = Path(file_path).stem.replace("_", " ").title()
+
+            # ---- track currently loaded template ----
+            self._current_loaded_template = loaded_name
+
+            # rebuild dropdown and force it onto the loaded template
+            self.refresh_user_templates_dropdown(selected_name=loaded_name)
+
+            from PySide6.QtCore import QTimer
+
+            def finalize():
+                if self.tree.topLevelItemCount() > 0:
+                    root = self.tree.topLevelItem(0)
+                    self.tree.setCurrentItem(root)
+
+                self.service.nested_manager.expand_all_animated()
+                self.window.update_build_button_state()
+                self._loading_template = False
+
+            QTimer.singleShot(0, finalize)
 
             self.window.set_status(
-                "Template loaded via drag & drop",
+                "Template loaded",
                 target="nested",
                 status_type="success"
             )
 
         except Exception:
-            self.window.smart_status_text.setText("Error loading dropped file")
-
+            self._loading_template = False
+            self.window.smart_status_text.setText("Error loading template")
 
     def nested_on_date_stamp_toggled(self, checked: bool):
 
         self.window.nested_date_config.setEnabled(checked)
-
         self.service.set_state(
             "nested_date_stamp_enabled",
             checked
         )
-
 
     def nested_on_date_mode_changed(self, index: int):
 
@@ -273,7 +366,6 @@ class NestedUIController:
             mode
         )
 
-
     def tree_to_outline(self, data, depth=0):
 
         lines = []
@@ -285,7 +377,6 @@ class NestedUIController:
                 lines.append(self.tree_to_outline(node["children"], depth + 1))
 
         return "\n".join(lines)
-
 
     def build_folders_from_tree(self):
 
@@ -338,19 +429,16 @@ class NestedUIController:
     def minimize_after_build(self):
         self.window.showMinimized()
 
-
     def open_output_folder(self, path: str):
 
         p = Path(path)
 
         if not p.exists():
             return
-
         try:
             os.startfile(str(p))
         except Exception:
             pass
-
 
     def select_base_directory(self):
 
@@ -360,7 +448,6 @@ class NestedUIController:
         )
 
         if directory:
-
             desktop_path = Path(self.service.desktop_manager.desktop_path).resolve()
             current_path = Path(self.window.base_path_line.text().strip()).resolve()
             selected_path = Path(directory).resolve()
@@ -378,9 +465,7 @@ class NestedUIController:
             normalized = str(selected_path)
 
             self.window.base_path_line.setText(normalized)
-
             self.service.set_state("last_base_dir", normalized)
-
             self.window.update_build_button_state()
 
             self.window.set_status(
@@ -402,17 +487,12 @@ class NestedUIController:
                     status_type="error"
                 )
 
-
     def default_to_desktop(self):
 
         desktop_path = self.service.desktop_manager.desktop_path
-
         self.window.base_path_line.setText(str(desktop_path))
-
         self.service.set_state("last_base_dir", str(desktop_path))
-
         self.window.update_build_button_state()
-
         self.window.set_status(
             "Base directory set to Desktop.",
             target="nested",
@@ -420,52 +500,29 @@ class NestedUIController:
         )
         
     def open_output_folder(self, path: str):
-
         p = Path(path)
 
         if not p.exists():
             return
-
         try:
             os.startfile(str(p))
         except Exception:
             pass
 
-    
-    
-        
     def connect_signals(self):
-
         w = self.window
-
         w.load_default_template_dropdown.currentIndexChanged.connect(self.load_default_template)
-
-        w.minimize_after_build_toggle.toggled.connect(
-            lambda v: self.service.state_manager.update("minimize_after_build", v)
-        )
-
+        w.minimize_after_build_toggle.toggled.connect(lambda v: self.service.state_manager.update("minimize_after_build", v))
         w.tree.fileDropped.connect(self.load_template_from_path)
-
         w.sort_btn.clicked.connect(self.on_sort_tree)
-
         w.tree.loadTemplateShortcut.connect(self.load_template)
-
         w.find_btn.clicked.connect(self.find_folder_in_tree)
-
         w.find_output_line.returnPressed.connect(self.find_folder_in_tree)
-
         w.auto_enumerate_folders.toggled.connect(self.toggle_auto_number_folders)
-
         w.save_template_btn.clicked.connect(self.create_template)
-
         w.remove_all_btn.clicked.connect(self.remove_all_folders)
-
         w.nested_date_toggle.toggled.connect(self.nested_on_date_stamp_toggled)
-
         w.build_folders_btn.clicked.connect(self.build_folders_from_tree)
-
         w.nested_date_config.currentIndexChanged.connect(self.nested_on_date_mode_changed)
-
         w.output_location_btn.clicked.connect(self.select_base_directory)
-
         w.default_to_desktop_btn.clicked.connect(self.default_to_desktop)

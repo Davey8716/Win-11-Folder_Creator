@@ -1,7 +1,42 @@
 import json
+import sys
+import os
+import sys
+import shutil
 from typing import Any
 from PySide6.QtWidgets import QFileDialog
+from pathlib import Path
 
+class TemplatePaths:
+
+    def __init__(self):
+        self.appdata_dir = Path(os.getenv("LOCALAPPDATA")) / "FolderCreator"
+
+        # ✅ separate folders
+        self.default_dir = self.appdata_dir / "default_templates"
+        self.user_dir = self.appdata_dir / "user_templates"
+
+        self.default_dir.mkdir(parents=True, exist_ok=True)
+        self.user_dir.mkdir(parents=True, exist_ok=True)
+
+        # bundled defaults (source only)
+        if getattr(sys, "frozen", False):
+            self.bundle_dir = Path(sys._MEIPASS) / "Default Templates"
+        else:
+            self.bundle_dir = Path(__file__).resolve().parent / "Default Templates"
+
+        self._ensure_templates()
+
+    def _ensure_templates(self):
+        if any(self.default_dir.iterdir()):
+            return
+
+        if not self.bundle_dir.exists():
+            return
+
+        for file in self.bundle_dir.glob("*.txt"):
+            shutil.copy(file, self.default_dir / file.name)
+    
 class TemplateService:
     # ---------------------------------------------------------
     # Save
@@ -27,21 +62,27 @@ class TemplateService:
     def load_template(self, file_path: str, text_parser):
         """
         Loads either JSON template or indented text template.
-        Returns deserialized tree data.
+        Returns deserialized tree data or None on failure.
         """
 
-        if file_path.lower().endswith(".json"):
-            with open(file_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+        path = file_path.lower()
 
-        elif file_path.lower().endswith((".txt",".md")):
-            with open(file_path, "r", encoding="utf-8") as f:
-                text = f.read()
-            return text_parser(text)
+        try:
+            if path.endswith(".json"):
+                with open(file_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
 
-        else:
-            raise ValueError("Unsupported file type")
+            elif path.endswith((".txt", ".md")):
+                with open(file_path, "r", encoding="utf-8") as f:
+                    text = f.read()
+                return text_parser(text)
 
+            else:
+                return None  # ← don’t crash
+
+        except Exception:
+            return None  # ← safe fallback
+        
     # ---------------------------------------------------------
     # Load
     # ---------------------------------------------------------
