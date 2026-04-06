@@ -529,7 +529,7 @@ class NestedUIController:
 
     # Mutual exclusion logic for the dropdowns, if a template is chosen on either dropdown and another tempalte is chose on the other dropdown
     # the former reverts to 0 on the index .e.g title.
-    
+
     def on_user_template_selected(self, index):
         if index == 0:
             return
