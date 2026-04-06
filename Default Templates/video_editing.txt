@@ -1,0 +1,20 @@
+Video_Project
+    Footage
+        Camera_A
+        Camera_B
+        Broll
+    Audio
+        Dialogue
+        VO
+        SFX
+    Music
+    Graphics
+        Thumbnails
+        Lower_Thirds
+    Project_Files
+        NLE
+        Proxies
+    Exports
+        Review
+        Final
+        Archive

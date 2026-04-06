@@ -1,0 +1,19 @@
+Project
+    src
+        core
+        utils
+        services
+    tests
+        unit
+        integration
+    docs
+        design
+        api
+    assets
+        images
+        data
+    configs
+        dev
+        prod
+    scripts
+    builds

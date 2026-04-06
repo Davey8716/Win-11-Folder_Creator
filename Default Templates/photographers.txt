@@ -1,0 +1,15 @@
+Client_Project
+    Shoot
+        RAW
+        Selects
+    Edit
+        Working
+        Finals
+    Exports
+        High_Resolution
+        Web
+        Social
+    Delivery
+        Client
+        Archive
+    Prints

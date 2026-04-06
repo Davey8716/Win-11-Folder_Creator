@@ -1,0 +1,21 @@
+Project
+    data
+        raw
+        interim
+        processed
+        external
+    notebooks
+        exploration
+        reports
+    src
+        features
+        models
+        visualization
+    models
+        trained
+    results
+        figures
+        tables
+    reports
+        slides
+        papers

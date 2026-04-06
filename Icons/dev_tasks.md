@@ -1,0 +1,104 @@
+- [x] Initial commit
+- [x] Add project structure templates and test assets
+- [x] Add video project folder template JSON
+- [x] Add template/theme services and refactor UI
+- [x] Refactor timestamp logic; UI spacing & wiring tweaks
+- [x] Remove desktop and smart folder modules
+- [x] Add NestedFolderManager and DesktopFolderManager
+- [x] Unify status UI and refactor folder builders
+- [x] Unique names for new folders; reorder buttons
+- [x] Disable date-related config widgets by default
+- [x] Add placeholder text support to SmartTreeWidget
+- [x] Add drag-and-drop support to SmartTreeWidget
+- [x] Use grid layout for folder controls
+- [x] Remove test and template files
+- [x] Add toggle to enable/disable auto-numbering
+- [x] Auto-clear status texts with timers
+- [x] Use '>' instead of bullet for status icons
+- [x] Add state.json and state_manager.py
+- [x] Remove video_project_template.json
+- [x] Persist UI state and add Delete key handling
+- [x] Animate tree widget and progressive expand
+- [x] Guard item.setExpanded to avoid RuntimeError
+- [x] Disable Load Template button; add __pycache__
+- [x] Create Screenshot 2026-03-05 124720.png
+- [x] Rename nested_manager and add template dropdowns
+- [x] Refine UI layout and combo box alignment
+- [x] Add build toggles and adjust UI layout
+- [x] Adjust desktop input width and button label
+- [x] Add build controls and refactor layout/styles
+- [x] Merge pull request #1 from Davey8716/Templates-loading-drop-downs
+- [x] Update
+- [x] Merge branch 'main' of https://github.com/Davey8716/Folder_Creator
+- [x] Refactor UI layouts and add build toggles
+- [x] Merge pull request #2 from Davey8716/flipping-workflow-hierarchy
+- [x] Refactor main UI layout and widget frames
+- [x] Refactor UI layouts into modular frames
+- [x] Update main.py
+- [x] Reduce expand_all_animated default delay
+- [x] Add UI mode toggle with persisted state
+- [x] Merge pull request #3 from Davey8716/Gui-sizing
+- [x] Update main.py
+- [x] Add AppService and refactor MainWindow
+- [x] Merge pull request #4 from Davey8716/services
+- [x] Add example text files; move icons into Icons/
+- [x] Remove unused StateManager import
+- [x] Increase desktop mode window height
+- [x] Use service.state_manager for update
+- [x] Desktop GUI Changes
+- [x] Desktop Enumerator Persistence
+- [x] Desktop Folder Date Stamp Style Persistence Added
+- [x] Clearer Wording On Nested Folder Creator
+- [x] Change QDial To Theme Switches
+- [x] Merge pull request #5 from Davey8716/dial-to-slider-change
+- [x] Fixed Folder + Subfolder enumeration for Nested Folder Creator
+- [x] Greying logic + Settingcurrent item on folder sub folder builds
+- [x] Fixed status outputs stretching now in line with desktop folder creator for nested version
+- [x] Gui Reworking
+- [x] Update main.py
+- [x] made animation of tree faster. Added in horizontal scrollbar for qtree
+- [x] Merge pull request #6 from Davey8716/Gui-widening-rework
+- [x] Whatever
+- [x] Merge branch 'dev' of https://github.com/Davey8716/Folder_Creator into dev
+- [x] Added Collapse/expand all buttons + logic
+- [x] Grey out logic for folder to desktop button relative to state
+- [x] Ctrl V paste of indended trees accepted by qtree
+- [x] Added in other hot key commands for qtree
+- [x] Ungreying logic fixes for hotkey loads etc
+- [x] Update main.py
+- [x] Merge pull request #7 from Davey8716/dev
+- [x] Fixed ungraying whilst Auto number is ticked for nested folder creator
+- [x] Rolled initi desktop time stamp into a function
+- [x] Added in folder drag and drop
+- [x] Added in Auto ungraying for dragged txt/json and folders
+- [x] Added find button for trees + qline edit for text entry
+- [x] Added find button greying relative to state
+- [x] Fixed default to desktop greying/ungreying.
+- [x] Added function for date formatting persistence for the nested folder creator
+- [x] Added(half working)
+- [x] Added auto number greying relative to default templates being used.
+- [x] Build flow gui logic change from left to right
+- [x] Merge pull request #8 from Davey8716/sort-search-drag
+- [x] Gui change + Template save logic
+- [x] Added ungreying logic for subfolders  for default templates
+- [x] Placeholder xml sheets for dark/light theme
+- [x] Fixed add subfolder - remove selected ungreying
+- [x] Fixed Gui ordering of output file paths section
+- [x] Greyed out sort for pure parent structures
+- [x] synced > styles so when themes change colour they change colour also
+- [x] template loader accepts markdown
+- [x] drag and drop function accepts markdown aswell
+- [x] main logic for accepting markdown
+- [x] dev tasks. txt
+- [x] Gui Refactor
+- [x] Merge pull request #9 from Davey8716/ui-logic-split
+- [x] Remove blank files
+- [x] renamed file
+- [x] Changed import on main
+- [x] Removed green text from here and main
+- [x] Added enter key logic for desktop folder creator
+- [x] Added in f2 rename and delete for desktop folder creator
+- [x] Visually seperated Template Save Location and Output Folder Location
+- [x] Styling changes v1
+- [x] Gui Fiddling
+- [x] Moregui tweaking and some things rolled into for loops

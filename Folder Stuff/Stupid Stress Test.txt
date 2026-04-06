@@ -1,0 +1,248 @@
+Project_001
+    Docs
+    Assets
+        Icons
+        Images
+        Background_Textures
+    Builds
+    Very_Long_Folder_Name_For_UI_Width_Testing_Level_1
+        Very_Long_Folder_Name_For_UI_Width_Testing_Level_2
+            Very_Long_Folder_Name_For_UI_Width_Testing_Level_3
+
+Project_002
+    src
+        core
+        utils
+        api
+    tests
+    docs
+
+Project_003
+    A
+    B
+    C
+        C1
+        C2
+        C3
+
+Project_004
+    Data
+        Raw
+        Processed
+        Exports
+    Logs
+    Config
+
+Project_005
+    extremely_long_folder_name_designed_to_force_horizontal_scroll_behavior_in_tree_widgets
+    small
+    medium_length_name_folder_here
+        nested_folder
+        another_nested_folder
+            deep_level
+                deeper_level
+
+Project_006
+    A
+        A1
+            A1a
+                A1a_i
+                    A1a_i_alpha
+                        A1a_i_alpha_final
+    B
+    C
+
+Project_007
+    Files
+    Output
+    Temporary
+    Cache
+        Thumbnails
+        Preview_Render_Output
+        Very_Long_Cache_Subfolder_Name_To_Test_Rendering
+
+Project_008
+    Alpha
+    Beta
+    Gamma
+        Gamma_Subfolder_With_Long_Name_One
+        Gamma_Subfolder_With_Long_Name_Two
+        Gamma_Subfolder_With_Long_Name_Three
+
+Project_009
+    Folder
+        SubFolder
+            SubSubFolder
+                SubSubSubFolder
+                    SubSubSubSubFolder
+                        SubSubSubSubSubFolder
+
+Project_010
+    Data
+    Reports
+    Backups
+    Archive
+
+Wide_Node_Test_001_With_An_Excessively_Long_Folder_Name_To_Test_Tree_Rendering
+Wide_Node_Test_002_With_An_Excessively_Long_Folder_Name_To_Test_Tree_Rendering
+Wide_Node_Test_003_With_An_Excessively_Long_Folder_Name_To_Test_Tree_Rendering
+Wide_Node_Test_004_With_An_Excessively_Long_Folder_Name_To_Test_Tree_Rendering
+Wide_Node_Test_005_With_An_Excessively_Long_Folder_Name_To_Test_Tree_Rendering
+
+Chain_Test_001
+    Chain_001
+        Chain_002
+            Chain_003
+                Chain_004
+                    Chain_005
+                        Chain_006
+                            Chain_007
+                                Chain_008
+                                    Chain_009
+                                        Chain_010
+
+Flat_Test_Group_001
+Flat_Test_Group_002
+Flat_Test_Group_003
+Flat_Test_Group_004
+Flat_Test_Group_005
+Flat_Test_Group_006
+Flat_Test_Group_007
+Flat_Test_Group_008
+Flat_Test_Group_009
+Flat_Test_Group_010
+Flat_Test_Group_011
+Flat_Test_Group_012
+Flat_Test_Group_013
+Flat_Test_Group_014
+Flat_Test_Group_015
+Flat_Test_Group_016
+Flat_Test_Group_017
+Flat_Test_Group_018
+Flat_Test_Group_019
+Flat_Test_Group_020
+
+Mixed_Depth_Test_001
+    A
+    B
+        B1
+        B2
+            B2a
+            B2b
+    C
+
+Mixed_Depth_Test_002
+    Root
+        Node_01
+        Node_02
+            Node_02_A
+            Node_02_B
+                Node_02_B_1
+                Node_02_B_2
+
+Mixed_Depth_Test_003
+    Short
+    Medium_Length_Name
+    Extremely_Long_Subfolder_Name_To_Test_Rendering_Width_Behavior_In_QTreeWidgets
+
+Random_Test_Set_001
+    Node_A
+    Node_B
+    Node_C
+
+Random_Test_Set_002
+    Node_A
+        Node_A1
+        Node_A2
+    Node_B
+
+Random_Test_Set_003
+    Alpha
+        Beta
+            Gamma
+                Delta
+                    Epsilon
+
+Random_Test_Set_004
+    Folder1
+    Folder2
+    Folder3
+        Folder3_Sub1
+        Folder3_Sub2
+
+Random_Test_Set_005
+    Root
+        Branch1
+        Branch2
+        Branch3
+            Branch3_Leaf1
+            Branch3_Leaf2
+                Branch3_Leaf2_Deep
+
+Random_Test_Set_006
+    X
+    Y
+    Z
+
+Random_Test_Set_007
+    Level1
+        Level2
+            Level3
+                Level4
+                    Level5
+                        Level6
+                            Level7
+                                Level8
+                                    Level9
+                                        Level10
+
+Stress_Group_001
+Stress_Group_002
+Stress_Group_003
+Stress_Group_004
+Stress_Group_005
+Stress_Group_006
+Stress_Group_007
+Stress_Group_008
+Stress_Group_009
+Stress_Group_010
+Stress_Group_011
+Stress_Group_012
+Stress_Group_013
+Stress_Group_014
+Stress_Group_015
+Stress_Group_016
+Stress_Group_017
+Stress_Group_018
+Stress_Group_019
+Stress_Group_020
+Stress_Group_021
+Stress_Group_022
+Stress_Group_023
+Stress_Group_024
+Stress_Group_025
+Stress_Group_026
+Stress_Group_027
+Stress_Group_028
+Stress_Group_029
+Stress_Group_030
+Stress_Group_031
+Stress_Group_032
+Stress_Group_033
+Stress_Group_034
+Stress_Group_035
+Stress_Group_036
+Stress_Group_037
+Stress_Group_038
+Stress_Group_039
+Stress_Group_040
+Stress_Group_041
+Stress_Group_042
+Stress_Group_043
+Stress_Group_044
+Stress_Group_045
+Stress_Group_046
+Stress_Group_047
+Stress_Group_048
+Stress_Group_049
+Stress_Group_050

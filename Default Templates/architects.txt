@@ -1,0 +1,17 @@
+Project
+    Drawings
+        Drafts
+        Issued
+        Final
+    Models
+        CAD
+        BIM
+    Calculations
+    Specifications
+    Contracts
+        Client
+        Subcontractors
+    Site
+        Photos
+        Reports
+    Revisions

@@ -1,0 +1,89 @@
+[
+    {
+        "name": "Writing_Project",
+        "children": [
+            {
+                "name": "Drafts",
+                "children": [
+                    {
+                        "name": "Versions",
+                        "children": []
+                    },
+                    {
+                        "name": "Scenes",
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "name": "Research",
+                "children": [
+                    {
+                        "name": "Sources",
+                        "children": []
+                    },
+                    {
+                        "name": "Notes",
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "name": "Characters",
+                "children": [
+                    {
+                        "name": "Bios",
+                        "children": []
+                    },
+                    {
+                        "name": "Relationships",
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "name": "Worldbuilding",
+                "children": [
+                    {
+                        "name": "Locations",
+                        "children": []
+                    },
+                    {
+                        "name": "Lore",
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "name": "Plot",
+                "children": [
+                    {
+                        "name": "Outline",
+                        "children": []
+                    },
+                    {
+                        "name": "Timeline",
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "name": "Edits",
+                "children": [
+                    {
+                        "name": "Feedback",
+                        "children": []
+                    },
+                    {
+                        "name": "Passes",
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "name": "Final_Manuscript",
+                "children": []
+            }
+        ]
+    }
+]

@@ -1,0 +1,19 @@
+Game_Project
+    Assets
+        Textures
+        Models
+        Audio
+            Music
+            SFX
+        Animations
+        UI
+    Code
+        Scripts
+        Shaders
+    Scenes
+        Levels
+        Prefabs
+    Builds
+        Windows
+        Linux
+        Mac

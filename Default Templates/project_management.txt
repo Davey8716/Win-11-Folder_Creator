@@ -1,0 +1,19 @@
+Project
+    Initiation
+        Brief
+        Stakeholders
+    Planning
+        Requirements
+        Schedule
+        Budget
+        Risks
+    Execution
+        Deliverables
+        Change_Requests
+    Reporting
+        Status
+        Meetings
+    Closeout
+        Handover
+        Retrospective
+    Archive

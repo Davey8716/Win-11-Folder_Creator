@@ -1,0 +1,24 @@
+Research_Project
+    Literature
+        Papers
+        Summaries
+    Notes
+        Ideas
+        Meetings
+    Data
+        Raw
+        Processed
+    Analysis
+        Scripts
+        Outputs
+    Drafts
+        Abstract
+        Manuscript
+    Figures
+        Plots
+        Tables
+    References
+        Bib
+    Publication
+        Submission
+        Reviews
