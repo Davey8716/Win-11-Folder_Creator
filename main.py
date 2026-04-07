@@ -890,6 +890,7 @@ class MainWindow(QMainWindow):
             (self.expand_tree_btn.clicked,self.tree_gui_stretch),
             (self.tree.itemChanged, self.enforce_tree_name_limit),
             (self.tree.itemChanged, self.ui_state.update_nested_build_state)
+           
         ]
 
         for signal, handler in connections:
@@ -1023,6 +1024,7 @@ class MainWindow(QMainWindow):
         self.desktop_folder_number_enumerator.setEnabled(enum_enabled)
         
         self.desktop_folder_line.textChanged.connect(self.update_desktop_build_state)
+        self.base_path_line.textChanged.connect(self.ui_state.update_build_button_state)
 
         self.update_desktop_build_state()
         self.ui_state.update_build_button_state()
