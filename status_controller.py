@@ -1,0 +1,85 @@
+from PySide6.QtCore import QTimer
+
+
+class StatusController:
+    def __init__(self, window, service):
+        self.w = window
+        self.service = service
+
+        # timers
+        self.desktop_timer = QTimer(window)
+        self.desktop_timer.setSingleShot(True)
+        self.desktop_timer.timeout.connect(lambda: self.reset("desktop"))
+
+        self.nested_timer = QTimer(window)
+        self.nested_timer.setSingleShot(True)
+        self.nested_timer.timeout.connect(lambda: self.reset("nested"))
+
+    # ---------------------------------------------------------
+    # SET STATUS
+    # ---------------------------------------------------------
+    def set(self, message: str, target: str = "desktop", status_type: str = "info"):
+
+        if target == "nested":
+            icon = self.w.smart_status_icon
+            text = self.w.smart_status_text
+            frame = self.w.smart_status_frame
+            self.nested_timer.start(5000)
+        else:
+            icon = self.w.desktop_status_icon
+            text = self.w.desktop_status_text
+            frame = self.w.desktop_status_frame
+            self.desktop_timer.start(5000)
+
+        # icon
+        if status_type == "success":
+            icon.setText("✓")
+        elif status_type == "error":
+            icon.setText("✕")
+        else:
+            icon.setText(">")
+
+        # neutral frame
+        frame.setStyleSheet("""
+            QFrame#statusFrame {
+                border-radius: 6px;
+                background-color: transparent;
+            }
+            QLabel {
+                font-size: 12px;
+            }
+        """)
+
+        # hide icon visually (your current behaviour)
+        icon.setStyleSheet("font-weight: 300; color: transparent;")
+
+        text.setText(message)
+
+    # ---------------------------------------------------------
+    # RESET STATUS
+    # ---------------------------------------------------------
+    def reset(self, target: str):
+        accent = self.service.theme_controller.current_accent
+
+        if target == "nested":
+            icon = self.w.smart_status_icon
+            text = self.w.smart_status_text
+            frame = self.w.smart_status_frame
+        else:
+            icon = self.w.desktop_status_icon
+            text = self.w.desktop_status_text
+            frame = self.w.desktop_status_frame
+
+        icon.setText(">")
+        icon.setStyleSheet(f"font-weight: 700; color: {accent};")
+        text.setText("")
+
+        frame.setStyleSheet("""
+            QFrame#statusFrame {
+                border-radius: 6px;
+                background-color: rgba(52, 152, 219, 0.10);
+            }
+            QLabel {
+                font-size: 12px;
+            }
+        """)
