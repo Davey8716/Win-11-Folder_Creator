@@ -3,11 +3,8 @@ from app_service import AppService
 from smart_tree_widget import SmartTreeWidget
 from nested_ui_controller import NestedUIController
 from ui_state_controller import UIStateController
-from theme_controller import ThemeController
-from PySide6.QtCore import QTimer
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QShortcut, QKeySequence,QFont
-from PySide6.QtWidgets import QPushButton, QSizePolicy
 from PySide6.QtWidgets import QAbstractItemView
 from PySide6.QtWidgets import (
     QApplication,
@@ -22,7 +19,6 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QComboBox,
     QGridLayout,QSpinBox,QHeaderView
-
 )
 
 INVALID_FOLDER_CHARS = '<>:"/\\|?*'
@@ -36,10 +32,7 @@ class MainWindow(QMainWindow):
         self.tree.setColumnCount(1)
         self.tree.setHeaderHidden(True)
 
-        self.tree.setEditTriggers(
-            QAbstractItemView.DoubleClicked |
-            QAbstractItemView.EditKeyPressed
-        )
+        self.tree.setEditTriggers(QAbstractItemView.DoubleClicked |QAbstractItemView.EditKeyPressed)
 
         # ---- Horizontal scroll support for wide trees ----
         self.tree.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -98,9 +91,9 @@ class MainWindow(QMainWindow):
         self.desktop_section_title.setFlat(True)
         self.desktop_section_title.setStyleSheet("""
         QPushButton {
-            font-size: 25px;
+            font-size: 13px;
             font-weight: 1000;
-            text-align: left;
+            text-align: center;
         }
         """)
         
@@ -118,34 +111,46 @@ class MainWindow(QMainWindow):
         self.theme_selector_frame.setLayout(theme_layout)
         self.theme_buttons = []
 
-        theme_count = self.service.theme_count()
-        cols = (theme_count + 1) // 2
-
-        for i in range(theme_count):
+        for i in range(2):
 
             btn = QPushButton()
-            btn.setFixedSize(20,20)
+            btn.setFixedSize(20, 20)
             btn.setCursor(Qt.PointingHandCursor)
             btn.setCheckable(True)
-            btn.clicked.connect(lambda _, idx=i: self.select_theme(idx))
 
-            row = i // cols
-            col = i % cols
+            if i == 0:
+                btn.clicked.connect(lambda _, idx=-2: self.service.theme_controller.select_theme(idx,self.service))
 
-            theme_layout.addWidget(btn, row, col)
+                # 👇 WHITE THEME PREVIEW ONLY
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #e8e8e8;
+                        border: 2px solid #bdbdbd;
+                        border-radius: 6px;
+                    }
+                    QPushButton:checked {
+                        border: 3px solid black;
+                    }
+                """)
+
+            else:
+                btn.clicked.connect(lambda _, idx=-1: self.service.theme_controller.select_theme(idx, self.service))
+
+                # 👇 BLACK THEME PREVIEW ONLY
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #1e1e1e;
+                        border: 2px solid #444;
+                        border-radius: 6px;
+                    }
+                    QPushButton:checked {
+                        border: 3px solid white;
+                    }
+                """)
+
+            theme_layout.addWidget(btn, 0, i)
             self.theme_buttons.append(btn)
-            
-        for btn in self.theme_buttons:
-            btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 6px;
-                border: 2px solid rgba(120,120,120,0.4);
-            }
-            QPushButton:checked {
-                border: 3px solid white;
-            }
-            """)
-
+                
         # ========================================
         # GRID FOR GUI CHANGER AND THEME SELECTOR
         # =========================================
@@ -310,12 +315,11 @@ class MainWindow(QMainWindow):
             self.desktop_enumerator_frame,
             self.desktop_input_frame,
             self.desktop_folder_frame
-
         ]:
             desktop_frames.setStyleSheet("border: 4px solid 4D4D4DFF;")
         
-        self.desktop_status_frame.setFixedWidth(600)
-        self.desktop_status_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.desktop_status_frame.setFixedWidth(610)
+        self.desktop_status_frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.desktop_status_icon = QLabel(">")
         self.desktop_status_text = QLabel("")
@@ -325,7 +329,7 @@ class MainWindow(QMainWindow):
         desktop_status_layout.addWidget(self.desktop_status_text)
         desktop_status_layout.addStretch()
 
-        self.desktop_layout.addWidget(self.desktop_status_frame)
+        self.desktop_layout.addWidget(self.desktop_status_frame,alignment=Qt.AlignHCenter)
         
         # Add entire frame to main layout
         main_layout.addWidget(self.desktop_folder_frame)
@@ -398,6 +402,12 @@ class MainWindow(QMainWindow):
 
         self.load_template_btn = QPushButton("Load Templates")
         self.save_template_btn= QPushButton("Save Templates")
+
+        for btns in [
+            self.load_template_btn,
+            self.save_template_btn,
+        ]:
+            btns.setFixedSize(160,40)
         
         self.load_user_template_dropdown = QComboBox()
         self.load_user_template_dropdown.addItems(["User Templates"])
@@ -546,17 +556,8 @@ class MainWindow(QMainWindow):
         self.base_path_line.setPlaceholderText("Select base directory for output folder location")
         
         self.template_path_line = QLineEdit()
-        self.template_path_line.setPlaceholderText("OUTPUT LOCATION FOR USER MADE TEMPLATES")
+        self.template_path_line.setPlaceholderText("OUTPUT LOCATION FOR USER MADE TEMPLATES.")
 
-        for lines in [
-            self.base_path_line,
-            self.template_path_line,
-
-        ]:
-            lines.setStyleSheet("font: 15 px solid #FFFFFF;")
-            lines.setReadOnly(True)
-            lines.setFixedHeight(40)
-        
         # ----------------------------------------------------------
         # Paths row
         # ----------------------------------------------------------
@@ -583,6 +584,19 @@ class MainWindow(QMainWindow):
         
         self.template_path_title = QLabel("TEMPLATE SAVE LOCATION")
         self.base_path_title = QLabel("OUTPUT FOLDER LOCATION")
+
+
+
+        for location_lines in [
+            self.template_path_line,
+            self.base_path_line
+
+        ]:
+            
+            location_lines.setFixedSize(400,40)
+            location_lines.setReadOnly(True)
+            location_lines.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+         
         
         template_col_layout.addWidget(self.template_path_title)
         template_col_layout.addWidget(self.template_path_line)
@@ -591,8 +605,8 @@ class MainWindow(QMainWindow):
             self.template_path_title,
             self.base_path_title
         ]:
-            title.setFixedWidth(180)
-            title.setFixedHeight(35)
+            title.setFixedWidth(200)
+            title.setFixedHeight(40)
             title.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             title.setAlignment(Qt.AlignCenter)
         
@@ -607,14 +621,6 @@ class MainWindow(QMainWindow):
         self.out_put_frame = QFrame()
         self.out_put_frame.setFrameShape(QFrame.StyledPanel)
         self.out_put_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        
-        for output_line in [
-            self.base_path_line,
-            self.template_path_line
-            
-        ]:
-            output_line.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-            output_line.setMinimumWidth(400)
 
         frame_layout_output = QVBoxLayout()
         frame_layout_output.setContentsMargins(8,8,8,8)
@@ -664,8 +670,6 @@ class MainWindow(QMainWindow):
                 "Template creation tip:\n The templates can be saved as either .json, .txt or .md on the save template dialog.\n"
                 "Click the save as type dropdown to do this.\n\n"
                 
-                
-                
                 "Tip: Drag and drop folders to change hierarchy.\n"
                 "Tip: Drag a folder below another folder to create a new parent-level folder.\n"
                 "Tip: Drag a folder onto another folder to nest it as a subfolder.\n\n"
@@ -705,15 +709,19 @@ class MainWindow(QMainWindow):
         self.find_output_line.setMinimumWidth(250)
         self.find_output_line.setStyleSheet("font: 15px solid #FFFFFF;")
         self.find_output_line.setEnabled(True)
-        self.template_path_line.setReadOnly(True)
+        self.find_output_line.setFixedSize(250,40)
 
         for btn in [
             self.expand_folders_collapse_btn,
-            self.find_btn,
-            self.sort_btn
+            self.expand_tree_btn
         ]:
-            btn.setMaximumHeight(40)
-            btn.setMaximumWidth(250)
+            btn.setFixedSize(160,40)
+
+        for btns in [
+            self.find_btn,
+            self.sort_btn,
+        ]:
+            btns.setFixedSize(100,40)
             
         tree_controls_layout.addWidget(self.expand_tree_btn)
         tree_controls_layout.addWidget(self.expand_folders_collapse_btn)
@@ -755,12 +763,10 @@ class MainWindow(QMainWindow):
             btn.setFixedHeight(40)
             btn.setFixedWidth(160)
             
-
         build_layout.addWidget(self.default_to_desktop_btn)
         build_layout.addWidget(self.output_location_btn)
         build_layout.addWidget(self.build_folders_btn)
         build_layout.setAlignment(Qt.AlignTop)
-
 
         self.post_build_frame = QFrame()
         self.post_build_frame.setFrameShape(QFrame.StyledPanel)
@@ -809,6 +815,13 @@ class MainWindow(QMainWindow):
             self.sep2,
             self.build_buttons_frame
         ]
+
+        for dropdowns in [
+            self.load_user_template_dropdown,
+            self.load_default_template_dropdown,
+
+        ]:
+            dropdowns.setFixedSize(165,40)
 
         for col, widget in enumerate(widgets):
             main_controls_layout.addWidget(widget, 0, col)
@@ -908,10 +921,35 @@ class MainWindow(QMainWindow):
             )
         )
 
-        theme_index = state.get("theme_index", 0)
-        self.select_theme(theme_index)
-        self.state = self.service.state
-                
+        state = self.service.state
+        self.state = state
+        theme_index = state.get("theme_index", -2)
+
+        if theme_index not in (-2, -1):
+            theme_index = -2
+
+        self.service.theme_controller.select_theme(theme_index, self.service)
+
+
+        for i, btn in enumerate(self.theme_buttons):
+
+            if theme_index == -2:
+                btn.setChecked(i == 0)
+
+            elif theme_index == -1:
+                btn.setChecked(i == 1)
+
+            else:
+                btn.setChecked(i == theme_index + 2)
+
+        for icon in [
+            self.desktop_status_icon,
+            self.smart_status_icon
+        ]:
+            icon.setStyleSheet(f"font-weight: 700; color: ;")
+
+        self.current_mode = state.get("ui_mode", "desktop")
+
         for attr, target in [
             ("desktop_status_timer", "desktop"),
             ("smart_status_timer", "nested"),
@@ -921,9 +959,6 @@ class MainWindow(QMainWindow):
             timer.timeout.connect(lambda t=target: self.reset_status(t))
             setattr(self, attr, timer)
 
-        state = self.service.state
-        self.current_mode = state.get("ui_mode", "desktop")
-        
         # ---------------------------------------------------------
         # Initial UI mode
         # ---------------------------------------------------------
@@ -937,15 +972,7 @@ class MainWindow(QMainWindow):
             self.smart_folder_creator_frame.hide()
             self.desktop_folder_frame.show()
             self.setFixedSize(650, self.desktop_mode_height)
-
-        # ---------------------------------------------------------
-        # Restore Theme
-        # ---------------------------------------------------------
-        theme_index = state.get("theme_index", 0)
-
-        accent_color = self.service.apply_theme(theme_index)
-        self.service.theme_controller.apply_accent_styles(self,accent_color)
-
+            
         # ---------------------------------------------------------
         # Restore Last Base Directory
         # ---------------------------------------------------------
@@ -989,8 +1016,6 @@ class MainWindow(QMainWindow):
         
         self.desktop_folder_line.textChanged.connect(self.update_desktop_build_state)
 
-
-        
         self.update_desktop_build_state()
         self.ui_state.update_build_button_state()
         
@@ -1106,10 +1131,6 @@ class MainWindow(QMainWindow):
             self.smart_folder_creator_frame.hide()
             self.setFixedSize(650, self.desktop_mode_height)
 
-    def change_accent_theme(self, index: int):
-        accent = self.service.apply_theme(index)
-        self.theme_controller.apply_accent_styles(accent)
-
     # shared status out function hat Qline uses for both output lines
     def set_status(self, message: str, target: str = "desktop", status_type: str = "info"):
         """
@@ -1192,15 +1213,7 @@ class MainWindow(QMainWindow):
             self.expand_tree_btn.setText("EXPAND TREE")
         else:
             self.expand_tree_btn.setText("COLLAPSE TREE")
-    
-    def select_theme(self, index):
-        accent_color = self.service.apply_theme(index)
-        self.service.theme_controller.apply_accent_styles(self, accent_color)
-        self.service.set_state("theme_index", index)
 
-        for i, btn in enumerate(self.theme_buttons):
-            btn.setChecked(i == index)
-    
     def desktop_on_date_stamp_toggled(self, checked):
         self.date_time_config.setEnabled(checked)
 

@@ -1,62 +1,223 @@
 from typing import List
 from PySide6.QtWidgets import QApplication
-from qt_material import apply_stylesheet
-from styles import THEMES, ACCENT_MAP
+
 
 class ThemeController:
-    def __init__(self, themes: List[str] = THEMES):
-        if not themes:
-            raise RuntimeError("No qt_material themes available.")
-
-        self.themes = themes
+    def __init__(self):
         self.current_index = 0
-        self.current_accent = "#2196F3"
-
-    # ---------------------------------------------------------
-    # Public
-    # ---------------------------------------------------------
-
-    def theme_count(self) -> int:
-        return len(self.themes)
+        self.current_accent = "#000000"
     
-    def apply_theme(self, index: int) -> str:
-        """
-        Applies theme and returns accent color.
-        """
-        self.current_index = index
-        theme = self.themes[index]
-
-        app = QApplication.instance()
-
-        apply_stylesheet(app, theme=theme)
-
-        # ------------------------------------------------
-        # Disabled button contrast fix (light vs dark)
-        # ------------------------------------------------
-        if "light" in theme.lower():
-            disabled_style = """
-            QPushButton:disabled {
-                background-color: #d6d6d6;
-                color: #8a8a8a;
-                border: 1px solid #bdbdbd;
+    def select_theme(self, index, service):
+        if index == -2:
+            # white theme
+            app = QApplication.instance()
+            app.setStyleSheet("""
+            QWidget {
+                background-color: #C5C5C5;
+                color: #1a1a1a;
             }
-            """
-        else:
-            disabled_style = """
+
+            QLineEdit {
+                    background-color: #e8e8e8;
+                    border: 2px solid #444;
+                    border-radius: 2px;
+                    font-family: "Rubik UI";
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+
+            QLabel {
+                    background-color: #e8e8e8;
+                    border: 2px solid #444;
+                    border-radius: 2px;
+                    font-family: "Rubik UI";
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+
             QPushButton:disabled {
-                background-color: #474747;
-                color: #9a9a9a;
-                border: 1px solid #5a5a5a;
+                background-color: #858585;
+                color: #696969;
+                border: 1px solid #444;
             }
-            """
 
-        app.setStyleSheet(app.styleSheet() + disabled_style)
+            QPushButton {
+                background-color: #e8e8e8;
+                color: #1a1a1a;
+                border: 1px solid #cfcfcf;
+                font-weight: 700;
+                text-transform: uppercase;
+                text-align: center;
+                padding: 4px;
+            }
 
-        accent_key = self._extract_accent_key(theme)
-        accent_color = ACCENT_MAP.get(accent_key, "#2196F3")
+            QPushButton:hover {
+                background-color: #dcdcdc;
+            }
 
-        self.current_accent = accent_color
-        return accent_color
+            QPushButton:checked {
+                background-color: #2a2a2a;
+                color: white;
+                border: 2px solid #2a2a2a;
+            }
+
+            QComboBox {
+                background-color: #e8e8e8;
+                color: #1a1a1a;
+                border: 1px solid #cfcfcf;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            QComboBox:disabled {
+                background-color: #858585;
+                color: #696969;
+                border: 1px solid #444;
+            }
+
+            QComboBox QLineEdit {
+                qproperty-alignment: AlignCenter;
+            }
+
+            QComboBox QAbstractItemView {
+                padding: 4px;
+            }
+
+            QSpinBox {
+                background-color: #e8e8e8;
+                color: #1a1a1a;
+                border: 1px solid #cfcfcf;
+                padding: 10px;
+                text-align: center;
+            }
+
+            QSpinBox:disabled {
+                background-color: #858585;
+                color: #696969;
+                border: 1px solid #444;
+            }
+            
+            QTreeWidget::item:selected {
+                background-color: #e8e8e8;
+                color: #1a1a1a;
+                font-weight: 700;
+                
+            }
+
+            QSpinBox::up-button, QSpinBox::down-button {
+                width: 4px;
+            }
+        """)
+
+        elif index == -1:
+            # black theme
+            app = QApplication.instance()
+            app.setStyleSheet("""
+                QWidget {
+                    background-color: #121212;
+                    color: #FFFFFF;
+                }
+
+                QLineEdit {
+                    background-color: #0D0D0D;
+                    border: 2px solid #444;
+                    border-radius: 2px;
+                    font-family: "Rubik UI";
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+                
+                QLabel {
+                    background-color: #0D0D0D;
+                    border: 2px solid #444;
+                    border-radius: 2px;
+                    font-family: "Rubik UI";
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+
+                QPushButton:disabled {
+                    background-color: #2a2a2a;
+                    color: #777777;
+                    border: 1px solid #444;
+                }
+
+                QPushButton {
+                    background-color: #0D0D0D;
+                    color: white;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    text-align: center;
+                    padding: 4px;
+                }
+
+                QPushButton:checked {
+                    background-color: white;
+                    color: black;
+                    border: 2px solid white;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                }
+
+                QComboBox {
+                    background-color: #0D0D0D;
+                    color: white;
+                    padding-left: 15px;
+                    padding-right: 15px;
+                }
+
+                QComboBox QLineEdit {
+                    qproperty-alignment: AlignCenter;
+                }
+                
+                QComboBox:disabled {
+                        background-color: #2a2a2a;
+                        color: #696969;
+                        border: 1px solid #444;
+                    }
+
+                QSpinBox {
+                    background-color: #0D0D0D;
+                    color: white;
+                    padding: 10px;
+                    text-align: center;
+                }
+                
+                QSpinBox:disabled {
+                    background-color: #2a2a2a;
+                    color: #696969;
+                    border: 1px solid #444;
+                }
+            
+                QSpinBox::up-button, QSpinBox::down-button {
+                    width: 4px;
+                }
+
+                QTreeWidget {
+                    selection-background-color: #444444;  /* fallback */
+                }
+
+                QTreeWidget::item:selected {
+                    background-color: #2a2a2a;
+                    color: white;
+                }
+
+                QTreeWidget::item:selected:active {
+                    background-color: #3a3a3a;
+                }
+
+                QTreeWidget::item:selected:!active {
+                    background-color: #2a2a2a;
+                }
+
+                QComboBox QAbstractItemView {
+                    padding: 4px;
+                }
+            """)
+            accent_color = "#FFFFFF"
+        
+        service.set_state("theme_index", index)
+    
 
     # ---------------------------------------------------------
     # Internal
@@ -65,64 +226,7 @@ class ThemeController:
     def _extract_accent_key(self, theme_name: str) -> str:
         return (
             theme_name
-            .replace("light_", "")
             .replace("dark_", "")
             .replace(".xml", "")
         )
-    
-    def apply_accent_styles(self, window, accent_color: str):
-
-        # ---- Section labels ----
-        for lbl in [
-            window.desktop_section_title,
-            window.base_path_title,
-            window.template_path_title
-        ]:
-            lbl.setStyleSheet(f"""
-                QLabel {{
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: {accent_color};
-                }}
-            """)
-
-        # ---- Checkboxes (default size) ----
-        for cb in [
-            window.date_time_toggle,
-            window.enumerate_toggle
-        ]:
-            cb.setStyleSheet(f"""
-                QCheckBox {{
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: {accent_color};
-                }}
-            """)
-
-        # ---- Larger checkboxes ----
-        for cb in [
-            window.nested_date_toggle,
-            window.auto_enumerate_folders,
-            window.open_folder_build_toggle,
-            window.minimize_after_build_toggle
-        ]:
-            cb.setStyleSheet(f"""
-                QCheckBox {{
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: {accent_color};
-                }}
-                QCheckBox:disabled {{
-                    color: rgba(140,140,140,0.6);
-                }}
-            """)
-
-        self.current_accent = accent_color
-
-        # ---- Status icons ----
-        for icon in [
-            window.desktop_status_icon,
-            window.smart_status_icon
-        ]:
-            icon.setStyleSheet(f"font-weight: 700; color: {accent_color};")
     

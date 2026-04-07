@@ -110,7 +110,7 @@ class UIStateController:
             has_items and not has_duplicate_parents and not has_invalid_chars and not invalid_name_exists
         )
         self.w.remove_all_btn.setEnabled(has_items)
-        self.w.save_template_btn.setEnabled(has_items and not has_duplicate_parents)
+        self.w.save_template_btn.setEnabled(has_items and not has_duplicate_parents and not default_template_loaded)
         
         # ---- Sort override ----
         if self.w.auto_enumerate_folders.isChecked():

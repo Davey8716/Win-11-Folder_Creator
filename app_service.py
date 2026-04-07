@@ -2,9 +2,9 @@ from desktop_folder_manager import DesktopFolderManager
 from nested_folder_manager import NestedFolderManager
 from template_IO_layer import TemplateService, TemplatePaths
 from state_manager import StateManager
-from theme_controller import ThemeController
 from pathlib import Path
 from shutil import copy
+from theme_controller import ThemeController
 
 class AppService:
 
@@ -13,21 +13,12 @@ class AppService:
         self.nested_manager = NestedFolderManager(tree_widget)
         self.template_service = TemplateService()
         self.state_manager = StateManager()
-        self.theme_controller = ThemeController()
         self.template_paths =  TemplatePaths()
-
+        self.theme_controller = ThemeController()
         self.state = self.state_manager.load_state()
-
-    # ---------------------------------------------------------
-    # Desktop folder creation
-    # ---------------------------------------------------------
 
     def create_desktop_folder(self, name, timestamp_mode=None):
         return self.desktop_manager.create_folder(name, timestamp_mode)
-
-    # ---------------------------------------------------------
-    # Nested tree operations
-    # ---------------------------------------------------------
 
     def add_folder(self):
         self.nested_manager.add_root_folder()
@@ -43,10 +34,6 @@ class AppService:
 
     def build_tree(self, base_path, timestamp_mode=None):
         return self.nested_manager.build_folders(base_path, timestamp_mode)
-
-    # ---------------------------------------------------------
-    # Template handling
-    # ---------------------------------------------------------
 
     def save_template(self, parent):
         return self.template_service.save_from_tree(parent, self.nested_manager)
@@ -65,20 +52,12 @@ class AppService:
         if src.resolve() != dst.resolve():
             copy(src, dst)
 
-    # ---------------------------------------------------------
-    # State persistence
-    # ---------------------------------------------------------
-
     def get_state(self, key, default=None):
         return self.state.get(key, default)
 
     def set_state(self, key, value):
         self.state[key] = value
         self.state_manager.save_state(self.state)
-
-    # ---------------------------------------------------------
-    # Theme handling
-    # ---------------------------------------------------------
 
     def theme_count(self):
         return self.theme_controller.theme_count()
