@@ -70,6 +70,8 @@ class ThemeController:
                 border: 1px solid #cfcfcf;
                 padding-left: 15px;
                 padding-right: 15px;
+                font-family: "Rubik UI";
+                font-size: 13px;
             }
 
             QComboBox:disabled {
@@ -92,6 +94,8 @@ class ThemeController:
                 border: 1px solid #cfcfcf;
                 padding: 10px;
                 text-align: center;
+                font-family: "Rubik UI";
+                font-size: 13px;
             }
 
             QSpinBox:disabled {
@@ -182,6 +186,8 @@ class ThemeController:
                     color: white;
                     padding-left: 15px;
                     padding-right: 15px;
+                    font-family: "Rubik UI";
+                    font-size: 13px;
                 }
 
                 QComboBox QLineEdit {
@@ -199,6 +205,8 @@ class ThemeController:
                     color: white;
                     padding: 10px;
                     text-align: center;
+                    font-family: "Rubik UI";
+                    font-size: 13px;
                 }
                 
                 QSpinBox:disabled {
@@ -235,8 +243,6 @@ class ThemeController:
                 }
             """)
             accent_color = "#FFFFFF"
-
-            
 
         for i, btn in enumerate(window.theme_buttons):
             is_active = (

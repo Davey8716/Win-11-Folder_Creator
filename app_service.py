@@ -56,8 +56,10 @@ class AppService:
         return self.state.get(key, default)
 
     def set_state(self, key, value):
-        self.state[key] = value
-        self.state_manager.save_state(self.state)
+        state = self.state_manager.load_state()
+        state[key] = value
+        self.state_manager.save_state(state)
+        self.state = state
 
     def theme_count(self):
         return self.theme_controller.theme_count()

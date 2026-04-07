@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
         main_layout.setContentsMargins(8,8,8,8)
-        main_layout.setSpacing(5)
+        main_layout.setSpacing(10)
         central_widget.setLayout(main_layout)
         
         # ==========================================================
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
 
         desktop_title_layout = QVBoxLayout()
         desktop_title_layout.setContentsMargins(8,8,8,8)
-        desktop_title_layout.setSpacing(0)
+        desktop_title_layout.setSpacing(10)
         self.desktop_title_frame.setLayout(desktop_title_layout)
 
         self.current_mode = "desktop"
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         self.theme_selector_frame.setStyleSheet("border: 4px solid 4D4D4DFF;")
 
         theme_layout = QGridLayout()
-        theme_layout.setSpacing(4)
+        theme_layout.setSpacing(10)
         theme_layout.setContentsMargins(8,8,8,8)
 
         self.theme_selector_frame.setLayout(theme_layout)
@@ -127,7 +127,6 @@ class MainWindow(QMainWindow):
                         else self.service.theme_controller.select_theme(idx, self.service, self)
                     )
                 )
-
                 # 👇 WHITE THEME PREVIEW ONLY
                 btn.setStyleSheet("""
                     QPushButton {
@@ -147,7 +146,6 @@ class MainWindow(QMainWindow):
                         else self.service.theme_controller.select_theme(idx, self.service, self)
                     )
                 )
-
                 # 👇 BLACK THEME PREVIEW ONLY
                 btn.setStyleSheet("""
                     QPushButton {
@@ -173,7 +171,7 @@ class MainWindow(QMainWindow):
         header_grid.setColumnStretch(1, 0)
                 
         main_layout.addLayout(header_grid)
-        main_layout.addSpacing(5)
+        main_layout.addSpacing(10)
         
         # ===================================================================
         # FRAME 1 — FULL OUTER FRAME INCLUDES 3 INNER FRAMES + STATUS FRAMES
@@ -185,7 +183,7 @@ class MainWindow(QMainWindow):
  
         self.desktop_layout = QVBoxLayout()
         self.desktop_layout.setSpacing(10)
-        self.desktop_layout.setContentsMargins(4,4,4,4)
+        self.desktop_layout.setContentsMargins(4,11,4,11)
         self.desktop_folder_frame.setLayout(self.desktop_layout)
         
         desktop_controls_layout = QGridLayout()
@@ -259,7 +257,7 @@ class MainWindow(QMainWindow):
 
         desktop_input_layout = QVBoxLayout()
         desktop_input_layout.setContentsMargins(8,8,8,8)
-        desktop_input_layout.setSpacing(15)
+        desktop_input_layout.setSpacing(10)
         self.desktop_input_frame.setLayout(desktop_input_layout)
 
         desktop_input_layout.addWidget(self.desktop_folder_line)
@@ -290,7 +288,7 @@ class MainWindow(QMainWindow):
         
         desktop_date_layout = QVBoxLayout()
         desktop_date_layout.setContentsMargins(8,8,8,8)
-        desktop_date_layout.setSpacing(15)
+        desktop_date_layout.setSpacing(10)
         self.desktop_date_frame.setLayout(desktop_date_layout)
     
         desktop_date_layout.addWidget(self.date_time_toggle)
@@ -317,7 +315,7 @@ class MainWindow(QMainWindow):
         self.desktop_status_frame.setMaximumHeight(50)
 
         desktop_status_layout = QHBoxLayout()
-        desktop_status_layout.setContentsMargins(4,4,4,4)
+        desktop_status_layout.setContentsMargins(8,8,8,8)
         desktop_status_layout.setSpacing(10)
         self.desktop_status_frame.setLayout(desktop_status_layout)
 
@@ -426,7 +424,6 @@ class MainWindow(QMainWindow):
         self.load_user_template_dropdown.insertSeparator(self.load_user_template_dropdown.count())
 
         self.load_user_template_dropdown.setEnabled(True)
-        self.load_user_template_dropdown.setFixedSize(160,40)
         
         self.load_default_template_dropdown = QComboBox()
         self.load_default_template_dropdown.addItem("Default Templates")
@@ -444,7 +441,6 @@ class MainWindow(QMainWindow):
             "Video Editing"
         ])
 
-        self.load_default_template_dropdown.setMinimumWidth(150)
         self.load_default_template_dropdown.setSizeAdjustPolicy(QComboBox.AdjustToContentsOnFirstShow)
         self.load_default_template_dropdown.setEnabled(True)
 
@@ -678,19 +674,36 @@ class MainWindow(QMainWindow):
             (
                 "Files can either be drag drop loaded in here.\n"
                 "Or created/loaded using the buttons above.\n"
-                "(accepts .json, .txt, .md files)\n"
-                "Folder trees can be copy pasted in here using ctrl + v as plain text.\n\n"
-                
-                "Template creation tip:\n The templates can be saved as either .json, .txt or .md on the save template dialog.\n"
-                "Click the save as type dropdown to do this.\n\n"
-                
-                "Tip: Drag and drop folders to change hierarchy.\n"
-                "Tip: Drag a folder below another folder to create a new parent-level folder.\n"
-                "Tip: Drag a folder onto another folder to nest it as a subfolder.\n\n"
-                "Tip: Auto-numbering only applies when using the Add Folder / Add Subfolder buttons.\n"
-                
-                "Tip: Auto-numbering is disabled for default templates.\n"
-                "Drag-and-drop only changes the folder structure."
+                "(accepts .json, .txt, .md files)\n\n"
+
+                "User templates using the save button are saved as .json, md or.txt.\n"
+                "A copy of them will be saved to:\n"
+                "C:/Users/yourusername/AppData/Local/FolderCreator/\n"
+                "To access this easily, right click the dropdown arrow on 'User Templates'.\n"
+                "Drag-and-dropped templates are also saved there automatically.\n\n"
+
+                "Folder trees can be copy pasted in here using Ctrl + V as plain text.\n\n"
+                "Entire trees from your desktop can be dragged onto here.\n"
+                "Files will be ignored and only the folder structure will be shown.\n\n"
+
+                "Hotkeys:\n"
+                "Ctrl + N → Add Folder\n"
+                "Ctrl + Shift + N → Add Subfolder\n"
+                "Ctrl + S → Save Template\n"
+                "Ctrl + O → Load Template\n"
+                "F2 → Rename\n"
+                "Delete → Remove selected folder\n\n"
+
+                "Template tip:\n"
+                "Templates can be saved as .json, .txt, or .md using the save dialog.\n\n"
+
+                "Tips:\n"
+                "• Drag folders to change hierarchy\n"
+                "• Drag below → new parent-level folder\n"
+                "• Drag onto → make subfolder\n"
+                "• Auto-numbering only applies when using Add Folder/Subfolder buttons\n"
+                "• Auto-numbering is disabled for default templates\n"
+                "• Drag-and-drop only changes structure"
             ),
             bold=True
         )
@@ -837,7 +850,7 @@ class MainWindow(QMainWindow):
             self.load_default_template_dropdown,
 
         ]:
-            dropdowns.setFixedSize(165,40)
+            dropdowns.setFixedSize(160,40)
 
         for col, widget in enumerate(widgets):
             main_controls_layout.addWidget(widget, 0, col)
