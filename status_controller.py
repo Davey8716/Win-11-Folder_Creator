@@ -33,10 +33,14 @@ class StatusController:
         # icon
         if status_type == "success":
             icon.setText("✓")
+            color = "#2ecc71"   # green
         elif status_type == "error":
             icon.setText("✕")
+            color = "#e74c3c"   # red
         else:
             icon.setText(">")
+            color = self.service.theme_controller.current_accent
+            
 
         # neutral frame
         frame.setStyleSheet("""
@@ -50,7 +54,7 @@ class StatusController:
         """)
 
         # hide icon visually (your current behaviour)
-        icon.setStyleSheet("font-weight: 300; color: transparent;")
+        icon.setStyleSheet(f"font-weight: 700; color: {color};")
 
         text.setText(message)
 
@@ -76,7 +80,6 @@ class StatusController:
         frame.setStyleSheet("""
             QFrame#statusFrame {
                 border-radius: 6px;
-                background-color: rgba(52, 152, 219, 0.10);
             }
             QLabel {
                 font-size: 12px;

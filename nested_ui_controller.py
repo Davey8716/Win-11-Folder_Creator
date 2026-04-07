@@ -438,8 +438,6 @@ class NestedUIController:
                 self.minimize_after_build()
 
         elif status == "exists":
-            stype = "info"
-        else:
             stype = "error"
 
         self.window.status.set(message, target="nested", status_type=stype)
