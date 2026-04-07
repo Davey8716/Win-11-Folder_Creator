@@ -30,8 +30,11 @@ class UIStateController:
             self.w.sort_btn.setEnabled(False)
 
         # Desktop path
-        desktop_path = str(self.service.desktop_manager.desktop_path)
-        current_path = self.w.base_path_line.text().strip()
+        from pathlib import Path
+
+        desktop_path = Path(self.service.desktop_manager.desktop_path).resolve()
+        current_path = Path(self.w.base_path_line.text().strip()).resolve() if self.w.base_path_line.text().strip() else None
+
         is_desktop = current_path == desktop_path
 
         self.w.default_to_desktop_btn.setEnabled(not is_desktop)
@@ -46,7 +49,7 @@ class UIStateController:
 
         total_items = self.get_total_tree_item_count()
         has_collapsed = self.tree_has_collapsed_nodes()
-        
+
         can_find = (
             total_items > visible_capacity
             or has_collapsed

@@ -46,6 +46,8 @@ class ThemeController:
                 color: #1a1a1a;
                 border: 1px solid #cfcfcf;
                 font-weight: 700;
+                font-family: "Rubik UI";
+                font-size: 12px;
                 text-transform: uppercase;
                 text-align: center;
                 padding: 4px;
@@ -159,6 +161,8 @@ class ThemeController:
                     background-color: #0D0D0D;
                     color: white;
                     font-weight: 700;
+                    font-family: "Rubik UI";
+                    font-size: 13px;
                     text-transform: uppercase;
                     text-align: center;
                     padding: 4px;

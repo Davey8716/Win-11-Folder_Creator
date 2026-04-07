@@ -448,7 +448,7 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        self.auto_enumerate_folders = QPushButton("AUTO NUMBER\n + NAME\n FOLDERS AND\n SUBFOLDERS")
+        self.auto_enumerate_folders = QPushButton("AUTO NUMBER\n AND NAME\n FOLDERS AND\n SUBFOLDERS")
         self.nested_date_toggle = QPushButton("ADD DATE STAMP TO\n PARENT FOLDER")
 
         for button in [
@@ -487,6 +487,7 @@ class MainWindow(QMainWindow):
 
         self.template_controls_frame = QFrame()
         self.template_controls_frame.setFrameShape(QFrame.StyledPanel)
+        self.template_controls_frame.setFixedSize(185,265)
 
         template_layout = QVBoxLayout()
         template_layout.setContentsMargins(8,8,8,8)
@@ -533,6 +534,7 @@ class MainWindow(QMainWindow):
 
         self.date_controls_frame = QFrame()
         self.date_controls_frame.setFrameShape(QFrame.StyledPanel)
+        self.date_controls_frame.setFixedSize(200,265)
 
         date_layout = QVBoxLayout()
         date_layout.setContentsMargins(8,8,8,8)
@@ -747,6 +749,7 @@ class MainWindow(QMainWindow):
         self.build_buttons_frame = QFrame()
         self.build_buttons_frame.setFrameShape(QFrame.StyledPanel)
         self.build_buttons_frame.setStyleSheet("border: 3px solid 4D4D4DFF;")
+        self.build_buttons_frame.setFixedSize(185, 265)
 
         build_layout = QVBoxLayout()
         build_layout.setContentsMargins(8,8,8,8)
@@ -773,6 +776,7 @@ class MainWindow(QMainWindow):
         self.post_build_frame = QFrame()
         self.post_build_frame.setFrameShape(QFrame.StyledPanel)
         self.post_build_frame.setStyleSheet("border: 3px solid 4D4D4DFF;")
+        self.post_build_frame.setFixedSize(165,265)
     
         self.sep1 = self.make_vline()
         self.sep2 = self.make_vline()
