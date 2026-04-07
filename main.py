@@ -3,6 +3,7 @@ from app_service import AppService
 from smart_tree_widget import SmartTreeWidget
 from nested_ui_controller import NestedUIController
 from ui_state_controller import UIStateController
+from status_controller import StatusController
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QShortcut, QKeySequence,QFont
 from PySide6.QtWidgets import QAbstractItemView
@@ -43,6 +44,7 @@ class MainWindow(QMainWindow):
 
         self.service = AppService(self.tree)
         state = self.service.state
+        self.status = StatusController(self, self.service)
         
         self.setWindowTitle("Folder Generator")
         
@@ -888,7 +890,7 @@ class MainWindow(QMainWindow):
             signal.connect(handler)
         
         self.load_user_template_dropdown.enterEvent = lambda e: (
-            self.set_status(
+            self.status.set(
                 "Right-click to open user templates folder."
                 "Can delete folders here if you wish.",
                 target="nested",
@@ -897,7 +899,7 @@ class MainWindow(QMainWindow):
             QComboBox.enterEvent(self.load_user_template_dropdown, e)
         )
 
-        self.load_user_template_dropdown.leaveEvent = lambda e: (self.reset_status("nested"),QComboBox.leaveEvent(self.load_user_template_dropdown, e))
+        self.load_user_template_dropdown.leaveEvent = lambda e: (self.status.reset("nested"),QComboBox.leaveEvent(self.load_user_template_dropdown, e))
 
         self.load_user_template_dropdown.setContextMenuPolicy(Qt.CustomContextMenu)
         self.load_user_template_dropdown.customContextMenuRequested.connect(lambda pos: os.startfile(str(self.service.template_paths.user_dir)))
@@ -956,7 +958,7 @@ class MainWindow(QMainWindow):
         ]:
             timer = QTimer(self)
             timer.setSingleShot(True)
-            timer.timeout.connect(lambda t=target: self.reset_status(t))
+            timer.timeout.connect(lambda t=target: self.status.reset(t))
             setattr(self, attr, timer)
 
         # ---------------------------------------------------------
@@ -1131,75 +1133,7 @@ class MainWindow(QMainWindow):
             self.smart_folder_creator_frame.hide()
             self.setFixedSize(650, self.desktop_mode_height)
 
-    # shared status out function hat Qline uses for both output lines
-    def set_status(self, message: str, target: str = "desktop", status_type: str = "info"):
-        """
-        target: "desktop" or "nested"
-        status_type: "info", "success", "error"
-        """
-
-        accent = self.service.theme_controller.current_accent
-
-        if target == "nested":
-            icon_label = self.smart_status_icon
-            text_label = self.smart_status_text
-            frame = self.smart_status_frame
-            self.smart_status_timer.start(5000)
-        else:
-            icon_label = self.desktop_status_icon
-            text_label = self.desktop_status_text
-            frame = self.desktop_status_frame
-            self.desktop_status_timer.start(5000)
-
-        if status_type == "success":
-            icon_label.setText("✓")
-            bg = "rgba(46, 204, 113, 0.15)"
-        elif status_type == "error":
-            icon_label.setText("✕")
-            bg = "rgba(231, 76, 60, 0.15)"
-        else:
-            icon_label.setText(">")
-            bg = "rgba(52, 152, 219, 0.10)"
-
-        frame.setStyleSheet(f"""
-            QFrame#statusFrame {{
-                border-radius: 6px;
-                background-color: {bg};
-            }}
-            QLabel {{
-                font-size: 12px;
-            }}
-        """)
-
-        icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
-        text_label.setText(message)
-
-    def reset_status(self, target: str):
-        accent = self.service.theme_controller.current_accent
-
-        if target == "nested":
-            icon_label = self.smart_status_icon
-            text_label = self.smart_status_text
-            frame = self.smart_status_frame
-        else:
-            icon_label = self.desktop_status_icon
-            text_label = self.desktop_status_text
-            frame = self.desktop_status_frame
-
-        icon_label.setText(">")
-        icon_label.setStyleSheet(f"font-weight: 700; color: {accent};")
-        text_label.setText("")
-
-        frame.setStyleSheet("""
-            QFrame#statusFrame {
-                border-radius: 6px;
-                background-color: rgba(52, 152, 219, 0.10);
-            }
-            QLabel {
-                font-size: 12px;
-            }
-        """)
-        
+    
     ####################### Desktop Folder Creator methods #################################
     
     def update_expand_button_text(self):
@@ -1246,7 +1180,7 @@ class MainWindow(QMainWindow):
         base_name = self.desktop_folder_line.text().strip()
 
         if not base_name:
-            self.set_status(
+            self.status.set(
                 "No folder name entered.",
                 target="desktop",
                 status_type="error"
@@ -1304,21 +1238,21 @@ class MainWindow(QMainWindow):
         # Status output
         # ----------------------------------
         if created == 1:
-            self.set_status(
+            self.status.set(
                 f'Folder "{base_name}" created on Desktop.',
                 target="desktop",
                 status_type="success"
             )
 
         elif created > 1:
-            self.set_status(
+            self.status.set(
                 f"{created} folders created on Desktop.",
                 target="desktop",
                 status_type="success"
             )
 
         else:
-            self.set_status(
+            self.status.set(
                 "Folders already exist or could not be created.",
                 target="desktop",
                 status_type="error"

@@ -42,14 +42,14 @@ class NestedUIController:
         status, message = self.load_template_dialog(self.window)
 
         if status == "success":
-            self.window.set_status(
+            self.window.status.set(
                 message,
                 target="nested",
                 status_type="success"
             )
 
         elif status != "cancelled":
-            self.window.set_status(
+            self.window.status.set(
                 message,
                 target="nested",
                 status_type="error"
@@ -94,7 +94,7 @@ class NestedUIController:
 
             QTimer.singleShot(0, finalize)
 
-            self.window.set_status(
+            self.window.status.set(
                 "Template loaded",
                 target="nested",
                 status_type="success"
@@ -208,7 +208,7 @@ class NestedUIController:
                 message = "Error saving template"
 
         if status == "success":
-            self.window.set_status(message, target="nested", status_type="success")
+            self.window.status.set(message, target="nested", status_type="success")
 
             appdata_target = self.service.template_paths.user_dir / Path(file_path).name
 
@@ -220,13 +220,13 @@ class NestedUIController:
             self.refresh_user_templates_dropdown()
 
         else:
-            self.window.set_status(message, target="nested", status_type="error")
+            self.window.status.set(message, target="nested", status_type="error")
 
 
     def on_sort_tree(self):
 
         if self.tree.topLevelItemCount() == 0:
-            self.window.set_status(
+            self.window.status.set(
                 "Nothing to sort.",
                 target="nested",
                 status_type="error"
@@ -239,7 +239,7 @@ class NestedUIController:
             root = self.tree.topLevelItem(0)
             self.tree.setCurrentItem(root)
 
-        self.window.set_status(
+        self.window.status.set(
             "Folder tree sorted alphabetically.",
             target="nested",
             status_type="success"
@@ -249,7 +249,7 @@ class NestedUIController:
 
         text = self.window.find_output_line.text().strip().lower()
         if not text:
-            self.window.set_status(
+            self.window.status.set(
                 "Enter a folder name to search for.",
                 target="nested",
                 status_type="error"
@@ -284,7 +284,7 @@ class NestedUIController:
                 elif rect.right() > viewport_width:
                     hbar.setValue(hbar.value() + (rect.right() - viewport_width))
 
-                self.window.set_status(
+                self.window.status.set(
                     f'Folder "{item.text(0)}" found.',
                     target="nested",
                     status_type="success"
@@ -293,7 +293,7 @@ class NestedUIController:
 
             iterator += 1
 
-        self.window.set_status(
+        self.window.status.set(
             "No matching folder found.",
             target="nested",
             status_type="error"
@@ -347,7 +347,7 @@ class NestedUIController:
     def create_template(self):
 
         if self.tree.topLevelItemCount() == 0:
-            self.window.set_status(
+            self.window.status.set(
                 "Tree is empty.",
                 target="nested",
                 status_type="error"
@@ -401,7 +401,7 @@ class NestedUIController:
         base_path = self.window.base_path_line.text().strip()
 
         if not base_path:
-            self.window.set_status(
+            self.window.status.set(
                 "No base directory selected.",
                 target="nested",
                 status_type="error"
@@ -442,7 +442,7 @@ class NestedUIController:
         else:
             stype = "error"
 
-        self.window.set_status(message, target="nested", status_type=stype)
+        self.window.status.set(message, target="nested", status_type=stype)
         
     def minimize_after_build(self):
         self.window.showMinimized()
@@ -473,7 +473,7 @@ class NestedUIController:
             if selected_path == desktop_path and current_path == desktop_path:
                 self.window.update_build_button_state()
 
-                self.window.set_status(
+                self.window.status.set(
                     "Desktop is already the active output location.",
                     target="nested",
                     status_type="info"
@@ -486,7 +486,7 @@ class NestedUIController:
             self.service.set_state("last_base_dir", normalized)
             self.window.update_build_button_state()
 
-            self.window.set_status(
+            self.window.status.set(
                 f"Base directory set: {normalized}",
                 target="nested",
                 status_type="info"
@@ -499,7 +499,7 @@ class NestedUIController:
             if current_path == desktop_path:
                 pass
             else:
-                self.window.set_status(
+                self.window.status.set(
                     "No directory selected.",
                     target="nested",
                     status_type="error"
@@ -511,7 +511,7 @@ class NestedUIController:
         self.window.base_path_line.setText(str(desktop_path))
         self.service.set_state("last_base_dir", str(desktop_path))
         self.window.update_build_button_state()
-        self.window.set_status(
+        self.window.status.set(
             "Base directory set to Desktop.",
             target="nested",
             status_type="info"
