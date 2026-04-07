@@ -2,12 +2,13 @@ import sys,os
 from app_service import AppService
 from smart_tree_widget import SmartTreeWidget
 from nested_ui_controller import NestedUIController
+from ui_state_controller import UIStateController
+from theme_controller import ThemeController
 from PySide6.QtCore import QTimer
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QShortcut, QKeySequence,QFont
 from PySide6.QtWidgets import QPushButton, QSizePolicy
 from PySide6.QtWidgets import QAbstractItemView
-from PySide6.QtWidgets import QTreeWidgetItemIterator
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -253,7 +254,6 @@ class MainWindow(QMainWindow):
         # ==========================================================
         self.desktop_enumerator_frame = QFrame() #NO
         self.desktop_enumerator_frame.setFrameShape(QFrame.StyledPanel)
-     
 
         enumerator_layout = QVBoxLayout()
         enumerator_layout.setContentsMargins(8,8,8,8)
@@ -331,7 +331,6 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.desktop_folder_frame)
         main_layout.addSpacing(5)# BIG separation between sections
 
-
 ################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################
@@ -386,18 +385,16 @@ class MainWindow(QMainWindow):
         main_controls_layout.setContentsMargins(8,8,8,8)
         main_controls_layout.setHorizontalSpacing(8)
         self.controls_frame.setLayout(main_controls_layout)
-        self.controls_frame.setStyleSheet(
-            "border: 4px solid #000000;"
-        )
+        self.controls_frame.setStyleSheet("border: 4px solid #000000;")
 
         # ==========================================================
         # Create all widgets first
         # ==========================================================
-        self.add_folder_btn = QPushButton("Add Folder")
-        self.add_subfolder_btn = QPushButton("Add Subfolder")
+        self.add_folder_btn = QPushButton("Add\nFolder")
+        self.add_subfolder_btn = QPushButton("Add\nSubfolder")
 
-        self.remove_btn = QPushButton("Remove Selected")
-        self.remove_all_btn = QPushButton("Remove All")
+        self.remove_btn = QPushButton("Remove\nSelected")
+        self.remove_all_btn = QPushButton("Remove\nAll")
 
         self.load_template_btn = QPushButton("Load Templates")
         self.save_template_btn= QPushButton("Save Templates")
@@ -439,7 +436,7 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        self.auto_enumerate_folders = QPushButton("AUTO NUMBER + NAME\n FOLDERS AND\n SUBFOLDERS")
+        self.auto_enumerate_folders = QPushButton("AUTO NUMBER\n + NAME\n FOLDERS AND\n SUBFOLDERS")
         self.nested_date_toggle = QPushButton("ADD DATE STAMP TO\n PARENT FOLDER")
 
         for button in [
@@ -449,7 +446,7 @@ class MainWindow(QMainWindow):
         ]:
             button.setFixedWidth(175)
             button.setCheckable(True)
-            button.setFixedHeight(60)
+            button.setFixedHeight(80)
 
         self.nested_date_config = QComboBox()
         self.nested_date_config.addItems([
@@ -472,16 +469,6 @@ class MainWindow(QMainWindow):
         self.nested_date_config.lineEdit().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.nested_date_config.lineEdit().setReadOnly(True)
     
-
-        for btn in [
-            self.add_folder_btn,
-            self.add_subfolder_btn,
-            self.remove_btn,
-            self.remove_all_btn,
-        ]:
-            btn.setFixedSize(160, 40)
-            btn.setFont(QFont("Rubik UI", 10))
-
         # ==========================================================
         # Column 1 — Template frame NO
         # ==========================================================
@@ -506,6 +493,17 @@ class MainWindow(QMainWindow):
 
         self.folder_buttons_frame = QFrame()
         self.folder_buttons_frame.setFrameShape(QFrame.StyledPanel)
+        self.folder_buttons_frame.setFixedSize(135,265)
+        self.folder_buttons_frame.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
+
+        for btn in [
+            self.add_folder_btn,
+            self.add_subfolder_btn,
+            self.remove_btn,
+            self.remove_all_btn,
+        ]:
+            btn.setFixedSize(110, 50)
+            btn.setFont(QFont("Rubik UI", 10))
 
         folder_buttons_layout = QVBoxLayout()
         folder_buttons_layout.setContentsMargins(8,8,8,8)
@@ -539,22 +537,17 @@ class MainWindow(QMainWindow):
             self.template_controls_frame,
 
         ]:
-            frames.setStyleSheet(
-                "border: 3px solid #000000"
-            )
+            frames.setStyleSheet("border: 3px solid #000000")
 
         # ----------------------------------------------------------
         # Create path fields FIRST
         # ----------------------------------------------------------
         self.base_path_line = QLineEdit()
-        self.base_path_line.setPlaceholderText(
-            "Select base directory for output folder location"
-        )
+        self.base_path_line.setPlaceholderText("Select base directory for output folder location")
         
         self.template_path_line = QLineEdit()
-        self.template_path_line.setPlaceholderText(
-            "OUTPUT LOCATION FOR USER MADE TEMPLATES"
-        )
+        self.template_path_line.setPlaceholderText("OUTPUT LOCATION FOR USER MADE TEMPLATES")
+
         for lines in [
             self.base_path_line,
             self.template_path_line,
@@ -572,9 +565,7 @@ class MainWindow(QMainWindow):
         paths_layout.setContentsMargins(8,8,8,8)
         paths_layout.setSpacing(8)
         self.paths_frame.setLayout(paths_layout)
-        self.paths_frame.setStyleSheet(
-            "border: 3px solid #000000;"
-        )
+        self.paths_frame.setStyleSheet("border: 3px solid #000000;")
 
         self.template_path_column = QFrame() # NO
         self.template_path_column.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -630,16 +621,13 @@ class MainWindow(QMainWindow):
         frame_layout_output.setSpacing(8)
         frame_layout_output.addWidget(self.paths_frame)
         self.out_put_frame.setLayout(frame_layout_output)
-        self.out_put_frame.setStyleSheet(
-            "border: 4px solid #000000;"
-        )
+        self.out_put_frame.setStyleSheet("border: 4px solid #000000;")
 
         # ==========================================================
         # Add parent frame to smart layout
         # ==========================================================
         self.smart_layout.addWidget(self.controls_frame)
 
-    
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################
@@ -647,20 +635,15 @@ class MainWindow(QMainWindow):
 ################################################################################################################################################################################################################################################################################################################################################################################################
 ################################################################################################################################################################################################################################################################################################################################################################################################
 
-
         # # # # # # # # # # # # # # # # # # # # # # # Ouput Folder Creator # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # NO
         self.tree_frame = QFrame()
         self.tree_frame.setFrameShape(QFrame.StyledPanel)
-        self.tree_frame.setStyleSheet(
-            "border: 4px solid #000000;"
-        )
+        self.tree_frame.setStyleSheet("border: 4px solid #000000;")
         
-    
         tree_layout = QVBoxLayout()
         tree_layout.setContentsMargins(8,8,8,8)
         tree_layout.setSpacing(20)
         self.tree_frame.setLayout(tree_layout)
-        
         
         # ---- Tree Widget ----
         self.tree.setColumnCount(1)
@@ -710,9 +693,7 @@ class MainWindow(QMainWindow):
         tree_controls_layout.setContentsMargins(8,8,8,8)
         tree_controls_layout.setSpacing(8)
         self.tree_controls_frame.setLayout(tree_controls_layout)
-        self.tree_controls_frame.setStyleSheet(
-            "border: 4px solid 4D4D4DFF;"
-        )
+        self.tree_controls_frame.setStyleSheet("border: 4px solid 4D4D4DFF;")
 
         # Buttons
         self.expand_tree_btn = QPushButton("EXPAND TREE")
@@ -722,12 +703,9 @@ class MainWindow(QMainWindow):
         self.find_output_line = QLineEdit()
         self.find_output_line.setPlaceholderText("INPUT FOR FINDING FOLDERS.")
         self.find_output_line.setMinimumWidth(250)
-        self.find_output_line.setStyleSheet(
-            "font: 15px solid #FFFFFF;"
-        )
+        self.find_output_line.setStyleSheet("font: 15px solid #FFFFFF;")
         self.find_output_line.setEnabled(True)
         self.template_path_line.setReadOnly(True)
-
 
         for btn in [
             self.expand_folders_collapse_btn,
@@ -758,9 +736,7 @@ class MainWindow(QMainWindow):
         # ==========================================================
         self.build_buttons_frame = QFrame()
         self.build_buttons_frame.setFrameShape(QFrame.StyledPanel)
-        self.build_buttons_frame.setStyleSheet(
-            "border: 3px solid 4D4D4DFF;"
-        )
+        self.build_buttons_frame.setStyleSheet("border: 3px solid 4D4D4DFF;")
 
         build_layout = QVBoxLayout()
         build_layout.setContentsMargins(8,8,8,8)
@@ -788,11 +764,8 @@ class MainWindow(QMainWindow):
 
         self.post_build_frame = QFrame()
         self.post_build_frame.setFrameShape(QFrame.StyledPanel)
-        self.post_build_frame.setStyleSheet(
-            "border: 3px solid 4D4D4DFF;"
-        )
+        self.post_build_frame.setStyleSheet("border: 3px solid 4D4D4DFF;")
     
-        
         self.sep1 = self.make_vline()
         self.sep2 = self.make_vline()
         
@@ -826,7 +799,6 @@ class MainWindow(QMainWindow):
         main_controls_layout.setHorizontalSpacing(8)
         main_controls_layout.setVerticalSpacing(8)
 
-        
         widgets = [
             self.folder_buttons_frame,
             self.date_controls_frame,
@@ -841,40 +813,32 @@ class MainWindow(QMainWindow):
         for col, widget in enumerate(widgets):
             main_controls_layout.addWidget(widget, 0, col)
 
-
         for frame in [
-            self.folder_buttons_frame,
             self.date_controls_frame,
             self.template_controls_frame,
             self.out_put_frame,
             self.build_buttons_frame,
             self.post_build_frame
         ]:
-            frame.setMinimumWidth(160)
+            frame.setMinimumWidth(150)
             frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             
-
         # ---- Nested Status Panel ---- 
         self.smart_status_frame = QFrame()
         self.smart_status_frame.setObjectName("statusFrame")
         self.smart_status_frame.setFixedHeight(60)
         
-
         smart_status_layout = QHBoxLayout()
         smart_status_layout.setContentsMargins(4,4,4,4)
         smart_status_layout.setSpacing(10)
 
         self.smart_status_frame.setLayout(smart_status_layout)
-        self.smart_status_frame.setStyleSheet(
-            "border: 3px solid 4D4D4DFF;"
-        )
+        self.smart_status_frame.setStyleSheet("border: 3px solid 4D4D4DFF;")
 
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
         self.smart_status_text.setMaximumWidth(500)
-        # self.smart_status_text.setWordWrap(True)
         
-
         smart_status_layout.addWidget(self.smart_status_icon)
         smart_status_layout.addWidget(self.smart_status_text)
         smart_status_layout.addStretch()
@@ -884,8 +848,9 @@ class MainWindow(QMainWindow):
         self.smart_layout.addWidget(self.out_put_frame)
         # ---- THIS is the other missing line ----
         main_layout.addWidget(self.smart_folder_creator_frame)
-    
 
+        self.ui_state = UIStateController(self)
+    
         connections = [
             (self.date_time_toggle.clicked,self.desktop_on_date_stamp_toggled),
             (self.folder_to_desktop.clicked, self.create_desktop_folder),
@@ -899,12 +864,11 @@ class MainWindow(QMainWindow):
             (self.tree.saveTemplateShortcut, self.save_template_btn.click),
             (self.sort_btn.clicked, self.service.nested_manager.sort_tree),
             (self.desktop_folder_line.returnPressed, self.folder_to_desktop.click),
-            (self.tree.itemChanged, self.update_build_button_state),
+            (self.tree.itemChanged, self.ui_state.update_build_button_state),
             (self.load_template_btn.clicked, self.nested_ui.load_template),
             (self.expand_tree_btn.clicked,self.tree_gui_stretch),
             (self.tree.itemChanged, self.enforce_tree_name_limit),
-            (self.tree.itemChanged, self.update_nested_build_state)
-            
+            (self.tree.itemChanged, self.ui_state.update_nested_build_state)
         ]
 
         for signal, handler in connections:
@@ -920,38 +884,31 @@ class MainWindow(QMainWindow):
             QComboBox.enterEvent(self.load_user_template_dropdown, e)
         )
 
-        self.load_user_template_dropdown.leaveEvent = lambda e: (
-            self.reset_status("nested"),
-            QComboBox.leaveEvent(self.load_user_template_dropdown, e)
-        )
-
+        self.load_user_template_dropdown.leaveEvent = lambda e: (self.reset_status("nested"),QComboBox.leaveEvent(self.load_user_template_dropdown, e))
 
         self.load_user_template_dropdown.setContextMenuPolicy(Qt.CustomContextMenu)
         self.load_user_template_dropdown.customContextMenuRequested.connect(lambda pos: os.startfile(str(self.service.template_paths.user_dir)))
         self.load_user_template_dropdown.currentIndexChanged.connect(self.nested_ui.load_user_template_from_dropdown)
-
         self.open_folder_build_toggle.toggled.connect(lambda v: self.service.state_manager.update("open_folder_after_build", v))
-
         self.nested_ui.refresh_user_templates_dropdown()
             
         self.desktop_folder_number_enumerator.valueChanged.connect(lambda v: self.service.set_state("desktop_enumeration_count", v))
-        self.add_folder_btn.clicked.connect(lambda: (self.service.nested_manager.add_root_folder(), self.update_build_button_state()))
-        self.add_subfolder_btn.clicked.connect(lambda: (self.service.nested_manager.add_subfolder(), self.update_build_button_state()))
-        self.remove_btn.clicked.connect(lambda: (self.service.nested_manager.remove_selected_folders(),self.update_build_button_state(),QTimer.singleShot(0, self.update_nested_build_state)))
-        self.tree.itemSelectionChanged.connect(self.update_build_button_state)
+        self.add_folder_btn.clicked.connect(lambda: (self.service.nested_manager.add_root_folder(), self.ui_state.update_build_button_state()))
+        self.add_subfolder_btn.clicked.connect(lambda: (self.service.nested_manager.add_subfolder(), self.ui_state.update_build_button_state()))
+        self.remove_btn.clicked.connect(lambda: (self.service.nested_manager.remove_selected_folders(),self.ui_state.update_build_button_state(),QTimer.singleShot(0, self.ui_state.update_nested_build_state)))
+        self.tree.itemSelectionChanged.connect(self.ui_state.update_build_button_state)
         self.remove_all_btn.clicked.connect(
             lambda: (
                 self.service.nested_manager.remove_all_folders(),
                 self.load_user_template_dropdown.setCurrentIndex(0),
                 self.load_default_template_dropdown.setCurrentIndex(0),
                 setattr(self.nested_ui, "_current_loaded_template", None),
-                self.update_build_button_state(),
-                QTimer.singleShot(0, self.update_nested_build_state)
+                self.ui_state.update_build_button_state(),
+                QTimer.singleShot(0, self.ui_state.update_nested_build_state)
             )
         )
-                
-        theme_index = state.get("theme_index", 0)
 
+        theme_index = state.get("theme_index", 0)
         self.select_theme(theme_index)
         self.state = self.service.state
                 
@@ -975,7 +932,6 @@ class MainWindow(QMainWindow):
             self.desktop_folder_frame.hide()
             self.smart_folder_creator_frame.show()
             self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
-            
         else:
             self.desktop_section_title.setText("Desktop Folder Creator\n(click to switch)")
             self.smart_folder_creator_frame.hide()
@@ -987,10 +943,8 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
         theme_index = state.get("theme_index", 0)
 
-        # self.colour_accent_slider.setValue(theme_index)
-
-        accent = self.service.apply_theme(theme_index)
-        self.apply_accent_styles(accent)
+        accent_color = self.service.apply_theme(theme_index)
+        self.service.theme_controller.apply_accent_styles(self,accent_color)
 
         # ---------------------------------------------------------
         # Restore Last Base Directory
@@ -1034,12 +988,13 @@ class MainWindow(QMainWindow):
         self.desktop_folder_number_enumerator.setEnabled(enum_enabled)
         
         self.desktop_folder_line.textChanged.connect(self.update_desktop_build_state)
+
+
         
         self.update_desktop_build_state()
-        self.update_build_button_state()
+        self.ui_state.update_build_button_state()
         
     def enforce_tree_name_limit(self, item, column):
-
         name = item.text(0)
 
         if len(name) > MAX_NESTED_FOLDER_NAME_LENGTH:
@@ -1047,9 +1002,7 @@ class MainWindow(QMainWindow):
             item.setText(0, trimmed)
 
             self.smart_status_icon.setText("⚠")
-            self.smart_status_text.setText(
-                f"Folder names limited to {MAX_NESTED_FOLDER_NAME_LENGTH} characters."
-            )
+            self.smart_status_text.setText(f"Folder names limited to {MAX_NESTED_FOLDER_NAME_LENGTH} characters.")
             
     def rename_desktop_input(self):
         if self.current_mode != "desktop":
@@ -1064,7 +1017,6 @@ class MainWindow(QMainWindow):
         
         self.desktop_folder_line.setFocus()
         self.desktop_folder_line.clear()
-        
         self.update_desktop_build_state()
         
     def restore_timestamp_state(self, toggle, combo, enabled_key, mode_key):
@@ -1073,7 +1025,6 @@ class MainWindow(QMainWindow):
         combo.setEnabled(enabled)
 
         mode = self.state.get(mode_key, "ISO")
-
         index_map = {
             "ISO": 0,
             "UK": 1,
@@ -1085,64 +1036,25 @@ class MainWindow(QMainWindow):
     def make_vline(self):
         line = QFrame()
         line.setFixedWidth(6)  # thickness
-        line.setStyleSheet("border: 6px solid 4D4D4DFF;"
-        )
+        line.setStyleSheet("border: 6px solid 4D4D4DFF;")
         return line
         
     def toggle_tree_expand(self):
-
-        if self.tree_has_collapsed_nodes():
+        if self.ui_state.tree_has_collapsed_nodes():
             self.tree.expandAll()
         else:
             self.tree.collapseAll()
 
         self.update_expand_button_text()
         
-    def update_nested_build_state(self):
-
-        item = self.tree.currentItem()
-
-        if not item:
-            self.smart_status_icon.setText(">")
-            self.smart_status_text.clear()
-            return
-
-        text = item.text(0).strip()
-
-        if not text:
-            self.smart_status_icon.setText("⚠")
-            self.smart_status_text.setText("Folder name cannot be empty.")
-            return
-
-        has_invalid = any(c in text for c in INVALID_FOLDER_CHARS or "")
-
-        if has_invalid:
-            self.smart_status_icon.setText("⚠")
-            self.smart_status_text.setText(
-                "Invalid characters detected. Remove <>:\"/\\|?* from folder name."
-            )
-
-        elif len(text) >= MAX_NESTED_FOLDER_NAME_LENGTH:
-            self.smart_status_icon.setText("⚠")
-            self.smart_status_text.setText(
-                f"Folder name limit is {MAX_NESTED_FOLDER_NAME_LENGTH} characters."
-            )
-
-        else:
-            self.smart_status_icon.setText(">")
-            self.smart_status_text.clear()
-
     def update_desktop_build_state(self):
-
         text = self.desktop_folder_line.text().strip()
-
         if not text:
             self.folder_to_desktop.setEnabled(False)
             self.desktop_status_icon.setText(">")
             self.desktop_status_text.clear()
             return
 
-        # check for invalid characters
         has_invalid = any(c in text for c in INVALID_FOLDER_CHARS)
 
         self.folder_to_desktop.setEnabled(not has_invalid)
@@ -1150,272 +1062,16 @@ class MainWindow(QMainWindow):
         # ---- validation priority ----
         if has_invalid:
             self.desktop_status_icon.setText("⚠")
-            self.desktop_status_text.setText(
-                "Invalid characters detected. Remove <>:\"/\\|?* from folder name."
-            )
+            self.desktop_status_text.setText("Invalid characters detected. Remove <>:\"/\\|?* from folder name.")
 
         elif len(text) >= MAX_NESTED_FOLDER_NAME_LENGTH:
             self.desktop_status_icon.setText("⚠")
-            self.desktop_status_text.setText(
-                f"Folder name limit is {MAX_NESTED_FOLDER_NAME_LENGTH} characters."
-            )
+            self.desktop_status_text.setText(f"Folder name limit is {MAX_NESTED_FOLDER_NAME_LENGTH} characters.")
 
         else:
             self.desktop_status_icon.setText(">")
             self.desktop_status_text.clear()
-            
-    def update_build_button_state(self):
-        
-        has_invalid_chars = self.tree_contains_invalid_chars()
-        
-        default_template_loaded = (
-            self.load_default_template_dropdown.currentIndex() != 0
-        )
 
-        has_items = self.tree.topLevelItemCount() > 0
-        has_selection = self.tree.currentItem() is not None
-
-        # Detect if nesting exists
-        has_children = any(
-            self.tree.topLevelItem(i).childCount() > 0
-            for i in range(self.tree.topLevelItemCount())
-        )
-        
-        # ---------------------------------------------------------
-        # Pure parent structure → sorting not useful
-        # ---------------------------------------------------------
-        if not has_children:
-            self.sort_btn.setEnabled(False)
-
-        # Detect desktop path
-        desktop_path = str(self.service.desktop_manager.desktop_path)
-        current_path = self.base_path_line.text().strip()
-        is_desktop = current_path == desktop_path
-
-        # Desktop button
-        self.default_to_desktop_btn.setEnabled(not is_desktop)
-        
-        # ---------------------------------------------------------
-        # Find button logic (adaptive to tree size)
-        # ---------------------------------------------------------
-
-        viewport_height = self.tree.viewport().height()
-        row_height = self.tree.sizeHintForRow(0)
-
-        visible_capacity = 0
-        if row_height > 0:
-            visible_capacity = max(1, viewport_height // row_height)
-
-        total_items = self.get_total_tree_item_count()
-
-        can_find = total_items > visible_capacity
-
-        self.find_btn.setEnabled(can_find)
-        self.find_output_line.setEnabled(can_find)
-        
-        # ---------------------------------------------------------
-        # Detect duplicate parent folders
-        # ---------------------------------------------------------
-
-        parent_names = [
-            self.tree.topLevelItem(i).text(0).strip().lower()
-            for i in range(self.tree.topLevelItemCount())
-        ]
-
-        has_duplicate_parents = len(parent_names) != len(set(parent_names))
-
-        # ---------------------------------------------------------
-        # Detect duplicate subfolders under any parent
-        # ---------------------------------------------------------
-
-        has_duplicate_children = False
-
-        for i in range(self.tree.topLevelItemCount()):
-            parent = self.tree.topLevelItem(i)
-
-            child_names = [
-                parent.child(j).text(0).strip().lower()
-                for j in range(parent.childCount())
-            ]
-
-            if len(child_names) != len(set(child_names)):
-                has_duplicate_children = True
-                break
-
-        # ---------------------------------------------------------
-        # Combine duplicate states
-        # ---------------------------------------------------------
-
-        has_duplicates = has_duplicate_parents or has_duplicate_children
-
-        # ---------------------------------------------------------
-        # Persistent warning for duplicate names
-        # ---------------------------------------------------------
-
-        if has_duplicates:
-            self.smart_status_icon.setText("⚠")
-            self.smart_status_text.setText(
-                "Duplicate folder names detected under the same parent.\n "
-                "Rename folders before building."
-            )
-        else:
-            if self.smart_status_text.text().startswith("Duplicate folder"):
-                self.smart_status_text.setText("")
-                self.smart_status_icon.setText(">")
-                
-        if has_invalid_chars:
-            self.smart_status_icon.setText("⚠")
-            self.smart_status_text.setText(
-                "Invalid characters detected in folder names.\n "
-                "Remove <>:\"/\\|?* before building."
-            )
-
-        # ---------------------------------------------------------
-        # Detect invalid folder names
-        # ---------------------------------------------------------
-        invalid_name_exists = False
-
-        iterator = QTreeWidgetItemIterator(self.tree)
-
-        while iterator.value():
-            name = iterator.value().text(0).strip()
-
-            if not name or any(c in name for c in INVALID_FOLDER_CHARS):
-                invalid_name_exists = True
-                break
-
-            iterator += 1
-            
-        # Build/remove
-        self.build_folders_btn.setEnabled(has_items and not has_duplicate_parents and not has_invalid_chars and not invalid_name_exists)
-        self.remove_all_btn.setEnabled(has_items)
-    
-        # Tree utilities
-        self.save_template_btn.setEnabled(has_items and not has_duplicate_parents)
-        
-        # ---------------------------------------------------------
-        # Auto-number override
-        # ---------------------------------------------------------
-        if self.auto_enumerate_folders.isChecked():
-            self.sort_btn.setEnabled(False)
-        else:
-            # Detect if sorting is actually meaningful
-            can_sort = self.tree.topLevelItemCount() > 1
-
-            if not can_sort:
-                for i in range(self.tree.topLevelItemCount()):
-                    item = self.tree.topLevelItem(i)
-                    if item.childCount() > 1:
-                        can_sort = True
-                        break
-
-            self.sort_btn.setEnabled(can_sort)
-
-        # ---------------------------------------------------------
-        # Detect if sorting is actually meaningful
-        # ---------------------------------------------------------
-        def names_would_change(names):
-            normalized = [n.strip().lower() for n in names]
-            return normalized != sorted(normalized)
-
-        can_sort = False
-
-        # If tree has no nesting, sorting is not useful
-        if not has_children:
-            can_sort = False
-        else:
-
-            # ---- Check top level ----
-            root_names = [
-                self.tree.topLevelItem(i).text(0)
-                for i in range(self.tree.topLevelItemCount())
-            ]
-
-            if len(root_names) > 1 and names_would_change(root_names):
-                can_sort = True
-
-            # ---- Check child groups ----
-            if not can_sort:
-                for i in range(self.tree.topLevelItemCount()):
-                    parent = self.tree.topLevelItem(i)
-
-                    child_names = [
-                        parent.child(j).text(0)
-                        for j in range(parent.childCount())
-                    ]
-
-                    if len(child_names) > 1 and names_would_change(child_names):
-                        can_sort = True
-                        break
-
-        self.sort_btn.setEnabled(can_sort)
-
-        # Expand/collapse only useful if nesting exists
-        self.expand_folders_collapse_btn.setEnabled(has_children)
-
-        # Selection-dependent buttons
-        self.remove_btn.setEnabled(has_selection)
-        self.add_subfolder_btn.setEnabled(has_selection)
-        
-        # ---------------------------------------------------------
-        # Auto-number rule
-        # ---------------------------------------------------------
-        if default_template_loaded:
-            self.auto_enumerate_folders.setChecked(False)
-            self.auto_enumerate_folders.setEnabled(False)
-        else:
-            self.auto_enumerate_folders.setEnabled(True)
-            
-    def get_total_tree_item_count(self):
-        count = 0
-        iterator = QTreeWidgetItemIterator(self.tree)
-
-        while iterator.value():
-            count += 1
-            iterator += 1
-
-        return count
-
-    def get_visible_tree_item_count(self):
-        def count_visible(item):
-            total = 1
-
-            if item.isExpanded():
-                for i in range(item.childCount()):
-                    total += count_visible(item.child(i))
-
-            return total
-
-        total = 0
-
-        for i in range(self.tree.topLevelItemCount()):
-            total += count_visible(self.tree.topLevelItem(i))
-
-        return total
-        
-    def tree_has_collapsed_nodes(self):
-
-        for i in range(self.tree.topLevelItemCount()):
-            item = self.tree.topLevelItem(i)
-
-            if not item.isExpanded() and item.childCount() > 0:
-                return True
-
-            stack = [item]
-
-            while stack:
-                node = stack.pop()
-
-                for j in range(node.childCount()):
-                    child = node.child(j)
-
-                    if not child.isExpanded() and child.childCount() > 0:
-                        return True
-
-                    stack.append(child)
-
-        return False
-    
     def tree_gui_stretch(self):
         if self.out_put_frame.isVisible():
             # hide output + status section
@@ -1429,10 +1085,9 @@ class MainWindow(QMainWindow):
             self.expand_tree_btn.setText("EXPAND TREE")
 
         # Recalculate UI state AFTER Qt finishes resizing
-        QTimer.singleShot(0, self.update_build_button_state)
+        QTimer.singleShot(0, self.ui_state.update_build_button_state)
     
     def toggle_mode(self):
-
         if self.current_mode == "desktop":
             self.current_mode = "nested"
             self.service.set_state("ui_mode", self.current_mode)
@@ -1449,80 +1104,12 @@ class MainWindow(QMainWindow):
             self.desktop_section_title.setText("Desktop Folder Creator\n(click to switch)")
             self.desktop_folder_frame.show()
             self.smart_folder_creator_frame.hide()
-
             self.setFixedSize(650, self.desktop_mode_height)
 
     def change_accent_theme(self, index: int):
         accent = self.service.apply_theme(index)
-        self.apply_accent_styles(accent)
-        
-    def preview_theme(self, index):
-        accent = self.service.apply_theme(index)
-        self.apply_accent_styles(accent)
-        
-    def apply_accent_styles(self, accent_color: str):
+        self.theme_controller.apply_accent_styles(accent)
 
-        # ---- Section labels ----
-        title_2 = [
-            # self.smart_folder_creator,
-            self.desktop_section_title,
-            self.base_path_title,
-            self.template_path_title
-        ]
-
-        for lbl in title_2:
-            lbl.setStyleSheet(f"""
-                QLabel {{
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: {accent_color};
-                }}
-            """)
-
-        # ---- Checkboxes (default size) ----
-        default_checks = [
-            self.date_time_toggle,
-            self.enumerate_toggle
-        ]
-
-        for cb in default_checks:
-            cb.setStyleSheet(f"""
-                QCheckBox {{
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: {accent_color};
-                }}
-            """)
-
-        # ---- Larger checkboxes ----
-        large_checks = [
-            self.nested_date_toggle,
-            self.auto_enumerate_folders,
-            self.open_folder_build_toggle,
-            self.minimize_after_build_toggle
-        ]
-
-        for cb in large_checks:
-            cb.setStyleSheet(f"""
-                QCheckBox {{
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: {accent_color};
-                }}
-                QCheckBox:disabled {{
-                    color: rgba(140,140,140,0.6);
-                }}
-            """)
-
-        self.current_accent_color = accent_color
-        
-        # ---- Status icons ----
-        for icon in [
-            self.desktop_status_icon,
-            self.smart_status_icon
-        ]:
-            icon.setStyleSheet(f"font-weight: 700; color: {accent_color};")
-    
     # shared status out function hat Qline uses for both output lines
     def set_status(self, message: str, target: str = "desktop", status_type: str = "info"):
         """
@@ -1567,7 +1154,6 @@ class MainWindow(QMainWindow):
         text_label.setText(message)
 
     def reset_status(self, target: str):
-
         accent = self.service.theme_controller.current_accent
 
         if target == "nested":
@@ -1595,31 +1181,21 @@ class MainWindow(QMainWindow):
         
     ####################### Desktop Folder Creator methods #################################
     
-    def tree_contains_invalid_chars(self):
-
-        invalid = '<>:"/\\|?*'
-
-        iterator = QTreeWidgetItemIterator(self.tree)
-
-        while iterator.value():
-            item = iterator.value()
-
-            name = item.text(0)
-
-            for c in invalid:
-                if c in name:
-                    return True
-
-            iterator += 1
-
-        return False
+    def update_expand_button_text(self):
+        if self.ui_state.tree_has_collapsed_nodes():
+            self.expand_folders_collapse_btn.setText("EXPAND FOLDERS")
+        else:
+            self.expand_folders_collapse_btn.setText("COLLAPSE FOLDERS")
+            
+    def update_expand_tree(self):
+        if self.tree_gui_stretch():
+            self.expand_tree_btn.setText("EXPAND TREE")
+        else:
+            self.expand_tree_btn.setText("COLLAPSE TREE")
     
     def select_theme(self, index):
-
-        accent = self.service.apply_theme(index)
-
-        self.apply_accent_styles(accent)
-
+        accent_color = self.service.apply_theme(index)
+        self.service.theme_controller.apply_accent_styles(self, accent_color)
         self.service.set_state("theme_index", index)
 
         for i, btn in enumerate(self.theme_buttons):
@@ -1628,25 +1204,17 @@ class MainWindow(QMainWindow):
     def desktop_on_date_stamp_toggled(self, checked):
         self.date_time_config.setEnabled(checked)
 
-        self.service.set_state(
-            "desktop_date_stamp_enabled",
-            checked
-        )
+        self.service.set_state("desktop_date_stamp_enabled",checked)
         
     def on_enumerate_toggle(self, checked: bool):
-
         self.desktop_folder_number_enumerator.setEnabled(checked)
 
         if checked and self.desktop_folder_number_enumerator.value() == 1:
             self.desktop_folder_number_enumerator.setValue(2)
 
-        self.service.set_state(
-            "desktop_enumeration_enabled",
-            checked
-        )
+        self.service.set_state("desktop_enumeration_enabled",checked)
         
     def desktop_on_date_mode_changed(self, index: int):
-
         text = self.date_time_config.currentText()
 
         if "ISO" in text:
@@ -1658,13 +1226,9 @@ class MainWindow(QMainWindow):
         else:
             mode = "ISO"
 
-        self.service.set_state(
-            "desktop_date_stamp_mode",
-            mode
-        )
+        self.service.set_state("desktop_date_stamp_mode",mode)
                     
     def create_desktop_folder(self):
-        
         raw_name = self.desktop_folder_line.text().strip()
         base_name = self.desktop_folder_line.text().strip()
 
@@ -1713,7 +1277,6 @@ class MainWindow(QMainWindow):
         # Create folders
         # ----------------------------------
         for i in range(1, count + 1):
-
             if count == 1:
                 name = base_name
             else:
@@ -1747,24 +1310,10 @@ class MainWindow(QMainWindow):
                 target="desktop",
                 status_type="error"
             )
-    
-    def update_expand_button_text(self):
-
-        if self.tree_has_collapsed_nodes():
-            self.expand_folders_collapse_btn.setText("EXPAND FOLDERS")
-        else:
-            self.expand_folders_collapse_btn.setText("COLLAPSE FOLDERS")
-            
-    def update_expand_tree(self):
-
-        if self.tree_gui_stretch():
-            self.expand_tree_btn.setText("EXPAND TREE")
-        else:
-            self.expand_tree_btn.setText("COLLAPSE TREE")
 
 def main():
     app = QApplication(sys.argv)
-
+    
     window = MainWindow()
     window.show()
 

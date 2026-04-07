@@ -89,7 +89,7 @@ class NestedUIController:
                     self.tree.setCurrentItem(root)
 
                 self.service.nested_manager.expand_all_animated()
-                self.window.update_build_button_state()
+                self.window.ui_state.update_build_button_state()
                 self._loading_template = False
 
             QTimer.singleShot(0, finalize)
@@ -112,7 +112,7 @@ class NestedUIController:
 
         if text == "User Templates":
             self.tree.clear()
-            self.window.update_build_button_state()
+            self.window.ui_state.update_build_button_state()
             return
 
         base = "_".join(text.lower().split())
@@ -123,7 +123,7 @@ class NestedUIController:
         # ---- THIS is the missing guard ----
         if not matches:
             self.tree.clear()
-            self.window.update_build_button_state()
+            self.window.ui_state.update_build_button_state()
             return
 
         path = matches[0]
@@ -302,7 +302,7 @@ class NestedUIController:
     def remove_all_folders(self):
         self.service.nested_manager.remove_all_folders()
         self.window.load_default_template_dropdown.setCurrentIndex(0)
-        self.window.update_build_button_state()
+        self.window.ui_state.update_build_button_state()
         
     def toggle_auto_number_folders(self, checked: bool):
         self.service.nested_manager.auto_number_enabled = checked
@@ -316,7 +316,7 @@ class NestedUIController:
 
         if text == "Default Templates":
             self.tree.clear()
-            self.window.update_build_button_state()
+            self.window.ui_state.update_build_button_state()
             return
 
         filename = text.lower().replace(" ", "_") + ".txt"
@@ -342,7 +342,7 @@ class NestedUIController:
             root = self.tree.topLevelItem(0)
             self.tree.setCurrentItem(root)
 
-        self.window.update_build_button_state()
+        self.window.ui_state.update_build_button_state()
         
     def create_template(self):
 

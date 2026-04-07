@@ -69,3 +69,60 @@ class ThemeController:
             .replace("dark_", "")
             .replace(".xml", "")
         )
+    
+    def apply_accent_styles(self, window, accent_color: str):
+
+        # ---- Section labels ----
+        for lbl in [
+            window.desktop_section_title,
+            window.base_path_title,
+            window.template_path_title
+        ]:
+            lbl.setStyleSheet(f"""
+                QLabel {{
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: {accent_color};
+                }}
+            """)
+
+        # ---- Checkboxes (default size) ----
+        for cb in [
+            window.date_time_toggle,
+            window.enumerate_toggle
+        ]:
+            cb.setStyleSheet(f"""
+                QCheckBox {{
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: {accent_color};
+                }}
+            """)
+
+        # ---- Larger checkboxes ----
+        for cb in [
+            window.nested_date_toggle,
+            window.auto_enumerate_folders,
+            window.open_folder_build_toggle,
+            window.minimize_after_build_toggle
+        ]:
+            cb.setStyleSheet(f"""
+                QCheckBox {{
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: {accent_color};
+                }}
+                QCheckBox:disabled {{
+                    color: rgba(140,140,140,0.6);
+                }}
+            """)
+
+        self.current_accent = accent_color
+
+        # ---- Status icons ----
+        for icon in [
+            window.desktop_status_icon,
+            window.smart_status_icon
+        ]:
+            icon.setStyleSheet(f"font-weight: 700; color: {accent_color};")
+    
