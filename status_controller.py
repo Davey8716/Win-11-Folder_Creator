@@ -1,6 +1,5 @@
 from PySide6.QtCore import QTimer
 
-
 class StatusController:
     def __init__(self, window, service):
         self.w = window

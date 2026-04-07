@@ -97,11 +97,24 @@ class ThemeController:
                 border: 1px solid #444;
             }
             
+            QTreeWidget {
+                selection-background-color: #e8e8e8;  /* fallback */
+                font-family: "Rubik UI";
+                font-size: 15px;
+            }
+
             QTreeWidget::item:selected {
                 background-color: #e8e8e8;
                 color: #1a1a1a;
                 font-weight: 700;
-                
+            }
+
+            QTreeWidget::item:selected:active {
+                background-color: #dcdcdc;
+            }
+
+            QTreeWidget::item:selected:!active {
+                background-color: #e8e8e8;
             }
 
             QSpinBox::up-button, QSpinBox::down-button {
@@ -195,6 +208,8 @@ class ThemeController:
 
                 QTreeWidget {
                     selection-background-color: #444444;  /* fallback */
+                    font-family: "Rubik UI";
+                    font-size: 15px;
                 }
 
                 QTreeWidget::item:selected {

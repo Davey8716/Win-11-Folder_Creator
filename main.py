@@ -873,6 +873,8 @@ class MainWindow(QMainWindow):
             (self.date_time_config.currentIndexChanged, self.desktop_on_date_mode_changed),
             (self.expand_folders_collapse_btn.clicked, self.toggle_tree_expand),
             (self.tree.itemExpanded, self.update_expand_button_text),
+            (self.tree.itemExpanded, self.ui_state.update_build_button_state),
+            (self.tree.itemCollapsed, self.ui_state.update_build_button_state),
             (self.tree.itemCollapsed, self.update_expand_button_text),
             (self.tree.addFolderShortcut, self.add_folder_btn.click),
             (self.tree.addSubfolderShortcut, self.add_subfolder_btn.click),

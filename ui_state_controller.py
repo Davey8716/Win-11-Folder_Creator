@@ -45,7 +45,12 @@ class UIStateController:
             visible_capacity = max(1, viewport_height // row_height)
 
         total_items = self.get_total_tree_item_count()
-        can_find = total_items > visible_capacity
+        has_collapsed = self.tree_has_collapsed_nodes()
+        
+        can_find = (
+            total_items > visible_capacity
+            or has_collapsed
+        )
 
         self.w.find_btn.setEnabled(can_find)
         self.w.find_output_line.setEnabled(can_find)
