@@ -1,13 +1,14 @@
-from typing import List
-from PySide6.QtWidgets import QApplication
 
+from PySide6.QtWidgets import QApplication
 
 class ThemeController:
     def __init__(self):
         self.current_index = 0
         self.current_accent = "#000000"
     
-    def select_theme(self, index, service):
+    def select_theme(self, index, service,window):
+        self.current_index = index
+
         if index == -2:
             # white theme
             app = QApplication.instance()
@@ -234,7 +235,50 @@ class ThemeController:
                 }
             """)
             accent_color = "#FFFFFF"
-        
+
+            
+
+        for i, btn in enumerate(window.theme_buttons):
+            is_active = (
+                (index == -2 and i == 0) or
+                (index == -1 and i == 1)
+            )
+
+            btn.setChecked(is_active)
+            btn.setEnabled(True)
+            btn.setCheckable(True)
+
+            if is_active:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #7a7a7a;
+                        border: 2px solid #5a5a5a;
+                        border-radius: 6px;
+                    }
+                """)
+            elif i == 0:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #e8e8e8;
+                        border: 2px solid #bdbdbd;
+                        border-radius: 6px;
+                    }
+                    QPushButton:checked {
+                        border: 3px solid black;
+                    }
+                """)
+            else:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #1e1e1e;
+                        border: 2px solid #444;
+                        border-radius: 6px;
+                    }
+                    QPushButton:checked {
+                        border: 3px solid white;
+                    }
+                """)
+                    
         service.set_state("theme_index", index)
     
 

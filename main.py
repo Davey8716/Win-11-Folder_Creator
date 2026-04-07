@@ -121,7 +121,12 @@ class MainWindow(QMainWindow):
             btn.setCheckable(True)
 
             if i == 0:
-                btn.clicked.connect(lambda _, idx=-2: self.service.theme_controller.select_theme(idx,self.service))
+                btn.clicked.connect(
+                    lambda _, idx=-2: (
+                        None if self.service.theme_controller.current_index == idx
+                        else self.service.theme_controller.select_theme(idx, self.service, self)
+                    )
+                )
 
                 # 👇 WHITE THEME PREVIEW ONLY
                 btn.setStyleSheet("""
@@ -136,7 +141,12 @@ class MainWindow(QMainWindow):
                 """)
 
             else:
-                btn.clicked.connect(lambda _, idx=-1: self.service.theme_controller.select_theme(idx, self.service))
+                btn.clicked.connect(
+                    lambda _, idx=-1: (
+                        None if self.service.theme_controller.current_index == idx
+                        else self.service.theme_controller.select_theme(idx, self.service, self)
+                    )
+                )
 
                 # 👇 BLACK THEME PREVIEW ONLY
                 btn.setStyleSheet("""
@@ -937,19 +947,17 @@ class MainWindow(QMainWindow):
         if theme_index not in (-2, -1):
             theme_index = -2
 
-        self.service.theme_controller.select_theme(theme_index, self.service)
-
+        self.service.theme_controller.select_theme(theme_index, self.service,self)
 
         for i, btn in enumerate(self.theme_buttons):
 
-            if theme_index == -2:
-                btn.setChecked(i == 0)
+            is_active = (
+                (theme_index == -2 and i == 0) or
+                (theme_index == -1 and i == 1)
+            )
 
-            elif theme_index == -1:
-                btn.setChecked(i == 1)
-
-            else:
-                btn.setChecked(i == theme_index + 2)
+            btn.setChecked(is_active)
+            btn.setCheckable(not is_active)
 
         for icon in [
             self.desktop_status_icon,
