@@ -51,7 +51,6 @@ class SmartTreeWidget(QTreeWidget):
 
         font = painter.font()
         font.setBold(self._placeholder_bold)
-        font.setPointSize(max(9, self.font().pointSize() - 1)) #
         painter.setFont(font)
 
         painter.setPen(QColor(140, 140, 140))

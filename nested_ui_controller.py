@@ -89,6 +89,7 @@ class NestedUIController:
                     self.tree.setCurrentItem(root)
 
                 self.service.nested_manager.expand_all_animated()
+                self.window.load_default_template_dropdown.setCurrentIndex(0)
                 self.window.ui_state.update_build_button_state()
                 self._loading_template = False
 
@@ -115,10 +116,12 @@ class NestedUIController:
             self.window.ui_state.update_build_button_state()
             return
 
-        base = "_".join(text.lower().split())
         folder = self.service.template_paths.user_dir
-
-        matches = list(folder.glob(base + ".*"))
+        matches = [
+            f for f in folder.glob("*.*")
+            if f.stem.replace("_", " ").title() == text
+        ]
+            
 
         # ---- THIS is the missing guard ----
         if not matches:
@@ -531,9 +534,12 @@ class NestedUIController:
     def on_user_template_selected(self, index):
         if index == 0:
             return
+        
+        self.window.ui_state.update_build_button_state()
 
         # reset default dropdown
         self.window.load_default_template_dropdown.setCurrentIndex(0)
+     
 
         self.load_user_template_from_dropdown()
 

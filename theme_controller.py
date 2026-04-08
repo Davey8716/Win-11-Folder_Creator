@@ -167,7 +167,7 @@ class ThemeController:
                     color: white;
                     font-weight: 700;
                     font-family: "Rubik UI";
-                    font-size: 13px;
+                    font-size: 12px;
                     text-transform: uppercase;
                     text-align: center;
                     padding: 4px;
