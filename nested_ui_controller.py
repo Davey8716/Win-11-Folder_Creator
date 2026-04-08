@@ -60,15 +60,18 @@ class NestedUIController:
         try:
             self._loading_template = True
 
-            if self.window.auto_enumerate_folders.isChecked():
-                self.window.auto_enumerate_folders.setChecked(False)
+            auto_number_was_enabled = self.window.auto_enumerate_folders.isChecked()
+                
 
             data = self.service.load_template_data(file_path)
             if data is None:
                 self._loading_template = False
                 return
 
-            self.service.nested_manager.deserialize_tree(data)
+            self.service.nested_manager.deserialize_tree(
+                data,
+                renumber=auto_number_was_enabled
+            )
 
             self.service.save_to_user_templates(file_path)
 
@@ -169,7 +172,7 @@ class NestedUIController:
                 self._current_loaded_template = None
                 dropdown.setCurrentIndex(0)
                 self.tree.clear()
-                self.window.update_build_button_state()
+                self.window.ui_state.update_build_button_state()
         
 
     def user_template_save(self):
@@ -308,7 +311,28 @@ class NestedUIController:
         self.window.ui_state.update_build_button_state()
         
     def toggle_auto_number_folders(self, checked: bool):
-        self.service.nested_manager.auto_number_enabled = checked
+        manager = self.service.nested_manager
+        manager.auto_number_enabled = checked
+
+        if self.tree.topLevelItemCount() > 0:
+            if checked:
+                manager.renumber_loaded_tree()
+            else:
+                # ---- remove numbering ----
+                from PySide6.QtWidgets import QTreeWidgetItemIterator
+                import re
+
+                it = QTreeWidgetItemIterator(self.tree)
+                while it.value():
+                    item = it.value()
+                    name = item.text(0)
+
+                    # remove trailing " 1", " 2", etc.
+                    clean = re.sub(r"\s+\d+$", "", name).strip()
+                    item.setText(0, clean)
+
+                    it += 1
+
         self.service.set_state(
             "nested_auto_number_enabled",
             checked

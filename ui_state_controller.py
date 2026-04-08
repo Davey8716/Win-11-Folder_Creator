@@ -20,6 +20,10 @@ class UIStateController:
         has_items = self.tree.topLevelItemCount() > 0
         has_selection = self.tree.currentItem() is not None
 
+        default_template_loaded = (
+            self.w.load_default_template_dropdown.currentIndex() != 0
+        )
+
         # Detect if nesting exists
         has_children = any(
             self.tree.topLevelItem(i).childCount() > 0
@@ -85,8 +89,7 @@ class UIStateController:
         if has_duplicates:
             self.w.smart_status_icon.setText("⚠")
             self.w.smart_status_text.setText(
-                "Duplicate folder names detected under the same parent.\n "
-                "Rename folders before building."
+                "Duplicate folder names detected under the same parent.Rename folders before building."
             )
         else:
             if self.w.smart_status_text.text().startswith("Duplicate folder"):
@@ -172,6 +175,8 @@ class UIStateController:
         self.w.expand_folders_collapse_btn.setEnabled(has_children)
         self.w.remove_btn.setEnabled(has_selection)
         self.w.add_subfolder_btn.setEnabled(has_selection)
+
+        self.w.file_dropdown.setEnabled(has_items and not default_template_loaded)
         
         if default_template_loaded:
             self.w.auto_enumerate_folders.setChecked(False)

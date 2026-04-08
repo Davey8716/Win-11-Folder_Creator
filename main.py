@@ -49,10 +49,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Folder Generator")
         
         self.desktop_mode_height = 310
-        self.nested_mode_height = 985
+        self.nested_mode_height = 995
         
         self.desktop_mode_width = 700
-        self.nested_mode_width = 820
+        self.nested_mode_width = 900
         
         self.setFixedSize(self.nested_mode_width, self.nested_mode_height)
         
@@ -179,6 +179,7 @@ class MainWindow(QMainWindow):
 
         self.desktop_folder_frame = QFrame()
         self.desktop_folder_frame.setMinimumHeight(200)
+        self.desktop_folder_frame.setFixedWidth(613)
         self.desktop_folder_frame.setFrameShape(QFrame.StyledPanel)
  
         self.desktop_layout = QVBoxLayout()
@@ -206,7 +207,7 @@ class MainWindow(QMainWindow):
         self.clear_desktop_line_shortcut = QShortcut(QKeySequence(Qt.Key_Delete), self.desktop_folder_line)
         self.clear_desktop_line_shortcut.activated.connect(self.clear_desktop_input)
 
-        self.folder_to_desktop = QPushButton("Folder To Desktop")
+        self.folder_to_desktop = QPushButton("📁 To Desktop")
 
 
         # ---- Enumeration controls ----
@@ -300,7 +301,6 @@ class MainWindow(QMainWindow):
             desktop_layouts.setContentsMargins(5,5,5,5)
             desktop_layouts.setSpacing(5)
 
-            
 
         # ==========================================================
         # Add subframes into parent controls frame
@@ -335,7 +335,7 @@ class MainWindow(QMainWindow):
         ]:
             desktop_frames.setStyleSheet("border: 5px solid 4D4D4DFF;")
         
-        self.desktop_status_frame.setFixedWidth(610)
+        self.desktop_status_frame.setFixedWidth(587)
         self.desktop_status_frame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.desktop_status_icon = QLabel(">")
@@ -349,7 +349,7 @@ class MainWindow(QMainWindow):
         self.desktop_layout.addWidget(self.desktop_status_frame,alignment=Qt.AlignHCenter)
         
         # Add entire frame to main layout
-        main_layout.addWidget(self.desktop_folder_frame)
+        main_layout.addWidget(self.desktop_folder_frame, alignment=Qt.AlignCenter)
         main_layout.addSpacing(5)# BIG separation between sections
 
 ################################################################################################################################################################################################################################################
@@ -390,11 +390,12 @@ class MainWindow(QMainWindow):
         self.smart_folder_creator_frame = QFrame()
         self.smart_folder_creator_frame.setFrameShape(QFrame.StyledPanel)
         self.smart_folder_creator_frame.setStyleSheet("border: 5px solid 4D4D4DFF;")
-        self.smart_folder_creator_frame.setFixedWidth(800)
+        self.smart_folder_creator_frame.setFixedWidth(875)
+        self.smart_folder_creator_frame.setFixedHeight(880)
 
         self.smart_layout = QVBoxLayout()
-        self.smart_layout.setSpacing(5)
-        self.smart_layout.setContentsMargins(5,5,5,5)
+        self.smart_layout.setSpacing(0)
+        self.smart_layout.setContentsMargins(2,2,2,2)
         self.smart_folder_creator_frame.setLayout(self.smart_layout)
 
         # # ==========================================================
@@ -403,6 +404,7 @@ class MainWindow(QMainWindow):
         main_controls_layout = QGridLayout()
         main_controls_layout.setContentsMargins(5,5,5,5)
         self.smart_layout.addLayout(main_controls_layout)
+        
 
         # ==========================================================
         # Create all widgets first
@@ -451,8 +453,8 @@ class MainWindow(QMainWindow):
                 Qt.TextAlignmentRole
             )
 
-        self.auto_enumerate_folders = QPushButton("AUTO NUMBER\n AND NAME\n FOLDERS AND\n SUBFOLDERS")
-        self.nested_date_toggle = QPushButton("ADD DATE\n STAMP TO\nPARENT FOLDER")
+        self.auto_enumerate_folders = QPushButton("AUTO NUMBER\nFOLDERS AND\n SUB FOLDERS\n(IF DUPLICATED)")
+        self.nested_date_toggle = QPushButton("ADD DATE\n STAMP TO\nPARENT FOLDERS")
 
         for button in [
             self.auto_enumerate_folders,
@@ -508,32 +510,95 @@ class MainWindow(QMainWindow):
 
         self.folder_buttons_frame = QFrame()
         self.folder_buttons_frame.setFrameShape(QFrame.StyledPanel)
+        self.folder_buttons_frame.setFixedWidth(200)
 
         folder_buttons_layout = QVBoxLayout()
         folder_buttons_layout.setContentsMargins(5,5,5,5)
         folder_buttons_layout.setSpacing(5)
         self.folder_buttons_frame.setLayout(folder_buttons_layout)
 
-        folder_buttons_layout.addWidget(self.add_folder_btn)
-        folder_buttons_layout.addWidget(self.add_subfolder_btn)
-        folder_buttons_layout.addWidget(self.remove_btn)
-        folder_buttons_layout.addWidget(self.remove_all_btn)
-        
+        # ---- ROW 1 (Add / Sub) ----
+        top_row = QHBoxLayout()
+        top_row.setSpacing(10)
+
+        self.add_folder_btn.setText("📁 Add")
+        self.add_subfolder_btn.setText("📂 Sub")
+
+        self.add_folder_btn.setFixedSize(80,40)
+        self.add_subfolder_btn.setFixedSize(80,40)
+
+        top_row.addStretch()
+        top_row.addWidget(self.add_folder_btn)
+        top_row.addWidget(self.add_subfolder_btn)
+        top_row.addStretch()
+
+        # ---- ROW 2 (File dropdown) ----
+        file_row = QHBoxLayout()
+        file_row.setSpacing(10)
+
+        self.file_dropdown = QComboBox()
+        self.file_dropdown.addItems([
+                "Add Blank File",
+                "──────────",
+                "Python (.py)",
+                "JavaScript (.js)",
+                "HTML (.html)",
+                "CSS (.css)",
+                "──────────",
+                "Text (.txt)",
+                "Markdown (.md)",
+                "README.md",
+                "──────────",
+                "JSON (.json)",
+                "YAML (.yaml)",
+                "ENV (.env)",
+                "──────────",
+                "Batch (.bat)",
+                "PowerShell (.ps1)"
+        ])
+
+        self.file_dropdown.setFixedSize(170, 40)
+
+        file_row.addStretch()
+        file_row.addWidget(self.file_dropdown)
+        file_row.addStretch()
+
+        # ---- ROW 3 (Remove / Remove All) ----
+        bottom_row = QHBoxLayout()
+        bottom_row.setSpacing(5)
+
+        self.remove_btn.setFixedSize(85,50)
+        self.remove_all_btn.setFixedSize(85,50)
+
+        bottom_row.addStretch()
+        bottom_row.addWidget(self.remove_btn)
+        bottom_row.addWidget(self.remove_all_btn)
+        bottom_row.addStretch()
+
+        # ---- FINAL LAYOUT ----
+        folder_buttons_layout.addLayout(top_row)
+        folder_buttons_layout.addLayout(file_row)
+        folder_buttons_layout.addLayout(bottom_row)
+        folder_buttons_layout.addStretch()
+
         # ==========================================================
-        # Column 3 — Date / auto-number frame NO
+        # Column 2 — Date / auto-number frame NO
         # ==========================================================
 
         self.date_controls_frame = QFrame()
         self.date_controls_frame.setFrameShape(QFrame.StyledPanel)
+        self.date_controls_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.date_controls_frame.setFixedWidth(190)
 
         date_layout = QVBoxLayout()
         date_layout.setContentsMargins(5,5,5,5)
         date_layout.setSpacing(5)
+        date_layout.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
         self.date_controls_frame.setLayout(date_layout)
 
-        date_layout.addWidget(self.auto_enumerate_folders,)
-        date_layout.addWidget(self.nested_date_toggle,)
-        date_layout.addWidget(self.nested_date_config,)
+        date_layout.addWidget(self.auto_enumerate_folders, alignment=Qt.AlignHCenter)
+        date_layout.addWidget(self.nested_date_toggle, alignment=Qt.AlignHCenter)
+        date_layout.addWidget(self.nested_date_config, alignment=Qt.AlignHCenter)
 
         # ----------------------------------------------------------
         # Create path fields FIRST
@@ -614,12 +679,14 @@ class MainWindow(QMainWindow):
 
         # # # # # # # # # # # # # # # # # # # # # # # Ouput Folder Creator # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # NO
         self.tree_frame = QFrame()
+        self.tree_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.tree_frame.setMinimumHeight(0)
         self.tree_frame.setFrameShape(QFrame.StyledPanel)
         
         
         tree_layout = QVBoxLayout()
         tree_layout.setContentsMargins(5,5,5,5)
-        tree_layout.setSpacing(5)
+        tree_layout.setSpacing(0)
         self.tree_frame.setLayout(tree_layout)
         
         # ---- Tree Widget ----
@@ -633,42 +700,42 @@ class MainWindow(QMainWindow):
         
         self.tree.setPlaceholderText(
             (
-                "Files can either be drag drop loaded in here.\n"
-                "Or created/loaded using the buttons above.\n"
-                "(accepts .json, .txt, .md files)\n\n"
+                "Files can either be drag drop loaded in here."
+                "Or created/loaded using the buttons above."
+                "(accepts .json, .txt, .md files).\n"
 
-                "User templates using the save button are saved as .json, md or.txt.\n"
+                "User templates using the save button are saved as .json, md or.txt."
                 "A copy of them will be saved to:\n"
-                "C:/Users/yourusername/AppData/Local/FolderCreator/\n"
+                "C:/Users/yourusername/AppData/Local/FolderCreator/.\n"
                 "To access this easily, right click the dropdown arrow on 'User Templates'.\n"
                 "Drag-and-dropped templates are also saved there automatically.\n\n"
 
-                "Folder trees can be copy pasted in here using Ctrl + V as plain text.\n\n"
+                "Folder trees can be copy pasted in here using Ctrl + V as plain text."
                 "Entire trees from your desktop can be dragged onto here.\n"
                 "Files will be ignored and only the folder structure will be shown.\n\n"
 
                 "Hotkeys:\n"
-                "Ctrl + N → Add Folder\n"
-                "Ctrl + Shift + N → Add Subfolder\n"
-                "Ctrl + S → Save Template\n"
-                "Ctrl + O → Load Template\n"
-                "F2 → Rename\n"
-                "Delete → Remove selected folder\n\n"
+                "Ctrl + N → Add Folder."
+                "Ctrl + Shift + N → Add Subfolder."
+                "Ctrl + S → Save Template."
+                "Ctrl + O → Load Template.\n"
+                "F2 → Rename."
+                "Delete → Remove selected folder.\n\n"
 
                 "Template tip:\n"
                 "Templates can be saved as .json, .txt, or .md using the save dialog.\n\n"
 
                 "Tips:\n"
-                "• Drag folders to change hierarchy\n"
-                "• Drag below → new parent-level folder\n"
-                "• Drag onto → make subfolder\n"
-                "• Auto-numbering only applies when using Add Folder/Subfolder buttons\n"
-                "• Auto-numbering is disabled for default templates\n"
-                "• Drag-and-drop only changes structure"
+                "• Drag folders to change hierarchy."
+                "• Drag below → new parent-level folder."
+                "• Drag onto → make subfolder."
+                "• Auto-numbering only applies when using Add Folder/Subfolder buttons.\n"
+                "• Auto-numbering is disabled for default templates."
+                "• Drag-and-drop only changes structure."
             ),
             bold=True
         )
-        
+
         # IMPORTANT: put the tree inside the frame
         tree_layout.addWidget(self.tree)
         
@@ -682,7 +749,7 @@ class MainWindow(QMainWindow):
         tree_controls_layout = QHBoxLayout()
         tree_controls_layout.setContentsMargins(5,5,5,5)
         tree_controls_layout.setSpacing(5)
-     
+
         # Buttons
         self.expand_tree_btn = QPushButton("EXPAND TREE")
         self.expand_folders_collapse_btn = QPushButton("EXPAND FOLDERS")
@@ -692,7 +759,7 @@ class MainWindow(QMainWindow):
         self.find_output_line.setPlaceholderText("INPUT FOR FINDING FOLDERS.")
         self.find_output_line.setStyleSheet("font: 15px solid #FFFFFF;")
         self.find_output_line.setEnabled(True)
-        self.find_output_line.setFixedSize(150,40)
+        self.find_output_line.setFixedSize(230,40)
 
         for btn in [
             self.expand_tree_btn
@@ -728,6 +795,9 @@ class MainWindow(QMainWindow):
         # ==========================================================
         self.build_buttons_frame = QFrame()
         self.build_buttons_frame.setFrameShape(QFrame.StyledPanel)
+        self.build_buttons_frame.setFixedWidth(145)
+        
+    
 
         build_layout = QVBoxLayout()
         build_layout.setContentsMargins(5,5,5,5)
@@ -736,16 +806,7 @@ class MainWindow(QMainWindow):
 
         self.default_to_desktop_btn = QPushButton("Default To Desk")
         self.output_location_btn = QPushButton("Output Dir")
-        self.build_folders_btn = QPushButton("Build Folders")
-
-        for btn in [
-            self.add_folder_btn,
-            self.add_subfolder_btn,
-            self.remove_btn,
-            self.remove_all_btn,
-        ]:
-            btn.setFixedSize(100, 50)
-            btn.setFont(QFont("Rubik UI", 10))
+        self.build_folders_btn = QPushButton("Build 📁")
 
         for btns in [
             self.load_template_btn,
@@ -768,6 +829,7 @@ class MainWindow(QMainWindow):
 
         self.post_build_frame = QFrame()
         self.post_build_frame.setFrameShape(QFrame.StyledPanel)
+        self.post_build_frame.setFixedWidth(140)
 
         self.open_folder_build_toggle = QPushButton("OPEN FOLDER\nLOCATION AFTER\n BUILD")
         self.minimize_after_build_toggle = QPushButton("MINIMIZE APP\nAFTER BUILD")
@@ -795,6 +857,17 @@ class MainWindow(QMainWindow):
 
         self.nested_ui = NestedUIController(self)
         self.nested_ui.connect_signals()
+
+        for frames in [
+            self.build_buttons_frame,
+            self.date_controls_frame,
+            self.folder_buttons_frame,
+            self.post_build_frame,
+            self.template_controls_frame,
+
+
+        ]:
+            frames.setFixedHeight(230)
 
         widgets = [
             self.folder_buttons_frame,
@@ -828,10 +901,11 @@ class MainWindow(QMainWindow):
 
         self.smart_status_frame.setLayout(smart_status_layout)
         self.smart_status_frame.setStyleSheet("border: 5px solid 4D4D4DFF;")
+        self.smart_status_frame.setFixedWidth(850)
 
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
-        self.smart_status_text.setMaximumWidth(500)
+        self.smart_status_text.setMaximumWidth(600)
         
         smart_status_layout.addWidget(self.smart_status_icon)
         smart_status_layout.addWidget(self.smart_status_text)
@@ -847,9 +921,11 @@ class MainWindow(QMainWindow):
         ]:
             frames.setStyleSheet("border: 5px solid #000000")
 
-        frame_layout_output.addWidget(self.smart_status_frame)
+        frame_layout_output.addWidget(self.smart_status_frame,alignment=Qt.AlignHCenter) 
         self.smart_layout.addLayout(frame_layout_output)
-        main_layout.addWidget(self.smart_folder_creator_frame)
+        frame_layout_output.setContentsMargins(0,0,0,0)
+        frame_layout_output.setSpacing(0)
+        main_layout.addWidget(self.smart_folder_creator_frame, alignment=Qt.AlignHCenter)
 
         self.ui_state = UIStateController(self)
     
@@ -911,6 +987,34 @@ class MainWindow(QMainWindow):
             )
         )
 
+        self.file_dropdown.currentIndexChanged.connect(
+            lambda i: (
+                None if i in (0, 1, 6, 10, 14) else (
+                    self.service.nested_manager.add_file(
+                        {
+                            2: "main.py",
+                            3: "script.js",
+                            4: "index.html",
+                            5: "styles.css",
+
+                            7: "notes.txt",
+                            8: "README.md",
+                            9: "README.md",
+
+                            11: "data.json",
+                            12: "config.yaml",
+                            13: ".env",
+
+                            15: "run.bat",
+                            16: "script.ps1"
+                        }.get(i, "new_file.txt")
+                    ),
+                    self.file_dropdown.setCurrentIndex(0),
+                    self.ui_state.update_build_button_state()
+                )
+            )
+        )
+
         state = self.service.state
         self.state = state
         theme_index = state.get("theme_index", -2)
@@ -959,7 +1063,7 @@ class MainWindow(QMainWindow):
             self.desktop_section_title.setText("Desktop Folder Creator\n(click to switch)")
             self.smart_folder_creator_frame.hide()
             self.desktop_folder_frame.show()
-            self.setFixedSize(650, self.desktop_mode_height)
+            self.setFixedSize(635, self.desktop_mode_height)
             
         # ---------------------------------------------------------
         # Restore Last Base Directory
@@ -1124,7 +1228,7 @@ class MainWindow(QMainWindow):
             self.desktop_section_title.setText("Desktop Folder Creator\n(click to switch)")
             self.desktop_folder_frame.show()
             self.smart_folder_creator_frame.hide()
-            self.setFixedSize(650, self.desktop_mode_height)
+            self.setFixedSize(635, self.desktop_mode_height)
 
     
     ####################### Desktop Folder Creator methods #################################

@@ -107,21 +107,27 @@ class ThemeController:
             QTreeWidget {
                 selection-background-color: #e8e8e8;  /* fallback */
                 font-family: "Rubik UI";
-                font-size: 15px;
+                font-size: 16px;
             }
 
             QTreeWidget::item:selected {
                 background-color: #e8e8e8;
                 color: #1a1a1a;
                 font-weight: 700;
+                font-family: "Rubik UI";
+                font-size: 16px;
             }
 
             QTreeWidget::item:selected:active {
                 background-color: #dcdcdc;
+                font-family: "Rubik UI";
+                font-size: 16px;
             }
 
             QTreeWidget::item:selected:!active {
                 background-color: #e8e8e8;
+                font-family: "Rubik UI";
+                font-size: 16px;
             }
 
             QSpinBox::up-button, QSpinBox::down-button {
@@ -222,20 +228,26 @@ class ThemeController:
                 QTreeWidget {
                     selection-background-color: #444444;  /* fallback */
                     font-family: "Rubik UI";
-                    font-size: 15px;
+                    font-size: 16px;
                 }
 
                 QTreeWidget::item:selected {
                     background-color: #2a2a2a;
                     color: white;
+                    font-family: "Rubik UI";
+                    font-size: 16px;
                 }
 
                 QTreeWidget::item:selected:active {
                     background-color: #3a3a3a;
+                    font-family: "Rubik UI";
+                    font-size: 16px;
                 }
 
                 QTreeWidget::item:selected:!active {
                     background-color: #2a2a2a;
+                    font-family: "Rubik UI";
+                    font-size: 16px;
                 }
 
                 QComboBox QAbstractItemView {
@@ -286,7 +298,6 @@ class ThemeController:
                 """)
                     
         service.set_state("theme_index", index)
-    
 
     # ---------------------------------------------------------
     # Internal

@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QTreeWidget
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtGui import QKeyEvent,QFont
 from PySide6.QtGui import QPainter,QColor
 from PySide6.QtWidgets import QTreeWidget,QApplication,QAbstractItemView
 from PySide6.QtGui import QKeySequence
@@ -46,11 +46,10 @@ class SmartTreeWidget(QTreeWidget):
 
         if not self._placeholder:
             return
-
+        
         painter = QPainter(self.viewport())
 
-        font = painter.font()
-        font.setBold(self._placeholder_bold)
+        font = QFont("Rubik UI", 9)
         painter.setFont(font)
 
         painter.setPen(QColor(140, 140, 140))
@@ -121,9 +120,7 @@ class SmartTreeWidget(QTreeWidget):
         else:
             super().dropEvent(event)
                 
-
     def keyPressEvent(self, event: QKeyEvent):
-
         window = self.window()
         
         # ---------------------------------------------------------
@@ -186,7 +183,7 @@ class SmartTreeWidget(QTreeWidget):
                     window.update_nested_build_state()
 
             return
-
+        
         # ---------------------------------------------------------
         # Ctrl + N  → Add Folder
         # ---------------------------------------------------------

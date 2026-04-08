@@ -23,16 +23,53 @@ class NestedFolderManager:
             data.append(self._serialize_item(self.tree.topLevelItem(i)))
         return data
     
-    def deserialize_tree(self, data):
+    def deserialize_tree(self, data,renumber = False):
         self.tree.clear()
         if isinstance(data, dict):
             self._deserialize_item(data, None)
         else:
             for item in data:
                 self._deserialize_item(item, None)
+
+        if renumber or self.auto_number_enabled:
+            self.renumber_loaded_tree()
                 
         # ---- Auto expand all nodes after loading ----
         self.expand_all_animated()
+
+    def renumber_loaded_tree(self):
+        self._renumber_siblings(None)
+
+    def _renumber_siblings(self, parent):
+        if parent is None:
+            items = [self.tree.topLevelItem(i) for i in range(self.tree.topLevelItemCount())]
+        else:
+            items = [parent.child(i) for i in range(parent.childCount())]
+
+        if not items:
+            return
+
+        used_names = set()
+
+        for item in items:
+            original = item.text(0).strip()
+
+            # remove existing numbering
+            base_name = re.sub(r"\s+\d+$", "", original).strip()
+
+            name = base_name
+            n = 1
+
+            while name in used_names:
+                name = f"{base_name} {n}"
+                n += 1
+
+            item.setText(0, name)
+            used_names.add(name)
+
+            # recurse
+            if item.childCount() > 0:
+                self._renumber_siblings(item)
 
     def _serialize_item(self, item):
         return {
@@ -212,16 +249,27 @@ class NestedFolderManager:
                         
     def _mk_dirs(self, parent_dir, item):
         name = item.text(0).strip()
-        
         if not name:
             return
 
+        is_file = item.data(0, Qt.UserRole) == "file"
+
+        if is_file:
+            file_path = Path(parent_dir.filePath(name))
+            try:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                file_path.touch(exist_ok=True)
+            except Exception:
+                pass
+            return
+
+        # folder
         parent_dir.mkpath(name)
         child_dir = QDir(parent_dir.filePath(name))
 
         for i in range(item.childCount()):
             self._mk_dirs(child_dir, item.child(i))
-            
+                
     def add_root_folder(self):
         default_base = "New Folder"
         
@@ -261,9 +309,15 @@ class NestedFolderManager:
         self.tree.setCurrentItem(item)
         self.tree.editItem(item, 0)
 
-
     def add_subfolder(self):
         selected = self.tree.currentItem()
+        if not selected:
+            return
+
+        # ---- force folder target ----
+        if selected.data(0, Qt.UserRole) == "file":
+            selected = selected.parent()
+
         if not selected:
             return
 
@@ -276,7 +330,7 @@ class NestedFolderManager:
 
             selected.addChild(child)
             selected.setExpanded(True)
-            self.tree.setCurrentItem(child) 
+            self.tree.setCurrentItem(child)
             self.tree.editItem(child, 0)
             return
 
@@ -304,8 +358,9 @@ class NestedFolderManager:
 
         selected.addChild(child)
         selected.setExpanded(True)
+        self.tree.setCurrentItem(child)
         self.tree.editItem(child, 0)
-        
+            
     def remove_all_folders(self):
         self.tree.clear()
 
@@ -350,7 +405,7 @@ class NestedFolderManager:
 
         data = walk(root)
 
-        self.deserialize_tree([data])
+        self.deserialize_tree([data], renumber=self.auto_number_enabled)
         
     def sort_tree(self):
         """
@@ -391,7 +446,28 @@ class NestedFolderManager:
         window = self.tree.window()
         if hasattr(window, "update_build_button_state"):
             window.update_build_button_state()
-        
 
+    def add_file(self, filename="new_file.txt"):
+        selected = self.tree.currentItem()
+        if not selected:
+            return
         
-        
+        # ---- force target to be a folder ----
+        if selected.data(0, Qt.UserRole) == "file":
+            parent = selected.parent()
+            if parent:
+                selected = parent
+            else:
+                return  # root-level file → do nothing
+
+        file_item = QTreeWidgetItem([filename])
+        file_item.setFlags(file_item.flags() | Qt.ItemIsEditable | Qt.ItemIsDragEnabled)
+
+        # mark as file (lightweight, no structural change needed)
+        file_item.setData(0, Qt.UserRole, "file")
+
+        selected.addChild(file_item)
+        selected.setExpanded(True)
+
+        self.tree.setCurrentItem(file_item)
+        self.tree.editItem(file_item, 0)
