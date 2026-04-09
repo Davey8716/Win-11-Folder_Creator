@@ -2,7 +2,10 @@ from PySide6.QtWidgets import QFileDialog,QTreeWidgetItemIterator,QAbstractItemV
 from PySide6.QtCore import QFileSystemWatcher
 from pathlib import Path
 from shutil import copy
-import os
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QTreeWidgetItemIterator
+import os, re
+from PySide6.QtCore import QTimer
 
 class NestedUIController:
 
@@ -84,7 +87,6 @@ class NestedUIController:
             if index != -1:
                 dropdown.setCurrentIndex(index)
 
-            from PySide6.QtCore import QTimer
 
             def finalize():
                 if self.tree.topLevelItemCount() > 0:
@@ -319,8 +321,7 @@ class NestedUIController:
                 manager.renumber_loaded_tree()
             else:
                 # ---- remove numbering ----
-                from PySide6.QtWidgets import QTreeWidgetItemIterator
-                import re
+              
 
                 it = QTreeWidgetItemIterator(self.tree)
                 while it.value():
@@ -359,9 +360,7 @@ class NestedUIController:
         self.tree.clear()
 
         data = self.service.nested_manager.parse_indented_text(text)
-
         self.service.nested_manager.deserialize_tree(data)
-
         self.service.nested_manager.expand_all_animated()
         self.window.update_expand_button_text()
 
@@ -383,10 +382,7 @@ class NestedUIController:
 
         self.user_template_save()
 
-   
-
     def nested_on_date_stamp_toggled(self, checked: bool):
-
         self.window.nested_date_config.setEnabled(checked)
         self.service.set_state(
             "nested_date_stamp_enabled",
@@ -394,7 +390,6 @@ class NestedUIController:
         )
 
     def nested_on_date_mode_changed(self, index: int):
-
         text = self.window.nested_date_config.currentText()
 
         if "ISO" in text:
@@ -412,7 +407,6 @@ class NestedUIController:
         )
 
     def tree_to_outline(self, data, depth=0):
-
         lines = []
 
         for node in data:
@@ -424,7 +418,6 @@ class NestedUIController:
         return "\n".join(lines)
 
     def build_folders_from_tree(self):
-
         base_path = self.window.base_path_line.text().strip()
 
         if not base_path:
@@ -462,8 +455,11 @@ class NestedUIController:
                 self.open_output_folder(base_path)
 
             if self.window.minimize_after_build_toggle.isChecked():
-                self.minimize_after_build()
-
+                QTimer.singleShot(3000, self.minimize_after_build)
+            
+            if self.window.close_app_after_build_toggle.isChecked():
+                QTimer.singleShot(5000, self.close_after_build)
+            
         elif status == "exists":
             stype = "error"
 
@@ -471,6 +467,11 @@ class NestedUIController:
         
     def minimize_after_build(self):
         self.window.showMinimized()
+
+
+
+    def close_after_build(self):
+        QApplication.quit()
 
     def open_output_folder(self, path: str):
 
@@ -484,7 +485,6 @@ class NestedUIController:
             pass
 
     def select_base_directory(self):
-
         directory = QFileDialog.getExistingDirectory(
             self.window,
             "Select Base Directory"
@@ -560,8 +560,6 @@ class NestedUIController:
             return
         
         self.window.ui_state.update_build_button_state()
-
-        # reset default dropdown
         self.window.load_default_template_dropdown.setCurrentIndex(0)
      
 
@@ -571,17 +569,28 @@ class NestedUIController:
         if index == 0:
             return
 
-        # reset user dropdown
         self.window.load_user_template_dropdown.setCurrentIndex(0)
-
         self.load_default_template()
 
     def connect_signals(self):
         w = self.window
+
+        # ---- Mutual exclusion ----
+        w.minimize_after_build_toggle.toggled.connect(
+            lambda checked: w.close_app_after_build_toggle.setEnabled(not checked)
+        )
+
+        w.close_app_after_build_toggle.toggled.connect(
+            lambda checked: w.minimize_after_build_toggle.setEnabled(not checked)
+        )
+
+        w.close_app_after_build_toggle.setEnabled(not w.minimize_after_build_toggle.isChecked())
+        w.minimize_after_build_toggle.setEnabled(not w.close_app_after_build_toggle.isChecked())
         w.load_user_template_dropdown.currentIndexChanged.connect(self.on_user_template_selected)
         w.load_default_template_dropdown.currentIndexChanged.connect(self.on_default_template_selected)
         w.load_default_template_dropdown.currentIndexChanged.connect(self.load_default_template)
         w.minimize_after_build_toggle.toggled.connect(lambda v: self.service.state_manager.update("minimize_after_build", v))
+        w.close_app_after_build_toggle.toggled.connect(lambda v: self.service.state_manager.update("close_after_build", v))
         w.tree.fileDropped.connect(self.load_template_from_path)
         w.sort_btn.clicked.connect(self.on_sort_tree)
         w.tree.loadTemplateShortcut.connect(self.load_template)

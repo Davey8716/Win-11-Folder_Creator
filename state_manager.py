@@ -26,6 +26,7 @@ class StateManager:
             # Nested build behaviour
             "open_folder_after_build": False,
             "minimize_after_build": False,
+            "close_after_build": False,
 
             # UI mode
             "ui_mode": "desktop"

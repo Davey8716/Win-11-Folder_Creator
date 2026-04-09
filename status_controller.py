@@ -45,7 +45,7 @@ class StatusController:
         # neutral frame
         frame.setStyleSheet("""
             QFrame#statusFrame {
-                border-radius: 6px;
+                border-radius: 2px;
                 background-color: transparent;
             }
             QLabel {
