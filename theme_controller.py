@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QApplication
 class ThemeController:
     def __init__(self):
         self.current_index = 0
-        self.current_accent = "#000000"
+        
     
     def select_theme(self, index, service,window):
         self.current_index = index
@@ -134,6 +134,7 @@ class ThemeController:
                 width: 4px;
             }
         """)
+            self.current_accent = "#000000"
 
         elif index == -1:
             # black theme
@@ -254,7 +255,7 @@ class ThemeController:
                     padding: 4px;
                 }
             """)
-            accent_color = "#FFFFFF"
+            self.current_accent = "#FFFFFF"
 
         for i, btn in enumerate(window.theme_buttons):
             is_active = (

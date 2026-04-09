@@ -1020,7 +1020,7 @@ class MainWindow(QMainWindow):
             self.desktop_status_icon,
             self.smart_status_icon
         ]:
-            icon.setStyleSheet(f"font-weight: 700; color: ;")
+            icon.setStyleSheet(f"font-weight: 700; color:;")
 
         self.current_mode = state.get("ui_mode", "desktop")
 
