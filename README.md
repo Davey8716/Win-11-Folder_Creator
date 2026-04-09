@@ -1,3 +1,7 @@
+If this tool saved you time or simplified your workflow, consider giving the repo a ⭐.
+
+There’s also a sponsor option available if you found value with this tool.
+
 ## Building
 
 If you want to build this quickly into a stand alone EXE i suggest using my Windows 11 - Python - Exe builder which can be found here https://github.com/Davey8716/Win-11-Python-EXE-Builder
