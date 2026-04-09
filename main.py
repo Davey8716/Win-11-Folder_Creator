@@ -213,7 +213,6 @@ class MainWindow(QMainWindow):
         # ---- Timestamp controls ----
         self.date_time_toggle = QPushButton("ADD DATE STAMP")
         self.date_time_toggle.setCheckable(True)
-   
 
         self.date_time_config = QComboBox()
         self.date_time_config.addItems([
@@ -231,7 +230,7 @@ class MainWindow(QMainWindow):
             self.folder_to_desktop,
             self.desktop_folder_line,
         ]:
-            buttons_combo_box_line.setFixedSize(160,45)
+            buttons_combo_box_line.setFixedSize(170,45)
         
         
         for i in range(self.date_time_config.count()):
