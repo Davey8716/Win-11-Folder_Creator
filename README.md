@@ -1,6 +1,6 @@
 ## Building
 
-If you want to build this quickly i strong suggest using my Windows 11 - Python - Exe builder which can be found here https://github.com/Davey8716/Win-11-Python-EXE-Builder
+If you want to build this quickly into a stand along EXE i suggest using my Windows 11 - Python - Exe builder which can be found here https://github.com/Davey8716/Win-11-Python-EXE-Builder
 
 ## Usage
 
