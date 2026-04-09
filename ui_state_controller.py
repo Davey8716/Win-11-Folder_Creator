@@ -90,6 +90,7 @@ class UIStateController:
             self.w.smart_status_icon.setText("⚠")
             self.w.smart_status_text.setText(
                 "Duplicate folder names detected under the same parent.Rename folders before building."
+                "Or Auto number them."
             )
         else:
             if self.w.smart_status_text.text().startswith("Duplicate folder"):

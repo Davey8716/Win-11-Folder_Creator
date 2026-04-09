@@ -207,7 +207,7 @@ class MainWindow(QMainWindow):
         self.enumerate_toggle.setCheckable(True)
     
         self.desktop_folder_number_enumerator = QSpinBox()
-        self.desktop_folder_number_enumerator.setRange(1, 100)
+        self.desktop_folder_number_enumerator.setRange(2, 100)
         self.desktop_folder_number_enumerator.setEnabled(False)
 
         # ---- Timestamp controls ----
@@ -888,7 +888,7 @@ class MainWindow(QMainWindow):
 
         self.smart_status_icon = QLabel(">")
         self.smart_status_text = QLabel("")
-        self.smart_status_text.setMaximumWidth(600)
+        self.smart_status_text.setMaximumWidth(700)
         
         smart_status_layout.addWidget(self.smart_status_icon)
         smart_status_layout.addWidget(self.smart_status_text)
