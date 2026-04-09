@@ -1,3 +1,7 @@
+## Building
+
+If you want to build this quickly i strong suggest using my Windows 11 - Python - Exe builder which can be found here https://github.com/Davey8716/Win-11-Python-EXE-Builder
+
 ## Usage
 
 Files can either be drag & drop loaded into the app, or created/loaded using the buttons above.  
