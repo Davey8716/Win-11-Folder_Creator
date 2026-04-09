@@ -1,12 +1,30 @@
 from pathlib import Path
 from datetime import datetime
 from typing import Literal, Tuple,Optional, Tuple
+import ctypes
+from ctypes import wintypes
 
 TimestampMode = Literal["ISO", "UK", "US", None]
 
+def get_desktop_path():
+    CSIDL_DESKTOP = 0x0000
+    SHGFP_TYPE_CURRENT = 0
+
+    buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
+
+    ctypes.windll.shell32.SHGetFolderPathW(
+        None,
+        CSIDL_DESKTOP,
+        None,
+        SHGFP_TYPE_CURRENT,
+        buf
+    )
+
+    return Path(buf.value)
+
 class DesktopFolderManager:
     def __init__(self):
-        self.desktop_path = Path.home() / "Desktop"
+        self.desktop_path = get_desktop_path()
 
     # ---------------------------------------------------------
     # Public API
