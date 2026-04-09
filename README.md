@@ -1,6 +1,6 @@
 ## Building
 
-If you want to build this quickly into a stand along EXE i suggest using my Windows 11 - Python - Exe builder which can be found here https://github.com/Davey8716/Win-11-Python-EXE-Builder
+If you want to build this quickly into a stand alone EXE i suggest using my Windows 11 - Python - Exe builder which can be found here https://github.com/Davey8716/Win-11-Python-EXE-Builder
 
 ## Usage
 
@@ -22,7 +22,8 @@ A copy is automatically saved to: C:/Users/yourusername/AppData/Local/FolderCrea
 
 
 - Right-click the **User Templates** dropdown to open this folder  
-- Drag-and-dropped templates are also saved there automatically  
+- Drag-and-dropped templates are also saved there automatically
+- aswell as the state .json persistence file
 
 ---
 
