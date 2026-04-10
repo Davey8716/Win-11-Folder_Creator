@@ -1,1 +1,70 @@
-asasfsfsdfds
+IT_Admin
+    Documentation
+        Policies
+        Procedures
+        Network_Diagrams
+        Asset_Inventory
+        Licenses
+        Change_Logs
+
+    Users
+        Onboarding
+        Offboarding
+        Permissions
+        Group_Policies
+
+    Systems
+        Windows
+            Configs
+            Scripts
+            Updates
+        Linux
+            Configs
+            Scripts
+        Virtualization
+            HyperV
+            VMware
+
+    Network
+        Configs
+        Firewall
+        VPN
+        Monitoring
+        Backups
+
+    Security
+        Audits
+        Incidents
+        Vulnerability_Reports
+        Access_Logs
+        Compliance
+
+    Backups
+        Config_Backups
+        System_Backups
+        Database_Backups
+        Recovery_Plans
+
+    Automation
+        PowerShell
+        Bash
+        Python
+        Scheduled_Tasks
+
+    Software
+        Installers
+        Packages
+        Deployment
+        Updates
+
+    Projects
+        Active
+        Archived
+
+    Logs
+        System_Logs
+        Network_Logs
+        Security_Logs
+
+    Temp
+    Archive

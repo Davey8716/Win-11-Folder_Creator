@@ -509,7 +509,7 @@ class NestedUIController:
 
             self.window.base_path_line.setText(normalized)
             self.service.set_state("last_base_dir", normalized)
-            self.window.update_build_button_state()
+            self.window.ui_state.update_build_button_state()
 
             self.window.status.set(
                 f"Base directory set: {normalized}",
