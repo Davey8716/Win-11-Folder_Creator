@@ -1,0 +1,23 @@
+Drafts
+    Versions
+        V1
+        V2
+    Scenes
+        Intro
+        Outro
+
+Projects
+    App
+        Frontend
+        Backend
+    App
+        Frontend
+        Backend
+
+Assets
+    Images
+        Icons
+        Icons
+    Audio
+        Music
+        Music
