@@ -1,4 +1,4 @@
-Video_Project
+Video Editing
     Footage
         Camera_A
         Camera_B

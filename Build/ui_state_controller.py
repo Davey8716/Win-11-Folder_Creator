@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QTreeWidgetItemIterator
+from pathlib import Path
 
 INVALID_FOLDER_CHARS = '<>:"/\\|?*'
 MAX_NESTED_FOLDER_NAME_LENGTH = 64
@@ -8,7 +9,6 @@ class UIStateController:
         self.w = window
         self.tree = window.tree
         self.service = window.service
-
 
     def update_build_button_state(self):
         has_invalid_chars = self.tree_contains_invalid_chars()
@@ -34,7 +34,7 @@ class UIStateController:
             self.w.sort_btn.setEnabled(False)
 
         # Desktop path
-        from pathlib import Path
+  
 
         desktop_path = Path(self.service.desktop_manager.desktop_path).resolve()
         current_path = Path(self.w.base_path_line.text().strip()).resolve() if self.w.base_path_line.text().strip() else None
