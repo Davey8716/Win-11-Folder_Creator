@@ -1,5 +1,9 @@
 # Windows 11 Folder Creator
 
+If this tool saved you time or simplified your workflow, consider giving the repo a ⭐.
+
+There’s also a sponsor option available if you’d like to support continued development.
+
 A Windows desktop app for quickly creating single folders, batches of numbered folders, or full nested folder structures from a simple visual tree.
 
 The app is built with Python and PySide6. It is designed for Windows 11 workflows where you regularly need project folders, client folders, content folders, development layouts, or repeatable template structures.
