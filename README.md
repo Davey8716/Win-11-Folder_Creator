@@ -2,7 +2,7 @@
 
 If this tool saved you time or simplified your workflow, consider giving the repo a ⭐.
 
-There’s also a sponsor option available if you’d like to support continued development.
+There’s also a sponsor option available if you’d like to support what ive made.
 
 A Windows desktop app for quickly creating single folders, batches of numbered folders, or full nested folder structures from a simple visual tree.
 
